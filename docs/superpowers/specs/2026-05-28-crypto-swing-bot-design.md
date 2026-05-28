@@ -1,0 +1,224 @@
+# Crypto Swing-Trading Bot — Design Spec
+
+**Date:** 2026-05-28
+**Status:** Approved (design phase). No code yet — this document is the handoff for implementation planning.
+**Author context:** Personal, experimental project. Not production. Solo developer, limited live-trading experience (mostly manual TradingView + Pine Script, light paper trading, basic TP/SL usage).
+
+---
+
+## 1. Purpose & Scope
+
+Automate the kind of short-hold, buy-low / sell-higher swing trades the author currently does manually. The system watches a market, decides when conditions line up for an entry, opens a position with a protective stop and a profit target, and manages the exit — all without a human clicking buttons.
+
+**In scope (v1):**
+- Long-only spot trading on Alpaca crypto.
+- One focused instrument to start (TRX/USD if Alpaca supports it; otherwise a similar high-volatility, low-price coin on Alpaca).
+- Entry decision from a configurable blend of three signals: Fair Value Gap (FVG), an oversold indicator, and VWAP.
+- Hard stop-loss + take-profit + max-hold time on every trade.
+- Fixed-fractional-risk position sizing.
+- Account-level safety circuit breakers.
+- Three run modes — backtest, paper, live — sharing one strategy engine.
+- A config-gated graduation path from idea → paper → real money.
+
+**Explicitly out of scope (v1), but the architecture leaves seams for them:**
+- Shorting (Alpaca crypto cannot short — see §3).
+- Leverage / margin / futures / perps.
+- High-frequency trading (seconds of latency is acceptable).
+- Long-term holding (holds are minutes to ~a day).
+- Reinforcement-learning position sizing (future).
+- LLM-based signal interpretation (future).
+- Multi-asset portfolios and stocks (future — the broker/data abstraction makes this mostly a config swap; VWAP becomes session-anchored for stocks).
+
+---
+
+## 2. Guiding Principles
+
+1. **Simple and understandable beats clever and sophisticated.** Every component should be explainable in a sentence.
+2. **The broker is the source of truth for positions.** The bot persists its own state but always reconciles against the broker on startup.
+3. **Never trade on bad data.** Stale or missing candles → skip the tick, don't guess.
+4. **The same strategy code runs in backtest, paper, and live.** Only the data source and broker change underneath. This is what makes verification trustworthy.
+5. **Risk control is not optional.** Every position has a hard stop and a time cap, no exceptions.
+
+---
+
+## 3. Key Constraint Decisions & Reasoning
+
+### 3.1 Direction & venue — Long-only on Alpaca, broker abstracted
+**Decision:** Build long-only on Alpaca now. Put order execution behind a clean broker interface so a shorting-capable venue can be swapped in later without touching strategy code.
+
+**Why:** Alpaca crypto is **spot-only** — no margin, no leverage, no short selling. "Take short positions" is simply not possible there; it would require a different venue (a perps/futures exchange such as Binance/Bybit/Kraken Futures), which contradicts the stated goal of using Alpaca. Abstracting the broker keeps v1 simple while leaving the door open.
+
+### 3.2 The btfdbot reference does not transfer wholesale to crypto
+The btfdbot strategies (Super Oversold, Williams %R, 52-week low, Mega Dump, etc.) are all "buy oversold, sell the bounce" — and they work on **high-quality dividend stocks** precisely because those have a fundamental floor (a real business) that pulls price back up. **TRX has no such floor.** On crypto, "buy the dip" and "catch a falling knife" are indistinguishable at the moment of entry.
+
+**Implication baked into this design:** the *exit and risk control* matter more than the entry. We cannot import btfdbot's win-rate claims and assume they hold on TRX. btfdbot's own mechanics, confirmed from their site: **independent simple triggers** (not a scoring model, "no fancy AI") with **trailing-stop exits**.
+
+---
+
+## 4. Strategy Logic
+
+### 4.1 Entry — Confluence score engine (general mechanism)
+**Decision:** Combine FVG + oversold + VWAP via a **weighted confluence score**: each signal emits a normalized value, the engine computes `sum(signal_value × weight)` and enters when the total `≥ entry_threshold`.
+
+**Why this over the alternatives:** The weighted score is the *general form*. Other combination styles are special cases configured, not coded:
+- One high weight + low threshold → that signal fires alone = **btfdbot-style independent trigger**.
+- All weights required → **hard gate (AND)**.
+- One triggers, others negative-only → **filter model**.
+
+So a single simple mechanism (add numbers, compare to threshold) yields every combination style as configuration, supports **per-asset variation** (crypto and a future stock profile can weight signals differently), is **independently testable** per signal, and is the clean seam for RL to later learn the weights/threshold.
+
+### 4.2 The three signals
+- **OversoldSignal** — RSI or Williams %R below a threshold. Fully mathematical, trivial to backtest. (Williams %R < −90 echoes btfdbot; RSI is the common default.)
+- **VWAPSignal** — distance of price below VWAP. *Crypto adjustment:* no trading sessions, so no natural VWAP reset; use a **rolling-window VWAP (trailing 24h)** as the default anchor (alternative: fixed daily UTC reset). *Caveat:* Alpaca reports single-venue volume (thin vs Binance/Coinbase), so crypto VWAP can be noisy — acceptable for v1; could later pull aggregate volume. For a future stock profile, VWAP is session-anchored and rock-solid.
+- **FVGSignal** — Fair Value Gap detection. **Interface defined in v1, implementation added after the pipeline works.** FVG is hard to automate objectively (gap size, timeframe, filled vs unfilled, validity window are all fuzzy parameters); it's introduced as a confirmation contributor, not the thing the whole v1 hinges on.
+
+Each signal: input candles → output normalized score in [0, 1] + metadata (for the trade journal). Pure functions, unit-testable in isolation.
+
+### 4.3 Strategy Profile (the per-asset config object)
+One profile per traded instrument, declaring:
+- instrument + broker adapter + data adapter
+- candle timeframe
+- enabled signals, their weights, and their parameters
+- entry threshold
+- exit parameters (ATR multipliers, take-profit rule, max-hold)
+- sizing risk %
+- instrument-specific limits (position cap, cooldown, etc.)
+
+This object *is* the "make it variable per asset" requirement. A profile can be configured to behave like a single independent trigger when btfdbot-style simplicity is wanted.
+
+---
+
+## 5. Exits & Risk Control
+
+### 5.1 Non-negotiables on every position
+1. **Hard stop-loss submitted with the entry** (not mental). On a no-floor asset this is the only thing bounding the loss.
+2. **Max-hold time cap.** Holds are minutes-to-a-day; if the expected move hasn't happened in the window, the thesis was wrong — force exit. Brokers don't enforce this natively, so the Position Manager does.
+
+### 5.2 Profit capture — ATR bracket + time cap
+**Decision:** Stop = `entry − k×ATR`, take-profit = `entry + m×ATR`, plus the time cap.
+
+**Why:** ATR-based levels scale with current volatility, so the same settings behave sensibly in calm and violent markets (unlike fixed-percent brackets). Deterministic and easy to backtest (unlike a trailing stop, which choppy crypto pullbacks trigger prematurely). A VWAP-reversion target is a viable future variant for pure mean-reversion but complicates fixed reward:risk math, so it's not the v1 default.
+
+### 5.3 Position sizing — Fixed fractional risk
+**Decision:** `size = (account_equity × risk_per_trade%) / stop_distance`, where `stop_distance = k×ATR`.
+
+**Why:** The dollar loss if stopped out is **constant** regardless of volatility — wide stop → smaller position, tight stop → larger. The account bleeds at a controlled, predictable rate. It composes directly with the ATR stop and is the clean RL seam (RL adjusts only `risk_per_trade%`). Rejected alternatives: fixed-fraction-of-equity and fixed-dollar both let real risk swing with stop distance; Kelly needs an accurate edge estimate the author won't have early and blows up on overestimates.
+
+### 5.4 Account-level circuit breakers (all four enabled)
+1. **Daily-loss kill switch** — halt all new entries after the account drops a configured % in a day OR after N consecutive losses; requires manual reset. **On trip: stop new entries but keep managing open positions** (their stops/TPs/time-caps stay active). Rationale: panic-dumping into a spike-down often realizes the worst price. (Flatten-everything is available as a future config flag.)
+2. **Max position-size cap** — clamp the sizing formula so no single trade exceeds a configured fraction of equity (default 25%); protects against a tiny ATR stop producing an enormous position.
+3. **Max concurrent positions / one-per-instrument** — bounds total exposure and prevents stacking entries on the same coin.
+4. **Re-entry cooldown after a stop-out** — wait a configured period before re-entering an instrument that just stopped out; stops the bot repeatedly buying the same falling knife.
+
+These live in the **Risk Manager / Gatekeeper**, the gate between "signal fired" and "order sent."
+
+---
+
+## 6. Architecture
+
+### 6.1 Run model — Always-on loop under a supervisor
+**Decision:** One long-lived Python process loops: fetch data → evaluate signals → manage open positions → sleep ~60s → repeat, run under a supervisor (systemd or equivalent) that auto-restarts on crash. State persisted to disk; broker reconciled on startup.
+
+**Why:** Crypto is 24/7, so the system must be continuously alive. This is the simplest model that satisfies that, and "seconds of latency is fine" rules out the complexity of a websocket event-driven design. Cron/stateless was rejected for coarser reaction time and trickier cross-run state.
+
+### 6.2 Components (each: one job, clear interface, testable in isolation)
+
+| # | Component | Responsibility | Key interface |
+|---|-----------|----------------|---------------|
+| 1 | **Market Data Provider** | Supply OHLCV candles + latest price | `get_candles(symbol, timeframe, lookback)`, `get_latest_price(symbol)` — adapters: Alpaca (live/paper), Historical replay (backtest) |
+| 2 | **Signal modules** | Each: candles → normalized score [0–1] + metadata | `OversoldSignal`, `VWAPSignal`, `FVGSignal` (later) |
+| 3 | **Confluence Engine** | Weighted-sum signals vs entry threshold → EntrySignal or none | `evaluate(candles, profile) -> EntrySignal?` |
+| 4 | **Strategy Profile** | Per-instrument config (see §4.3) | data object loaded from config |
+| 5 | **Risk Manager / Gatekeeper** | Enforce 4 circuit breakers, compute fixed-fractional size | `approve(entry_signal, account, state) -> SizedOrder \| Rejection(reason)` |
+| 6 | **Broker Executor** | Submit/cancel orders, read positions/account | `submit_bracket_order(...)`, `get_positions()`, `get_account()` — adapters: Alpaca live, Alpaca paper, Simulated (backtest, with fees+slippage) |
+| 7 | **Position Manager** | Track open positions, **enforce time-cap exits**, reconcile with broker on startup | `manage(now, positions)` |
+| 8 | **Orchestrator / Main Loop** | Per tick, per active profile: data → engine → gatekeeper → executor → position manager; check time-caps; mode wires the adapters | `run()` |
+| 9 | **State Store** | Persist open positions, kill-switch status, daily PnL, cooldown timers (SQLite) | `load()`, `save()` |
+| 10 | **Trade Journal & Metrics** | Log every signal (with score breakdown), decision, fill, exit reason; compute metrics | `record(event)`, `summary()` |
+| 11 | **Graduation Gate** | Compare metrics to config thresholds; block live until met | `can_arm_live() -> bool + reasons` |
+| 12 | **Notifier (optional)** | Discord/SMS on entries, exits, kill-switch trips (reuse `algo-research-agent` infra) | `notify(event)` |
+
+### 6.3 Data flow
+```
+candles
+  → signal modules (each → score)
+  → confluence engine (weighted sum vs threshold)
+  → entry signal
+  → risk gatekeeper (4 circuit breakers + fixed-fractional sizing)
+  → broker executor (bracket order: entry + stop + take-profit)
+  → position manager (persist state; enforce time-cap; monitor exits)
+  → exit (stop / take-profit / time-cap)
+  → trade journal → metrics → graduation gate
+```
+
+### 6.4 Three modes, one engine
+- **Backtest** — Historical data adapter + Simulated broker (fees + slippage modeled). Fast replay of the real strategy.
+- **Paper** — Alpaca data + Alpaca paper broker. Real-time, fake money; surfaces latency, fees, partial fills, weird ticks.
+- **Live** — Alpaca data + Alpaca live broker. Real money.
+
+Mode selection only swaps the data and broker adapters wired into the Orchestrator. Strategy, gatekeeper, sizing, exits, and journaling are identical across modes.
+
+---
+
+## 7. Verification & Measurement
+
+### 7.1 Metrics (logged per trade, summarized)
+**Expectancy per trade** (the headline number), win rate, average win vs average loss, profit factor, max drawdown, number of trades. Plus a full **trade journal**: every signal with its score breakdown, the decision, fill price, and exit reason — so any anomaly can be reconstructed.
+
+### 7.2 Traps designed against (these are how you fool yourself)
+- **Lookahead bias** — the strategy must never read a candle before it has closed. Backtests on the still-forming bar produce gorgeous fake results.
+- **Cost realism** — fees and slippage go *into* the backtest. At short hold times, "profitable before costs, losing after costs" is the common outcome.
+- **Overfitting** — tuning parameters until the backtest is perfect memorizes the past. Defenses: out-of-sample testing the tuning never saw, and requiring paper results to roughly match backtest before trusting it.
+
+### 7.3 Graduation gate — disciplined, thresholds in config
+**Decision:** Enforce the sequence **backtest → paper → live**, with explicit, configurable graduation criteria (e.g. ≥ N paper trades, positive expectancy after fees, max drawdown under a limit, paper roughly matching backtest). The system **refuses to arm live mode** until the criteria are met.
+
+**Why:** Protects the author from their own optimism — the most common way personal trading bots lose money is going live on a backtest that was curve-fit.
+
+---
+
+## 8. Configuration — Recommended starting defaults (all tunable)
+
+| Parameter | Default | Notes |
+|-----------|---------|-------|
+| Candle timeframe | 15m | Fits minutes-to-a-day holds |
+| Loop interval | 60s | "Seconds of latency is fine" |
+| `risk_per_trade` | 1% of equity | Fixed-fractional sizing |
+| ATR period | 14 | |
+| Stop multiple `k` | 1.5 × ATR | |
+| Take-profit multiple `m` | 2.0 × ATR | ~1.33 reward:risk |
+| `max_hold` | 8 hours | Time-cap exit |
+| Kill switch | −5% day OR 4 consecutive losses | Manual reset; stop-new-entries behavior |
+| Max position cap | ≤ 25% equity | |
+| Max concurrent | 1 | Single focused coin to start |
+| Cooldown after stop-out | 60 min | |
+| Backtest costs | Alpaca crypto fee/side + slippage buffer | Must be modeled |
+
+These are starting points to be calibrated during backtest/paper, not claims of optimality.
+
+---
+
+## 9. Error Handling
+
+- **API failures** — retry with exponential backoff.
+- **Stale/missing data** — skip the tick; never trade on bad data.
+- **Startup** — reconcile bot state against the broker; the broker is the source of truth for open positions.
+- **Order rejected by broker** — log and surface; do not blindly re-submit.
+- **Process crash** — supervisor restarts; state restored from disk + broker reconciliation.
+
+---
+
+## 10. Future Seams (designed for, not built in v1)
+
+- **RL position sizing** — replaces the fixed `risk_per_trade%` logic inside the Risk Manager; the gatekeeper interface is unchanged.
+- **LLM signal interpretation** — just another Signal module emitting a normalized score into the confluence engine; could reuse the Ollama setup from `algo-research-agent`.
+- **Shorting** — a new Broker Executor adapter behind the existing interface (plus a venue that supports it).
+- **Stocks / multi-asset** — additional Strategy Profiles + data/broker adapters; VWAP switches to session-anchored.
+- **Notifications** — reuse Discord/SMS infrastructure from the sibling `algo-research-agent` project.
+
+---
+
+## 11. Tech Notes (non-binding, for the planner)
+
+- Python; `alpaca-py` SDK; `pandas`/`numpy` (indicators via `pandas-ta`/`ta` or hand-rolled); SQLite for state; systemd for supervision. Keep dependencies minimal.
+- Project lives in `crypto-swing-bot/` (separate from `algo-research-agent`, may borrow its notification layer later).
