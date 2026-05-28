@@ -19,6 +19,7 @@ Automate the kind of short-hold, buy-low / sell-higher swing trades the author c
 - Account-level safety circuit breakers.
 - Three run modes — backtest, paper, live — sharing one strategy engine.
 - A config-gated graduation path from idea → paper → real money.
+- A **Valhalla-styled React monitoring dashboard** (with a full control surface) over a FastAPI/websocket layer — see §11.
 
 **Explicitly out of scope (v1), but the architecture leaves seams for them:**
 - Shorting (Alpaca crypto cannot short — see §3).
@@ -241,7 +242,48 @@ These are starting points to be calibrated during backtest/paper, not claims of 
 
 ---
 
-## 11. Tech Notes (non-binding, for the planner)
+## 11. Front End — Monitoring Dashboard & Control API
 
-- Python; `alpaca-py` SDK; `pandas`/`numpy` (indicators via `pandas-ta`/`ta` or hand-rolled); SQLite for state; systemd for supervision. Keep dependencies minimal.
+A Valhalla-styled single-page app to **monitor and control** the bot.
+
+### 11.1 Stack
+- **React 18 + Vite + plain CSS**, matching `algo-research-agent` conventions. Dark navy Valhalla aesthetic: top nav, colored status banner, score chips, dense data tables, green/red numerics.
+- **Backend API: FastAPI on `:8000`**, with the existing dev-proxy pattern (`/api` REST + `/ws` websocket).
+- **Live updates pushed over websocket** so the UI feels live like Valhalla; REST for initial load and control actions.
+- The API is a **thin read/control surface over existing components** (State Store, Trade Journal/Metrics, Position Manager, Risk Manager) — it holds no trading logic of its own.
+
+### 11.2 Layout
+- **Top nav** — name, **MODE indicator** (BACKTEST / PAPER / **LIVE shown in unmistakable red**), connection status, last-updated.
+- **Status banner** — bot RUNNING/HALTED, current regime, day P&L, HALT button.
+- **Signal panel (centerpiece)** — per-signal `value × weight = contribution`, total score vs entry threshold, regime-gate verdict. The "why" behind every decision.
+- **Position panel** — entry / now / size / stop / TP, unrealized P&L, time-in-trade vs max-hold; or "Flat — waiting for signal".
+- **Risk panel** — equity, risk/trade, kill-switch state, concurrent count, cooldown timers.
+- **Journal table** — dense Valhalla-style table: time, side, entry, exit, P&L, exit reason, score-at-entry, regime.
+- **Metrics panel** — expectancy, win rate, profit factor, max drawdown, trade count.
+- **Settings view** — view/edit strategy-profile params.
+
+### 11.3 Control surface (full) + mandatory guardrails
+Controls: HALT (trip kill-switch) & reset, pause/resume new entries, switch mode (paper/live), edit profile params, manual close/flatten.
+
+Because the UI can move real money, these guardrails are **required**, not optional:
+- **Localhost-only binding by default + a shared-secret token on every write endpoint.** Never bind to `0.0.0.0` / expose to the internet without real authentication.
+- **Server-side enforcement, never UI-hidden.** The graduation gate blocks switching to LIVE *on the server*; the client cannot bypass it. All control validation lives server-side.
+- **Explicit confirmation** for financial/destructive actions (go-LIVE, flatten, param edits) — typed/confirm dialog.
+- **Unmistakable LIVE indicator** so real-money actions aren't taken thinking it's paper.
+- **Audit log** — every control action (what/when) recorded alongside the trade journal.
+- Read endpoints (state, journal, metrics) are safe locally; **write endpoints require token + confirmation**.
+
+### 11.4 API sketch
+- `GET /api/state` → mode, status, regime, live signal breakdown, position, risk, account
+- `GET /api/journal`, `GET /api/metrics`
+- `GET /api/profile`, `PUT /api/profile` *(write, guarded)*
+- `POST /api/control/{halt|resume|mode|flatten}` *(write, guarded, audited)*
+- `WS /ws` → pushes state snapshots + events (entries, exits, kill-switch trips)
+
+---
+
+## 12. Tech Notes (non-binding, for the planner)
+
+- **Backend:** Python; `alpaca-py` SDK; `pandas`/`numpy` (indicators via `pandas-ta`/`ta` or hand-rolled); SQLite for state; **FastAPI + uvicorn** for the API/websocket; systemd for supervision. Keep dependencies minimal.
+- **Frontend:** React 18 + Vite + plain CSS (mirror `algo-research-agent/frontend` structure: `components/`, `pages/`, `hooks/`; dev proxy `/api`→`:8000`, `/ws`→ws).
 - Project lives in `crypto-swing-bot/` (separate from `algo-research-agent`, may borrow its notification layer later).
