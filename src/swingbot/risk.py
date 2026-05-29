@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from swingbot.journal import Trade
 from swingbot.profile import StrategyProfile
@@ -70,7 +70,7 @@ class RiskManager:
             self.state.consecutive_losses = 0
 
         if trade.exit_reason == ExitReason.STOP:
-            until = now + _cooldown_delta(self.profile.cooldown_minutes)
+            until = now + timedelta(minutes=self.profile.cooldown_minutes)
             self.state.cooldown_until[self.profile.symbol] = until.isoformat()
 
         self._maybe_trip_kill_switch()
@@ -88,8 +88,3 @@ class RiskManager:
             self.state.kill_switch_reason = (
                 f"daily loss {self.state.realized_pnl_today:.2f} <= limit {limit:.2f}"
             )
-
-
-def _cooldown_delta(minutes: int):
-    from datetime import timedelta
-    return timedelta(minutes=minutes)

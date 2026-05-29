@@ -126,3 +126,45 @@ def test_reconcile_adopts_broker_position_if_state_empty(tmp_path):
     orch = _orch(data, broker, tmp_path)
     orch.reconcile(now=T0)
     assert orch.state.load_position() is not None
+
+
+def test_tick_does_not_double_enter_when_broker_already_holds(tmp_path):
+    df = _dip_and_recover()
+    data = FakeData(df, price=float(df["close"].iloc[-1]))
+    broker = FakeBroker(equity=1000.0)
+    # state is empty, but the broker already reports an open position
+    broker.position = {"symbol": "TRX/USD", "qty": 10.0, "avg_entry_price": 118.0,
+                       "market_value": 1180.0}
+    orch = _orch(data, broker, tmp_path)
+    orch.tick(now=T0)
+    assert broker.buys == []   # must NOT submit a second buy
+
+
+def test_killswitch_allows_exit_of_open_position(tmp_path):
+    df = _dip_and_recover()
+    data = FakeData(df, price=float(df["close"].iloc[-1]))
+    broker = FakeBroker(equity=1000.0)
+    orch = _orch(data, broker, tmp_path)
+    orch.tick(now=T0)                      # opens a position
+    pos = orch.state.load_position()
+    assert pos is not None
+    # trip kill switch AFTER entry
+    orch.risk.state.kill_switch_active = True
+    orch.risk.state.kill_switch_reason = "test"
+    orch.state.save_risk_state(orch.risk.state)
+    data.set_price(pos.stop * 0.99)        # stop is hit
+    orch.tick(now=T0 + timedelta(minutes=1))
+    assert len(broker.sells) == 1          # exit still happens despite kill switch
+    assert orch.state.load_position() is None
+
+def test_stop_exit_updates_risk_state(tmp_path):
+    df = _dip_and_recover()
+    data = FakeData(df, price=float(df["close"].iloc[-1]))
+    broker = FakeBroker(equity=1000.0)
+    orch = _orch(data, broker, tmp_path)
+    orch.tick(now=T0)
+    pos = orch.state.load_position()
+    data.set_price(pos.stop * 0.99)
+    orch.tick(now=T0 + timedelta(minutes=1))
+    assert orch.risk.state.consecutive_losses == 1
+    assert "TRX/USD" in orch.risk.state.cooldown_until

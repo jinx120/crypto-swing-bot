@@ -40,3 +40,13 @@ def test_live_get_candles_smoke():
     df = d.get_candles("BTC/USD", "15m", lookback=50)
     assert len(df) > 0
     assert list(df.columns) == ["ts", "open", "high", "low", "close", "volume"]
+
+def test_fetch_window_days_scales_with_lookback():
+    from swingbot.data.alpaca import fetch_window_days
+    assert fetch_window_days("15m", 50) >= 1
+    # 4h x 205 bars needs ~100 days; must be well over 30
+    assert fetch_window_days("4h", 205) > 90
+    # 1d x 205 bars needs ~600+ days
+    assert fetch_window_days("1d", 205) > 500
+    with __import__("pytest").raises(ValueError):
+        fetch_window_days("15x", 10)

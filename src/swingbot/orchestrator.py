@@ -76,6 +76,10 @@ class Orchestrator:
         self.state.save_risk_state(self.risk.state)
 
     def _maybe_enter(self, now: datetime, equity: float) -> None:
+        # Defense against state/broker desync: never open a new position if the
+        # broker already holds one (prevents a double-buy after a mid-run hiccup).
+        if self.broker.get_position(self.profile.symbol) is not None:
+            return
         gate = self.risk.check_can_enter(self.profile.symbol, now=now,
                                          open_position_count=0)
         if not gate.approved:
