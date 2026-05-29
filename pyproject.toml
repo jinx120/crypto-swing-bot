@@ -9,6 +9,7 @@ dev = ["pytest>=8.0"]
 
 [project.scripts]
 swingbot-backtest = "swingbot.cli:main"
+swingbot-run = "swingbot.run:main"
 
 [build-system]
 requires = ["setuptools>=68"]
