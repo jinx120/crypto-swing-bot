@@ -1585,7 +1585,7 @@ def _profile():
             "vwap": {"weight": 0.4, "window": 20, "max_dist": 0.05},
         },
         "entry_threshold": 0.25,
-        "regime_ma_period": 20,
+        "regime_ma_period": 50,   # slow enough to stay rising through a brief dip (NEUTRAL/UPTREND entry)
         "atr_period": 14,
         "stop_atr_mult": 2.0,
         "take_profit_atr_mult": 2.0,
