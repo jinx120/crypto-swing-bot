@@ -43,3 +43,7 @@ def test_uses_htf_when_present():
         htf=_df([float(i) for i in range(1, 30)]),
     )
     assert RegimeFilter(_profile()).evaluate(ctx).regime == Regime.UPTREND
+
+def test_single_row_returns_neutral():
+    ctx = MarketContext(candles=_df([100.0]))
+    assert RegimeFilter(_profile()).evaluate(ctx).regime == Regime.NEUTRAL

@@ -12,6 +12,8 @@ class RegimeFilter:
     def evaluate(self, ctx: MarketContext) -> RegimeResult:
         df = ctx.htf if ctx.htf is not None else ctx.candles
         ma = sma(df["close"], self.profile.regime_ma_period)
+        if len(ma) < 2:
+            return RegimeResult(Regime.NEUTRAL, {"ma": None})
         ma_now, ma_prev = ma.iloc[-1], ma.iloc[-2]
         price = df["close"].iloc[-1]
         if ma_now != ma_now:  # NaN during warmup -> treat as neutral

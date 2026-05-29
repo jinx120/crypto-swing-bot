@@ -64,3 +64,11 @@ def test_backtest_is_lookahead_safe_entry_at_next_open():
     assert len(trades) >= 1
     opens = set(round(o, 6) for o in df["open"])
     assert round(trades[0].entry_price, 6) in opens
+
+def test_backtest_rejects_too_short_input():
+    df = _make_series([100.0])
+    try:
+        run_backtest(df, _profile(), starting_equity=1000.0)
+        assert False, "expected ValueError"
+    except ValueError as e:
+        assert "at least 2" in str(e).lower()

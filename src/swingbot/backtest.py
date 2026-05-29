@@ -33,6 +33,8 @@ def run_backtest(
 ) -> tuple[list[Trade], Metrics]:
     """Replay candles through the real strategy. Lookahead-safe:
     decide on the last CLOSED bar i, enter at bar i+1's open."""
+    if len(df) < 2:
+        raise ValueError("run_backtest needs at least 2 candles")
     broker = SimulatedBroker(starting_equity, profile.fee_rate, profile.slippage_rate)
     journal = TradeJournal()
     engine = ConfluenceEngine(build_signals(profile), profile)

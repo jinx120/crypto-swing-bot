@@ -41,3 +41,13 @@ def test_metrics_empty():
     assert m.n_trades == 0
     assert m.expectancy == 0.0
     assert m.profit_factor == 0.0
+
+
+def test_profit_factor_infinite_when_all_wins():
+    import math
+    m = compute_metrics([_trade(10.0), _trade(5.0)])
+    assert math.isinf(m.profit_factor)
+
+def test_profit_factor_zero_when_all_losses():
+    m = compute_metrics([_trade(-10.0), _trade(-5.0)])
+    assert m.profit_factor == 0.0
