@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
+from swingbot.exits import exit_decision
 from swingbot.journal import Trade
 from swingbot.types import ExitReason, Regime, Side
 
@@ -50,20 +51,15 @@ class SimulatedBroker:
         if self.position is None:
             return None
         p = self.position
-        ts = candle["ts"]
-
-        exit_price: float | None = None
-        reason: ExitReason | None = None
-        if candle["low"] <= p.stop:
-            exit_price, reason = p.stop, ExitReason.STOP
-        elif candle["high"] >= p.tp:
-            exit_price, reason = p.tp, ExitReason.TAKE_PROFIT
-        elif ts >= p.max_hold_until:
-            exit_price, reason = candle["close"], ExitReason.TIME_CAP
-
-        if exit_price is None:
+        decision = exit_decision(
+            stop=p.stop, tp=p.tp, max_hold_until=p.max_hold_until,
+            high=candle["high"], low=candle["low"], close=candle["close"],
+            now=candle["ts"],
+        )
+        if decision is None:
             return None
-        return self._close(ts, exit_price, reason)
+        reason, exit_price = decision
+        return self._close(candle["ts"], exit_price, reason)
 
     def force_close(self, ts: datetime, price: float) -> Trade | None:
         if self.position is None:
