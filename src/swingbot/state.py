@@ -17,7 +17,7 @@ class StateStore:
 
     def __init__(self, db_path: str):
         self.db_path = db_path
-        self._conn = sqlite3.connect(db_path)
+        self._conn = sqlite3.connect(db_path, check_same_thread=False)
         self._conn.execute(
             "CREATE TABLE IF NOT EXISTS position (id INTEGER PRIMARY KEY, data TEXT)"
         )

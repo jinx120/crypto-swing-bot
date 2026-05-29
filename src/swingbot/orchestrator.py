@@ -11,7 +11,7 @@ from swingbot.profile import StrategyProfile
 from swingbot.regime import RegimeFilter
 from swingbot.risk import RiskManager
 from swingbot.state import StateStore
-from swingbot.types import MarketContext, OpenPosition, Regime, Side
+from swingbot.types import ExitReason, MarketContext, OpenPosition, Regime, Side
 
 
 class Orchestrator:
@@ -85,7 +85,6 @@ class Orchestrator:
         price = self.data.get_latest_price(self.profile.symbol)
         self.broker.submit_market_sell(self.profile.symbol, pos.qty)
         pnl = (price - pos.entry_price) * pos.qty
-        from swingbot.types import ExitReason
         trade = Trade(entry_ts=pos.entry_ts, exit_ts=now, side=Side.LONG,
                       entry_price=pos.entry_price, exit_price=price, qty=pos.qty,
                       pnl=pnl, exit_reason=ExitReason.END_OF_DATA,
