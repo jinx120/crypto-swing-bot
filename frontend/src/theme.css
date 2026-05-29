@@ -1,0 +1,32 @@
+:root{
+  --bg:#0f1623; --panel:#16202e; --panel2:#1c2838; --line:#243246;
+  --text:#cdd6e3; --muted:#7c8aa0; --green:#36d17a; --red:#ff5470;
+  --accent:#3b82f6; --chip:#1f6f43; --rs:#a855f7; --amber:#f5a623;
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);
+  font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,sans-serif;font-size:14px}
+.nav{display:flex;align-items:center;gap:18px;padding:12px 20px;background:#0c1320;border-bottom:1px solid var(--line)}
+.nav .brand{font-weight:700;color:#fff;letter-spacing:.5px}
+.nav button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:6px 4px}
+.nav button.active{color:#fff;border-bottom:2px solid var(--accent)}
+.mode{margin-left:auto;font-weight:700;padding:4px 10px;border-radius:6px;background:#1f6f43;color:#fff}
+.mode.live{background:var(--red)}
+.banner{display:flex;gap:16px;align-items:center;padding:10px 20px;background:#123a26;border-bottom:1px solid var(--line)}
+.banner.halted{background:#3a1620}
+.wrap{padding:20px;display:grid;gap:16px;grid-template-columns:1fr 1fr}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.panel h3{margin:0 0 10px;font-size:12px;letter-spacing:.6px;color:var(--muted);text-transform:uppercase}
+.full{grid-column:1 / -1}
+.row{display:flex;justify-content:space-between;padding:3px 0}
+.pos{color:var(--green)} .neg{color:var(--red)}
+.chip{display:inline-block;padding:2px 8px;border-radius:5px;background:var(--chip);color:#fff;font-weight:700}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:12px}
+button.act{background:var(--panel2);border:1px solid var(--line);color:var(--text);
+  padding:8px 14px;border-radius:7px;cursor:pointer;margin-right:8px}
+button.danger{border-color:var(--red);color:var(--red)}
+input,select{background:#0c1320;border:1px solid var(--line);color:var(--text);
+  padding:8px;border-radius:6px;width:100%}
+label{display:block;color:var(--muted);font-size:12px;margin:10px 0 4px}
+.err{color:var(--red);margin:8px 0}
