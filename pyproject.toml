@@ -10,6 +10,7 @@ dev = ["pytest>=8.0", "httpx>=0.27"]
 [project.scripts]
 swingbot-backtest = "swingbot.cli:main"
 swingbot-run = "swingbot.run:main"
+swingbot-web = "swingbot.webmain:main"
 
 [build-system]
 requires = ["setuptools>=68"]

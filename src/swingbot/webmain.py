@@ -1,0 +1,41 @@
+from __future__ import annotations
+
+import os
+import secrets
+
+import uvicorn
+
+from swingbot.credentials import CredentialStore
+from swingbot.profiles import ProfileStore
+from swingbot.service import BotService
+from swingbot.web import create_app
+
+DATA_DIR = os.path.expanduser("~/.swingbot")
+
+
+def _ensure_token(path: str) -> str:
+    if os.path.exists(path):
+        with open(path) as f:
+            return f.read().strip()
+    tok = secrets.token_urlsafe(24)
+    with open(path, "w") as f:
+        f.write(tok)
+    os.chmod(path, 0o600)
+    return tok
+
+
+def main() -> None:
+    os.makedirs(DATA_DIR, exist_ok=True)
+    token = _ensure_token(os.path.join(DATA_DIR, "token"))
+    profiles = ProfileStore(os.path.join(DATA_DIR, "swingbot.db"))
+    creds = CredentialStore(os.path.join(DATA_DIR, "credentials.json"))
+    service = BotService(profiles=profiles, creds=creds,
+                         state_db=os.path.join(DATA_DIR, "swingbot.db"))
+    app = create_app(controller=service, profiles=profiles, creds=creds, token=token)
+    print(f"[swingbot-web] token: {token}")
+    print("[swingbot-web] http://127.0.0.1:8000  (localhost only)")
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+
+
+if __name__ == "__main__":
+    main()
