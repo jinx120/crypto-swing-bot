@@ -10,7 +10,7 @@ class ProfileStore:
     """SQLite-backed strategy profiles + an 'active' pointer."""
 
     def __init__(self, db_path: str):
-        self._conn = sqlite3.connect(db_path)
+        self._conn = sqlite3.connect(db_path, check_same_thread=False)
         self._conn.execute(
             "CREATE TABLE IF NOT EXISTS profiles (name TEXT PRIMARY KEY, data TEXT)"
         )
