@@ -21,6 +21,7 @@ export const api = {
   metrics: () => req('GET', '/api/metrics'),
   listProfiles: () => req('GET', '/api/profiles'),
   activeProfile: () => req('GET', '/api/profiles/active'),
+  getProfile: (name) => req('GET', `/api/profiles/${name}`),
   saveProfile: (name, profile) => req('POST', '/api/profiles', { name, profile }),
   setActive: (name) => req('POST', '/api/profiles/active', { name }),
   deleteProfile: (name) => req('DELETE', `/api/profiles/${name}`),

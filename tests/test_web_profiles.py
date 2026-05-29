@@ -42,3 +42,14 @@ def test_invalid_profile_rejected(tmp_path):
     c, _ = _client(tmp_path)
     body = {"name": "bad", "profile": {"signals": {}}}
     assert c.post("/api/profiles", json=body, headers={"X-Token": "tok"}).status_code == 400
+
+
+def test_get_profile_by_name(tmp_path):
+    c, _ = _client(tmp_path)
+    h = {"X-Token": "tok"}
+    body = {"name": "trx", "profile": {"symbol": "TRX/USD",
+            "signals": {"oversold": {"weight": 1.0}}, "entry_threshold": 0.3}}
+    c.post("/api/profiles", json=body, headers=h)
+    r = c.get("/api/profiles/trx")
+    assert r.status_code == 200 and r.json()["profile"]["symbol"] == "TRX/USD"
+    assert c.get("/api/profiles/nope").status_code == 404

@@ -71,6 +71,13 @@ def create_app(controller, profiles, creds, token: str) -> FastAPI:
             raise HTTPException(status_code=400, detail=str(e))
         return {"ok": True}
 
+    @app.get("/api/profiles/{name}")
+    def get_profile(name: str):
+        p = profiles.get(name)
+        if p is None:
+            raise HTTPException(status_code=404, detail=f"no profile {name!r}")
+        return {"name": name, "profile": p}
+
     @app.delete("/api/profiles/{name}")
     def delete_profile(name: str, _=Depends(require_token)):
         profiles.delete(name)
