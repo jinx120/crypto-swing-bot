@@ -7,6 +7,9 @@ dependencies = ["pandas>=2.0", "numpy>=1.24"]
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
 
+[project.scripts]
+swingbot-backtest = "swingbot.cli:main"
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
