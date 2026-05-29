@@ -20,7 +20,7 @@ Open the printed URL (http://localhost:3000, or 3001 if 3000 is taken). The dev 
 ## First-time setup (all in the browser)
 1. **Settings → API token:** paste the token from step 1, Save (stored in this browser's localStorage; required for any write/control action).
 2. **Settings → Alpaca credentials:** paste your paper **Key ID** + **Secret** (write-only/masked), keep "Paper endpoint" checked, Save.
-3. **Strategy:** edit the seeded profile JSON (symbol, signals, thresholds, exits, risk, circuit breakers), give it a name, Save, then **Set active**.
+3. **Strategy:** fill in the field-by-field form (symbol, signals, thresholds, exits, risk, circuit breakers) — hover the **ⓘ** hints for plain-English explanations — give it a name, Save, then **Set active**.
 4. **Dashboard:** watch the live signal breakdown, position, risk, journal, and metrics (2s polling). Use **Controls** to HALT / reset / pause / resume / flatten, or switch mode (Go LIVE is blocked server-side until paper results graduate).
 
 ## Security
