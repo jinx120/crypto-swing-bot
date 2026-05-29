@@ -25,6 +25,7 @@ class Orchestrator:
         self.journal = journal
         self.engine = ConfluenceEngine(build_signals(profile), profile)
         self.regime = RegimeFilter(profile)
+        self.paused = False
 
     def reconcile(self, now: datetime) -> None:
         """Broker is source of truth. If broker holds a position we don't have
@@ -75,7 +76,28 @@ class Orchestrator:
         self.state.clear_position()
         self.state.save_risk_state(self.risk.state)
 
+    def flatten(self, now: datetime | None = None) -> None:
+        """Force-close any open position at the latest price (manual control)."""
+        now = now or datetime.now(timezone.utc)
+        pos = self.state.load_position()
+        if pos is None:
+            return
+        price = self.data.get_latest_price(self.profile.symbol)
+        self.broker.submit_market_sell(self.profile.symbol, pos.qty)
+        pnl = (price - pos.entry_price) * pos.qty
+        from swingbot.types import ExitReason
+        trade = Trade(entry_ts=pos.entry_ts, exit_ts=now, side=Side.LONG,
+                      entry_price=pos.entry_price, exit_price=price, qty=pos.qty,
+                      pnl=pnl, exit_reason=ExitReason.END_OF_DATA,
+                      score_at_entry=pos.score_at_entry, regime_at_entry=pos.regime_at_entry)
+        self.journal.record(trade)
+        self.risk.on_trade_closed(trade, now=now)
+        self.state.clear_position()
+        self.state.save_risk_state(self.risk.state)
+
     def _maybe_enter(self, now: datetime, equity: float) -> None:
+        if self.paused:
+            return
         # Defense against state/broker desync: never open a new position if the
         # broker already holds one (prevents a double-buy after a mid-run hiccup).
         if self.broker.get_position(self.profile.symbol) is not None:
