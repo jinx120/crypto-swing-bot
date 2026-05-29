@@ -1,9 +1,16 @@
+import Hint from './Hint.jsx'
+
 export default function JournalTable({ trades }){
   return (
     <div className="panel full">
-      <h3>Journal</h3>
+      <h3>Journal
+        <Hint text="A log of every closed trade, newest first — what the bot actually did. Use it to sanity-check that entries and exits match what you intended." />
+      </h3>
       <table><thead><tr>
-        <th>Exit</th><th>Entry $</th><th>Exit $</th><th>P&L</th><th>Reason</th><th>Score</th><th>Regime</th>
+        <th>Exit</th><th>Entry $</th><th>Exit $</th><th>P&L</th>
+        <th>Reason<Hint text="Why the trade closed: stop = stop-loss hit, take_profit = target hit, time/max_hold = held too long, flatten = you closed it manually." /></th>
+        <th>Score<Hint text="The confluence score at the moment the bot entered — how strong the buy case was." /></th>
+        <th>Regime<Hint text="The trend regime at entry. Helps you see whether winners and losers cluster in particular market conditions." /></th>
       </tr></thead><tbody>
         {(trades||[]).slice(-25).reverse().map((t,i)=>(
           <tr key={i}>

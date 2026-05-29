@@ -5,6 +5,7 @@ import Strategy from './pages/Strategy.jsx'
 import Settings from './pages/Settings.jsx'
 import StatusBanner from './components/StatusBanner.jsx'
 import ControlBar from './components/ControlBar.jsx'
+import Hint from './components/Hint.jsx'
 
 export default function App(){
   const [tab, setTab] = useState('dashboard')
@@ -30,7 +31,11 @@ export default function App(){
         <button className={tab==='dashboard'?'active':''} onClick={()=>setTab('dashboard')}>Dashboard</button>
         <button className={tab==='strategy'?'active':''} onClick={()=>setTab('strategy')}>Strategy</button>
         <button className={tab==='settings'?'active':''} onClick={()=>setTab('settings')}>Settings</button>
-        <span className={`mode ${live?'live':''}`}>{(state?.mode || 'paper').toUpperCase()}</span>
+        <span className={`mode ${live?'live':''}`}>{(state?.mode || 'paper').toUpperCase()}
+          <Hint pos="below" text={live
+            ? 'LIVE: the bot is trading real money on your Alpaca account. Every fill is a real buy/sell.'
+            : 'PAPER: simulated money on Alpaca’s test server — safe for trying things out. The bot blocks switching to LIVE until your paper results pass the graduation checks.'} />
+        </span>
       </div>
       {tab==='dashboard' && <StatusBanner state={state} />}
       {err && <div className="err" style={{padding:'8px 20px'}}>{err}</div>}
