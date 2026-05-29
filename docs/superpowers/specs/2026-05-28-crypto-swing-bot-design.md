@@ -244,7 +244,7 @@ These are starting points to be calibrated during backtest/paper, not claims of 
 
 ## 11. Front End — Monitoring Dashboard & Control API
 
-A Valhalla-styled single-page app to **monitor and control** the bot.
+A Valhalla-styled single-page app to **monitor, control, and configure** the bot. The UI is the front door: strategies and credentials are created/edited in the UI and persisted by the backend — **no hand-edited JSON or `.env` files required** (the CLI/`.env` path remains only as an optional power-user fallback).
 
 ### 11.1 Stack
 - **React 18 + Vite + plain CSS**, matching `algo-research-agent` conventions. Dark navy Valhalla aesthetic: top nav, colored status banner, score chips, dense data tables, green/red numerics.
@@ -260,7 +260,8 @@ A Valhalla-styled single-page app to **monitor and control** the bot.
 - **Risk panel** — equity, risk/trade, kill-switch state, concurrent count, cooldown timers.
 - **Journal table** — dense Valhalla-style table: time, side, entry, exit, P&L, exit reason, score-at-entry, regime.
 - **Metrics panel** — expectancy, win rate, profit factor, max drawdown, trade count.
-- **Settings view** — view/edit strategy-profile params.
+- **Strategy editor view** — create / edit / select strategy profiles entirely in the UI (symbol, signals + weights, entry threshold, ATR/exit params, risk %, all four circuit-breaker settings, timeframe). The backend persists profiles and tracks which one is *active*; the orchestrator loads the active profile from the store. No JSON files.
+- **Credentials view** — paste Alpaca key ID + secret + choose paper/live endpoint, saved by the backend. The secret field is **masked and write-only** (never rendered back to the browser, returned from the API only as a `***set***` indicator).
 
 ### 11.3 Control surface (full) + mandatory guardrails
 Controls: HALT (trip kill-switch) & reset, pause/resume new entries, switch mode (paper/live), edit profile params, manual close/flatten.
@@ -276,9 +277,16 @@ Because the UI can move real money, these guardrails are **required**, not optio
 ### 11.4 API sketch
 - `GET /api/state` → mode, status, regime, live signal breakdown, position, risk, account
 - `GET /api/journal`, `GET /api/metrics`
-- `GET /api/profile`, `PUT /api/profile` *(write, guarded)*
+- `GET /api/profiles`, `POST /api/profiles`, `PUT /api/profiles/{id}`, `DELETE /api/profiles/{id}` — profile CRUD *(writes guarded)*
+- `GET /api/profiles/active`, `POST /api/profiles/active` — read / set the active profile *(write guarded)*
+- `GET /api/credentials` → `{key_id, has_secret: bool, paper: bool}` (never returns the secret); `PUT /api/credentials` — set key id + secret + endpoint *(write, guarded; secret write-only)*
 - `POST /api/control/{halt|resume|mode|flatten}` *(write, guarded, audited)*
 - `WS /ws` → pushes state snapshots + events (entries, exits, kill-switch trips)
+
+### 11.5 Config & credential management
+- **Profiles are a DB-backed resource.** Stored in the bot's SQLite DB (a `profiles` table + an `active_profile` pointer). Created/edited via the Strategy editor. The orchestrator reads the active profile from the store at startup and on change. The existing `StrategyProfile.from_dict` is reused for validation; the `swingbot-run --profile X.json` CLI remains as an optional fallback that simply seeds/overrides the store.
+- **Credentials are entered in the UI and stored plaintext in a local, gitignored file** in the bot's data dir (e.g. `~/.swingbot/credentials.json`), with file permissions locked to the owner (chmod 600). This is an explicit, user-chosen tradeoff for a single-user localhost machine (encrypted-at-rest was considered and declined for friction). Mitigations: the file is gitignored and never synced; the UI field is masked/write-only; and the API/UI bind to **localhost only** (§11.3), so the secret never traverses a network. The credential loader prefers this stored file, falling back to environment/`.env` if absent.
+- **Config writes are guarded** exactly like control writes (token + localhost). Switching the active profile or editing credentials while a position is open should warn the user (confirmation dialog) and not silently disrupt the open trade.
 
 ---
 
