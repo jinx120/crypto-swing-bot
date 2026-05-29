@@ -65,3 +65,18 @@ class EntrySignal:
     score: float
     regime: Regime
     meta: dict = field(default_factory=dict)
+
+
+@dataclass
+class OpenPosition:
+    """A live open position, persisted by the StateStore."""
+    symbol: str
+    entry_ts: datetime
+    entry_price: float
+    qty: float
+    stop: float
+    tp: float
+    max_hold_until: datetime
+    score_at_entry: float
+    regime_at_entry: Regime
+    side: Side = Side.LONG

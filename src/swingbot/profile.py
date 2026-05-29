@@ -30,6 +30,13 @@ class StrategyProfile:
     risk_per_trade: float = 0.01     # 1% of equity
     max_position_frac: float = 0.25  # <=25% of equity in one trade
 
+    # circuit breakers (Phase 2)
+    daily_loss_limit_pct: float = 0.05   # halt new entries after -5% day
+    max_consecutive_losses: int = 4      # ...or after N losses in a row
+    max_concurrent: int = 1              # max simultaneous open positions
+    cooldown_minutes: int = 60           # wait after a stop-out before re-entering
+    poll_seconds: int = 60               # orchestrator loop interval
+
     # backtest cost model
     fee_rate: float = 0.0025         # per side
     slippage_rate: float = 0.0005    # per side
