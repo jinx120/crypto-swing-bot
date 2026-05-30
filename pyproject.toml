@@ -6,6 +6,13 @@ dependencies = ["pandas>=2.0", "numpy>=1.24", "alpaca-py>=0.20", "fastapi>=0.110
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "httpx>=0.27"]
+kronos = [
+    "torch>=2.0",
+    "huggingface_hub>=0.20",
+    "einops",
+    "safetensors",
+    "tqdm",
+]
 
 [project.scripts]
 swingbot-backtest = "swingbot.cli:main"
