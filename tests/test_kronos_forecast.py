@@ -3,6 +3,8 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
+from swingbot.confluence import build_signals
+from swingbot.profile import StrategyProfile
 from swingbot.signals.kronos_adapter import KronosAdapter
 from swingbot.signals.kronos_forecast import KronosForecastSignal
 from swingbot.types import MarketContext
@@ -211,3 +213,26 @@ def test_meta_contains_pct_change_and_forecast_close():
     assert "pct_change" in r.meta
     assert "forecast_close" in r.meta
     assert r.meta["forecast_close"] == pytest.approx(102.0)
+
+
+# ── Confluence registration test ──────────────────────────────────────────
+
+def test_confluence_accepts_kronos_signal():
+    """build_signals with a kronos_forecast entry constructs the signal without error."""
+    fcast = _forecast_df([103.0])
+    predictor = FakePredictor(fcast)
+    adapter = KronosAdapter(predictor=predictor, pred_len=1)
+
+    profile = StrategyProfile(
+        symbol="BTC/USD",
+        signals={
+            "kronos_forecast": {
+                "weight": 0.25,
+                "pred_len": 1,
+                "_adapter": adapter,
+            }
+        },
+    )
+    signals = build_signals(profile)
+    assert len(signals) == 1
+    assert signals[0].name == "kronos_forecast"

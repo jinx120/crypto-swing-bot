@@ -3,6 +3,7 @@ from __future__ import annotations
 from swingbot.profile import StrategyProfile
 from swingbot.signals.base import Signal
 from swingbot.signals.fvg import FvgSignal
+from swingbot.signals.kronos_forecast import KronosForecastSignal
 from swingbot.signals.oversold import OversoldSignal
 from swingbot.signals.relative_strength import RelativeStrengthSignal
 from swingbot.signals.vwap import VwapSignal
@@ -13,6 +14,7 @@ _REGISTRY = {
     "vwap": VwapSignal,
     "relative_strength": RelativeStrengthSignal,
     "fvg": FvgSignal,
+    "kronos_forecast": KronosForecastSignal,
 }
 
 
