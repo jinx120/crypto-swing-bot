@@ -16,6 +16,37 @@ from swingbot.sizing import position_size
 from swingbot.types import MarketContext
 
 
+def precompute_forecasts(
+    df: pd.DataFrame,
+    adapter,
+    warmup: int,
+) -> dict:
+    """Run Kronos inference for every bar from warmup to end of df.
+
+    Returns a dict mapping last-candle ts → forecast DataFrame (or None).
+    Bypasses the adapter's single-entry live cache by calling _run_with_timeout directly.
+    """
+    cache = {}
+    for i in range(warmup, len(df) - 1):  # mirrors run_backtest entry loop range
+        candles_slice = df.iloc[: i + 1]
+        ts_key = candles_slice["ts"].iloc[-1]
+        cache[ts_key] = adapter._run_with_timeout(candles_slice)
+    return cache
+
+
+def _maybe_precompute_kronos(
+    signals: list,
+    df: pd.DataFrame,
+    warmup: int,
+) -> None:
+    """If any signal is a KronosForecastSignal, pre-populate its adapter's cache."""
+    from swingbot.signals.kronos_forecast import KronosForecastSignal
+    for signal in signals:
+        if isinstance(signal, KronosForecastSignal):
+            cache = precompute_forecasts(df, signal.adapter, warmup)
+            signal.adapter.set_precomputed(cache)
+
+
 def _warmup_bars(profile: StrategyProfile) -> int:
     needs = [profile.regime_ma_period, profile.atr_period]
     for params in profile.signals.values():
@@ -44,6 +75,8 @@ def run_backtest(
     warmup = _warmup_bars(profile)
     bar_delta = df["ts"].iloc[1] - df["ts"].iloc[0]
     max_hold = bar_delta * profile.max_hold_bars
+
+    _maybe_precompute_kronos(engine.signals, df, warmup)
 
     for i in range(warmup, len(df) - 1):
         current = df.iloc[i]
