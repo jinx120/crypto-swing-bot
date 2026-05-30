@@ -12,13 +12,15 @@ const BLANK = {
   vwap_on: true, vwap_weight: '0.4', vwap_window: '96', vwap_max_dist: '0.03',
   rs_on: false, rs_weight: '0.3', rs_band: '0.02', rs_lookback: '96',
   fvg_on: false, fvg_weight: '0.0',
+  kronos_on: false, kronos_weight: '0.25', kronos_pred_len: '4', kronos_threshold_pct: '0.02',
 }
 
 const g = (v, d) => (v === undefined || v === null ? d : String(v))
 
 function parseProfile(name, p){
   const s = p.signals || {}
-  const o = s.oversold || {}, v = s.vwap || {}, r = s.relative_strength || {}, fv = s.fvg || {}
+  const o = s.oversold || {}, v = s.vwap || {}, r = s.relative_strength || {},
+        fv = s.fvg || {}, kn = s.kronos_forecast || {}
   return {
     ...BLANK, name,
     symbol: g(p.symbol, BLANK.symbol), timeframe: g(p.timeframe, BLANK.timeframe),
@@ -41,6 +43,10 @@ function parseProfile(name, p){
     rs_on: !!s.relative_strength, rs_weight: g(r.weight, BLANK.rs_weight),
     rs_band: g(r.band, BLANK.rs_band), rs_lookback: g(r.lookback, BLANK.rs_lookback),
     fvg_on: !!s.fvg, fvg_weight: g(fv.weight, BLANK.fvg_weight),
+    kronos_on: !!s.kronos_forecast,
+    kronos_weight: g(kn.weight, BLANK.kronos_weight),
+    kronos_pred_len: g(kn.pred_len, BLANK.kronos_pred_len),
+    kronos_threshold_pct: g(kn.threshold_pct, BLANK.kronos_threshold_pct),
   }
 }
 
@@ -51,6 +57,11 @@ function assembleProfile(f){
   if (f.vwap_on) signals.vwap = { weight: n(f.vwap_weight), window: n(f.vwap_window), max_dist: n(f.vwap_max_dist) }
   if (f.rs_on) signals.relative_strength = { weight: n(f.rs_weight), band: n(f.rs_band), lookback: n(f.rs_lookback) }
   if (f.fvg_on) signals.fvg = { weight: n(f.fvg_weight) }
+  if (f.kronos_on) signals.kronos_forecast = {
+    weight: n(f.kronos_weight),
+    pred_len: n(f.kronos_pred_len),
+    threshold_pct: n(f.kronos_threshold_pct),
+  }
   return {
     symbol: f.symbol, timeframe: f.timeframe, benchmark_symbol: f.benchmark_symbol,
     entry_threshold: n(f.entry_threshold), regime_ma_period: n(f.regime_ma_period),
@@ -105,7 +116,7 @@ export default function Strategy(){
   const newProfile = () => { setF(BLANK); setMsg('new blank profile'); setErr('') }
   const save = async () => {
     setErr(''); setMsg('')
-    if (!f.oversold_on && !f.vwap_on && !f.rs_on && !f.fvg_on) { setErr('enable at least one signal'); return }
+    if (!f.oversold_on && !f.vwap_on && !f.rs_on && !f.fvg_on && !f.kronos_on) { setErr('enable at least one signal'); return }
     try { await api.saveProfile(f.name, assembleProfile(f)); setMsg(`saved "${f.name}"`); load() }
     catch (e) { setErr(e.message) }
   }
@@ -180,6 +191,17 @@ export default function Strategy(){
           hint="A Fair Value Gap is a price imbalance left by a fast move that the market often returns to fill. It’s a placeholder here — not built yet, so it always scores 0 and won’t affect entries." />
         {f.fvg_on && <div style={{ paddingLeft: 16 }}><Num f={f} set={set} label="Weight" k="fvg_weight"
           hint="Has no effect until this signal is implemented." /></div>}
+
+        <Toggle f={f} set={set} label="Kronos Forecast (AI time-series model)" k="kronos_on"
+          hint="Kronos is a foundation model for time-series that forecasts future OHLCV bars. Requires ‘pip install -e .[kronos]’ on the server where the bot runs. When disabled, this signal is not loaded and torch is not required." />
+        {f.kronos_on && <div style={{ paddingLeft: 16 }}>
+          <Num f={f} set={set} label="Weight" k="kronos_weight" step="0.01"
+            hint="Contribution to the confluence score. 0.25 = 25% weight. Tune alongside your other enabled signals." />
+          <Num f={f} set={set} label="Forecast bars (pred_len)" k="kronos_pred_len" step="1"
+            hint="How many bars ahead Kronos forecasts. At 15m timeframe, 4 bars = 1 hour ahead. Higher gives a longer-horizon view but is less precise." />
+          <Num f={f} set={set} label="Bullish threshold %" k="kronos_threshold_pct" step="0.001"
+            hint="The expected % gain that maps to score 1.0. E.g. 0.02 means a 2% forecast gain = maximum score. Flat or negative forecasts always score 0." />
+        </div>}
 
         <h3 style={{ marginTop: 16 }}>Exits
           <Hint text="How each trade is closed. Alpaca crypto can’t hold stop/target orders on the exchange, so the bot enforces these itself on every bar — they’re always on." />
