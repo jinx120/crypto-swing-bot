@@ -5,9 +5,16 @@ export const setToken = (t) => localStorage.setItem(TOKEN_KEY, t)
 async function req(method, path, body) {
   const headers = { 'Content-Type': 'application/json' }
   if (method !== 'GET') headers['X-Token'] = getToken()
-  const res = await fetch(path, {
-    method, headers, body: body ? JSON.stringify(body) : undefined,
-  })
+  let res
+  try {
+    res = await fetch(path, {
+      method, headers, body: body ? JSON.stringify(body) : undefined,
+    })
+  } catch (e) {
+    const err = new Error('Cannot reach backend')
+    err.network = true
+    throw err
+  }
   if (!res.ok) {
     const detail = await res.json().catch(() => ({}))
     throw new Error(detail.detail || detail.reason || `HTTP ${res.status}`)
