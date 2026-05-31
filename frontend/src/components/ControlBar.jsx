@@ -7,12 +7,17 @@ export default function ControlBar({ state, onChange }){
   const run = async (fn) => { setErr(''); try { await fn(); onChange?.() } catch(e){ setErr(e.message) } }
   const confirmRun = (msg, fn) => { if (window.confirm(msg)) run(fn) }
   const paused = state?.paused
+  const running = state?.running
   return (
     <div className="panel full">
       <h3>Controls
         <Hint text="Manual overrides. The bot runs on its own — use these only when you want to step in." />
       </h3>
       {err && <div className="err">{err}</div>}
+      {running
+        ? <button className="act danger" onClick={()=>confirmRun('Stop the trading loop? Open positions stop being managed until you start again.', ()=>api.control('stop'))}>Stop bot</button>
+        : <button className="act" onClick={()=>run(()=>api.control('start'))}>Start bot</button>}
+      <Hint text="Start begins the trading loop: the bot scans the market on every poll and opens/manages trades on its own. Requires Alpaca credentials (Settings) and an active strategy profile (Strategy). Stop halts the loop entirely." />
       <button className="act danger" onClick={()=>confirmRun('Trip the kill switch (stop new entries)?', ()=>api.control('halt'))}>HALT</button>
       <Hint text="Trips the kill switch right away: no new trades. Open positions keep being managed by their stop/target — HALT does not sell them." />
       <button className="act" onClick={()=>run(()=>api.control('reset'))}>Reset kill switch</button>

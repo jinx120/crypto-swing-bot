@@ -98,6 +98,18 @@ def create_app(controller, profiles, creds, token: str) -> FastAPI:
         creds.set(body.key_id, body.secret_key, body.base_url)
         return {"ok": True}
 
+    @app.post("/api/control/start")
+    def control_start(_=Depends(require_token)):
+        try:
+            controller.start()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        return {"ok": True}
+
+    @app.post("/api/control/stop")
+    def control_stop(_=Depends(require_token)):
+        controller.stop(); return {"ok": True}
+
     @app.post("/api/control/reset")
     def control_reset(_=Depends(require_token)):
         controller.reset(); return {"ok": True}

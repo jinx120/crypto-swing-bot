@@ -15,6 +15,9 @@ One strategy engine runs in three modes — **backtest**, **paper**, and **live*
 - **Risk** = fixed-fractional sizing (e.g. 1%/trade) plus four circuit breakers: daily-loss kill switch, max position cap, max-concurrent / one-per-instrument, and a re-entry cooldown.
 - **Profiles** = per-asset config saved in SQLite; pick which one is active from the UI.
 
+**New here?** The [**Trading Guide**](docs/TRADING_GUIDE.md) walks you through filling out the
+strategy form and starting the bot, with example configurations.
+
 Full design + phase plans live in [`docs/superpowers/`](docs/superpowers/).
 
 ---
