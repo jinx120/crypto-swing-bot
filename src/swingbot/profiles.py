@@ -45,6 +45,7 @@ class ProfileStore:
         return [r[0] for r in rows]
 
     def delete(self, name: str) -> None:
+        self._conn.execute("DELETE FROM armed WHERE name=?", (name,))
         self._conn.execute("DELETE FROM profiles WHERE name=?", (name,))
         self._conn.commit()
 

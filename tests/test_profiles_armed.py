@@ -49,3 +49,19 @@ def test_portfolio_settings_defaults_and_override(tmp_path):
     s.set_portfolio_settings({"max_concurrent": 8})
     assert s.get_portfolio_settings()["max_concurrent"] == 8
     assert s.get_portfolio_settings()["max_total_deployed_frac"] == 0.80  # unchanged keys persist
+
+
+def test_delete_disarms(tmp_path):
+    s = ProfileStore(str(tmp_path / "p.db"))
+    s.save("btc", _p("BTC/USD")); s.arm("btc")
+    assert s.is_armed("btc") is True
+    s.delete("btc")
+    assert s.is_armed("btc") is False
+    assert s.list_armed() == []
+
+
+def test_set_live_eligible_unarmed_raises(tmp_path):
+    s = ProfileStore(str(tmp_path / "p.db"))
+    s.save("btc", _p("BTC/USD"))
+    with pytest.raises(ValueError):
+        s.set_live_eligible("btc", True)
