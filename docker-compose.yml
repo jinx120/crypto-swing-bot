@@ -1,0 +1,16 @@
+services:
+  swingbot:
+    build: .
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - SWINGBOT_HOST=0.0.0.0
+      - SWINGBOT_DATA_DIR=/data
+      - HF_HOME=/hf-cache
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${HOME}/.swingbot:/data
+      - ${HOME}/.cache/huggingface:/hf-cache
+    restart: unless-stopped
