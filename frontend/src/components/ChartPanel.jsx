@@ -58,6 +58,13 @@ function ema(candles, period) {
   return out
 }
 
+// keep only candles whose numeric fields are all finite — guards setData against nulls
+function sanitize(candles) {
+  if (!Array.isArray(candles)) return []
+  return candles.filter(c =>
+    c && [c.time, c.open, c.high, c.low, c.close].every(Number.isFinite))
+}
+
 // entry/exit markers from the journal, sorted by time
 function tradeMarkers(trades) {
   if (!trades?.length) return []
@@ -128,11 +135,11 @@ export default function ChartPanel({ symbol, trades, position }) {
         if (!alive) return
         setErr('')
         setMeta({ symbol: r.symbol, timeframe: r.timeframe })
-        const candles = r.candles || []
+        const candles = sanitize(r.candles)
         dataRef.current = candles
         setCount(candles.length)
         candleRef.current?.setData(candles.map(c => ({ time: c.time, open: c.open, high: c.high, low: c.low, close: c.close })))
-        volRef.current?.setData(candles.map(c => ({ time: c.time, value: c.volume,
+        volRef.current?.setData(candles.map(c => ({ time: c.time, value: Number.isFinite(c.volume) ? c.volume : 0,
           color: c.close >= c.open ? 'rgba(54,209,122,0.4)' : 'rgba(255,84,112,0.4)' })))
         applyIndicators()
         if (candles.length && !fittedRef.current) { chartRef.current?.timeScale().fitContent(); fittedRef.current = true }
@@ -217,7 +224,7 @@ export default function ChartPanel({ symbol, trades, position }) {
       <div className="chart-box" ref={boxRef} />
       {err && <div className="err">{err}</div>}
       {count === 0 && !err && (
-        <div className="chart-empty">Waiting for market data — set Alpaca credentials and an active strategy, then the poller fills this in within a minute.</div>
+        <div className="chart-empty">No candles for <b>{label}</b>. If you just set this up, the poller fills this in within a minute. If it stays empty, check the symbol — Alpaca uses pairs like <code>BTC/USD</code> (not <code>BTC/USDT</code>).</div>
       )}
       {count === null && !err && <div className="chart-empty">Loading chart…</div>}
     </div>
