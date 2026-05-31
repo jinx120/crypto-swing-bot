@@ -20,7 +20,7 @@ export default function App(){
     try {
       const s = await api.state(); setState(s); setErr(''); setUnreachable(false)
       setTrades(await api.journal()); setMetrics(await api.metrics())
-    } catch(e){ setErr(e.message); if (e.network) setUnreachable(true) }
+    } catch(e){ setErr(e.message); setUnreachable(!!e.network) }
   }, [])
 
   useEffect(()=>{ refresh(); const id = setInterval(refresh, 2000); return ()=>clearInterval(id) }, [refresh])
