@@ -97,7 +97,7 @@
       "label": "ProfileBody",
       "file_type": "code",
       "source_file": "src/swingbot/web.py",
-      "source_location": "L17",
+      "source_location": "L15",
       "id": "swingbot_web_profilebody",
       "community": 59,
       "norm_label": "profilebody"
@@ -115,7 +115,7 @@
       "label": "ActiveBody",
       "file_type": "code",
       "source_file": "src/swingbot/web.py",
-      "source_location": "L22",
+      "source_location": "L20",
       "id": "swingbot_web_activebody",
       "community": 59,
       "norm_label": "activebody"
@@ -124,7 +124,7 @@
       "label": "CredBody",
       "file_type": "code",
       "source_file": "src/swingbot/web.py",
-      "source_location": "L26",
+      "source_location": "L24",
       "id": "swingbot_web_credbody",
       "community": 59,
       "norm_label": "credbody"
@@ -133,34 +133,16 @@
       "label": "ModeBody",
       "file_type": "code",
       "source_file": "src/swingbot/web.py",
-      "source_location": "L32",
+      "source_location": "L30",
       "id": "swingbot_web_modebody",
       "community": 59,
       "norm_label": "modebody"
     },
     {
-      "label": "BuildBody",
-      "file_type": "code",
-      "source_file": "src/swingbot/web.py",
-      "source_location": "L36",
-      "id": "swingbot_web_buildbody",
-      "community": 59,
-      "norm_label": "buildbody"
-    },
-    {
-      "label": "BacktestBody",
-      "file_type": "code",
-      "source_file": "src/swingbot/web.py",
-      "source_location": "L43",
-      "id": "swingbot_web_backtestbody",
-      "community": 59,
-      "norm_label": "backtestbody"
-    },
-    {
       "label": "create_app()",
       "file_type": "code",
       "source_file": "src/swingbot/web.py",
-      "source_location": "L47",
+      "source_location": "L34",
       "id": "swingbot_web_create_app",
       "community": 56,
       "norm_label": "create_app()"
@@ -169,7 +151,7 @@
       "label": "str",
       "file_type": "code",
       "source_file": "src/swingbot/web.py",
-      "source_location": "L47",
+      "source_location": "L34",
       "id": "src_swingbot_web_py_str",
       "community": 56,
       "norm_label": "str"
@@ -178,7 +160,7 @@
       "label": "FastAPI",
       "file_type": "code",
       "source_file": "src/swingbot/web.py",
-      "source_location": "L47",
+      "source_location": "L34",
       "id": "fastapi",
       "community": 56,
       "norm_label": "fastapi"
@@ -189,7 +171,7 @@
       "source_file": "src/swingbot/webmain.py",
       "source_location": "L1",
       "id": "src_swingbot_webmain_py",
-      "community": 20,
+      "community": 61,
       "norm_label": "webmain.py"
     },
     {
@@ -198,7 +180,7 @@
       "source_file": "src/swingbot/webmain.py",
       "source_location": "L20",
       "id": "swingbot_webmain_ensure_token",
-      "community": 20,
+      "community": 61,
       "norm_label": "_ensure_token()"
     },
     {
@@ -207,7 +189,7 @@
       "source_file": "src/swingbot/webmain.py",
       "source_location": "L20",
       "id": "src_swingbot_webmain_py_str",
-      "community": 20,
+      "community": 61,
       "norm_label": "str"
     },
     {
@@ -216,98 +198,8 @@
       "source_file": "src/swingbot/webmain.py",
       "source_location": "L31",
       "id": "swingbot_webmain_main",
-      "community": 20,
+      "community": 61,
       "norm_label": "main()"
-    },
-    {
-      "label": "presets.py",
-      "file_type": "code",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L1",
-      "id": "src_swingbot_presets_py",
-      "community": 18,
-      "norm_label": "presets.py"
-    },
-    {
-      "label": "Archetype",
-      "file_type": "code",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L26",
-      "id": "swingbot_presets_archetype",
-      "community": 18,
-      "norm_label": "archetype"
-    },
-    {
-      "label": "_profile_for()",
-      "file_type": "code",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L51",
-      "id": "swingbot_presets_profile_for",
-      "community": 18,
-      "norm_label": "_profile_for()"
-    },
-    {
-      "label": "str",
-      "file_type": "code",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L51",
-      "id": "src_swingbot_presets_py_str",
-      "community": 18,
-      "norm_label": "str"
-    },
-    {
-      "label": "archetype_profile()",
-      "file_type": "code",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L75",
-      "id": "swingbot_presets_archetype_profile",
-      "community": 18,
-      "norm_label": "archetype_profile()"
-    },
-    {
-      "label": "build_candidates()",
-      "file_type": "code",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L80",
-      "id": "swingbot_presets_build_candidates",
-      "community": 18,
-      "norm_label": "build_candidates()"
-    },
-    {
-      "label": "bool",
-      "file_type": "code",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L80",
-      "id": "src_swingbot_presets_py_bool",
-      "community": 18,
-      "norm_label": "bool"
-    },
-    {
-      "label": "int",
-      "file_type": "code",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L80",
-      "id": "src_swingbot_presets_py_int",
-      "community": 18,
-      "norm_label": "int"
-    },
-    {
-      "label": "A concrete profile for an archetype (for the preset gallery).",
-      "file_type": "rationale",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L76",
-      "id": "swingbot_presets_rationale_76",
-      "community": 18,
-      "norm_label": "a concrete profile for an archetype (for the preset gallery)."
-    },
-    {
-      "label": "Bounded set of {label, profile} candidates for the backtest search.",
-      "file_type": "rationale",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L82",
-      "id": "swingbot_presets_rationale_82",
-      "community": 18,
-      "norm_label": "bounded set of {label, profile} candidates for the backtest search."
     },
     {
       "label": "regime.py",
@@ -315,7 +207,7 @@
       "source_file": "src/swingbot/regime.py",
       "source_location": "L1",
       "id": "src_swingbot_regime_py",
-      "community": 4,
+      "community": 0,
       "norm_label": "regime.py"
     },
     {
@@ -324,7 +216,7 @@
       "source_file": "src/swingbot/regime.py",
       "source_location": "L8",
       "id": "swingbot_regime_regimefilter",
-      "community": 4,
+      "community": 0,
       "norm_label": "regimefilter"
     },
     {
@@ -333,7 +225,7 @@
       "source_file": "src/swingbot/regime.py",
       "source_location": "L9",
       "id": "swingbot_regime_regimefilter_init",
-      "community": 4,
+      "community": 0,
       "norm_label": ".__init__()"
     },
     {
@@ -405,7 +297,7 @@
       "source_file": "src/swingbot/snapshot.py",
       "source_location": "L1",
       "id": "src_swingbot_snapshot_py",
-      "community": 4,
+      "community": 0,
       "norm_label": "snapshot.py"
     },
     {
@@ -414,7 +306,7 @@
       "source_file": "src/swingbot/snapshot.py",
       "source_location": "L9",
       "id": "swingbot_snapshot_signal_snapshot",
-      "community": 4,
+      "community": 0,
       "norm_label": "signal_snapshot()"
     },
     {
@@ -423,7 +315,7 @@
       "source_file": "src/swingbot/snapshot.py",
       "source_location": "L9",
       "id": "src_swingbot_snapshot_py_strategyprofile",
-      "community": 4,
+      "community": 0,
       "norm_label": "strategyprofile"
     },
     {
@@ -432,7 +324,7 @@
       "source_file": "src/swingbot/snapshot.py",
       "source_location": "L9",
       "id": "src_swingbot_snapshot_py_marketcontext",
-      "community": 4,
+      "community": 0,
       "norm_label": "marketcontext"
     },
     {
@@ -441,7 +333,7 @@
       "source_file": "src/swingbot/snapshot.py",
       "source_location": "L10",
       "id": "swingbot_snapshot_rationale_10",
-      "community": 4,
+      "community": 0,
       "norm_label": "compute the current regime + confluence breakdown for display only."
     },
     {
@@ -477,7 +369,7 @@
       "source_file": "src/swingbot/metrics.py",
       "source_location": "L1",
       "id": "src_swingbot_metrics_py",
-      "community": 54,
+      "community": 10,
       "norm_label": "metrics.py"
     },
     {
@@ -486,7 +378,7 @@
       "source_file": "src/swingbot/metrics.py",
       "source_location": "L9",
       "id": "swingbot_metrics_metrics",
-      "community": 4,
+      "community": 10,
       "norm_label": "metrics"
     },
     {
@@ -495,7 +387,7 @@
       "source_file": "src/swingbot/metrics.py",
       "source_location": "L19",
       "id": "swingbot_metrics_compute_metrics",
-      "community": 54,
+      "community": 10,
       "norm_label": "compute_metrics()"
     },
     {
@@ -504,134 +396,8 @@
       "source_file": "src/swingbot/metrics.py",
       "source_location": "L19",
       "id": "src_swingbot_metrics_py_trade",
-      "community": 54,
+      "community": 10,
       "norm_label": "trade"
-    },
-    {
-      "label": "strategy_search.py",
-      "file_type": "code",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L1",
-      "id": "src_swingbot_strategy_search_py",
-      "community": 18,
-      "norm_label": "strategy_search.py"
-    },
-    {
-      "label": "InsufficientData",
-      "file_type": "code",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L12",
-      "id": "swingbot_strategy_search_insufficientdata",
-      "community": 18,
-      "norm_label": "insufficientdata"
-    },
-    {
-      "label": "Exception",
-      "file_type": "code",
-      "source_file": "",
-      "source_location": "",
-      "id": "exception",
-      "community": 18,
-      "norm_label": "exception"
-    },
-    {
-      "label": "_df_from_market()",
-      "file_type": "code",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L16",
-      "id": "swingbot_strategy_search_df_from_market",
-      "community": 18,
-      "norm_label": "_df_from_market()"
-    },
-    {
-      "label": "str",
-      "file_type": "code",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L16",
-      "id": "src_swingbot_strategy_search_py_str",
-      "community": 18,
-      "norm_label": "str"
-    },
-    {
-      "label": "int",
-      "file_type": "code",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L16",
-      "id": "src_swingbot_strategy_search_py_int",
-      "community": 18,
-      "norm_label": "int"
-    },
-    {
-      "label": "DataFrame",
-      "file_type": "code",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L16",
-      "id": "src_swingbot_strategy_search_py_dataframe",
-      "community": 18,
-      "norm_label": "dataframe"
-    },
-    {
-      "label": "metrics_dict()",
-      "file_type": "code",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L28",
-      "id": "swingbot_strategy_search_metrics_dict",
-      "community": 18,
-      "norm_label": "metrics_dict()"
-    },
-    {
-      "label": "backtest_profile()",
-      "file_type": "code",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L35",
-      "id": "swingbot_strategy_search_backtest_profile",
-      "community": 18,
-      "norm_label": "backtest_profile()"
-    },
-    {
-      "label": "search()",
-      "file_type": "code",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L46",
-      "id": "swingbot_strategy_search_search",
-      "community": 18,
-      "norm_label": "search()"
-    },
-    {
-      "label": "bool",
-      "file_type": "code",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L46",
-      "id": "src_swingbot_strategy_search_py_bool",
-      "community": 18,
-      "norm_label": "bool"
-    },
-    {
-      "label": "Serialize a Metrics object defensively (unknown fields -> None).",
-      "file_type": "rationale",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L29",
-      "id": "swingbot_strategy_search_rationale_29",
-      "community": 18,
-      "norm_label": "serialize a metrics object defensively (unknown fields -> none)."
-    },
-    {
-      "label": "Run one profile through the real backtest over cached candles. Returns Metrics.",
-      "file_type": "rationale",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L36",
-      "id": "swingbot_strategy_search_rationale_36",
-      "community": 18,
-      "norm_label": "run one profile through the real backtest over cached candles. returns metrics."
-    },
-    {
-      "label": "Backtest a bounded candidate set and rank by expectancy.",
-      "file_type": "rationale",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L48",
-      "id": "swingbot_strategy_search_rationale_48",
-      "community": 18,
-      "norm_label": "backtest a bounded candidate set and rank by expectancy."
     },
     {
       "label": "exits.py",
@@ -999,7 +765,7 @@
       "source_file": "src/swingbot/risk.py",
       "source_location": "L56",
       "id": "swingbot_risk_riskmanager_size",
-      "community": 57,
+      "community": 0,
       "norm_label": ".size()"
     },
     {
@@ -1053,7 +819,7 @@
       "source_file": "src/swingbot/sizing.py",
       "source_location": "L1",
       "id": "src_swingbot_sizing_py",
-      "community": 57,
+      "community": 17,
       "norm_label": "sizing.py"
     },
     {
@@ -1062,7 +828,7 @@
       "source_file": "src/swingbot/sizing.py",
       "source_location": "L4",
       "id": "swingbot_sizing_position_size",
-      "community": 57,
+      "community": 17,
       "norm_label": "position_size()"
     },
     {
@@ -1071,7 +837,7 @@
       "source_file": "src/swingbot/sizing.py",
       "source_location": "L4",
       "id": "src_swingbot_sizing_py_float",
-      "community": 57,
+      "community": 17,
       "norm_label": "float"
     },
     {
@@ -1080,7 +846,7 @@
       "source_file": "src/swingbot/sizing.py",
       "source_location": "L11",
       "id": "swingbot_sizing_rationale_11",
-      "community": 57,
+      "community": 17,
       "norm_label": "fixed-fractional-risk sizing, clamped by a max position fraction.      stop_dist"
     },
     {
@@ -1089,7 +855,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L1",
       "id": "src_swingbot_service_py",
-      "community": 0,
+      "community": 10,
       "norm_label": "service.py"
     },
     {
@@ -1098,7 +864,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L24",
       "id": "swingbot_service_botcontroller",
-      "community": 0,
+      "community": 10,
       "norm_label": "botcontroller"
     },
     {
@@ -1116,7 +882,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L25",
       "id": "swingbot_service_botcontroller_status",
-      "community": 0,
+      "community": 10,
       "norm_label": ".status()"
     },
     {
@@ -1125,7 +891,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L26",
       "id": "swingbot_service_botcontroller_journal",
-      "community": 0,
+      "community": 10,
       "norm_label": ".journal()"
     },
     {
@@ -1134,7 +900,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L27",
       "id": "swingbot_service_botcontroller_metrics",
-      "community": 0,
+      "community": 10,
       "norm_label": ".metrics()"
     },
     {
@@ -1143,7 +909,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L28",
       "id": "swingbot_service_botcontroller_halt",
-      "community": 0,
+      "community": 10,
       "norm_label": ".halt()"
     },
     {
@@ -1152,7 +918,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L29",
       "id": "swingbot_service_botcontroller_reset",
-      "community": 0,
+      "community": 10,
       "norm_label": ".reset()"
     },
     {
@@ -1161,7 +927,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L30",
       "id": "swingbot_service_botcontroller_pause",
-      "community": 0,
+      "community": 10,
       "norm_label": ".pause()"
     },
     {
@@ -1170,7 +936,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L31",
       "id": "swingbot_service_botcontroller_resume",
-      "community": 0,
+      "community": 10,
       "norm_label": ".resume()"
     },
     {
@@ -1179,7 +945,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L32",
       "id": "swingbot_service_botcontroller_flatten",
-      "community": 0,
+      "community": 10,
       "norm_label": ".flatten()"
     },
     {
@@ -1215,7 +981,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L34",
       "id": "swingbot_service_botcontroller_start",
-      "community": 0,
+      "community": 10,
       "norm_label": ".start()"
     },
     {
@@ -1224,7 +990,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L35",
       "id": "swingbot_service_botcontroller_stop",
-      "community": 0,
+      "community": 10,
       "norm_label": ".stop()"
     },
     {
@@ -1233,7 +999,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L38",
       "id": "swingbot_service_botservice",
-      "community": 0,
+      "community": 10,
       "norm_label": "botservice"
     },
     {
@@ -1269,7 +1035,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L51",
       "id": "swingbot_service_botservice_build",
-      "community": 0,
+      "community": 7,
       "norm_label": "._build()"
     },
     {
@@ -1287,7 +1053,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L66",
       "id": "swingbot_service_botservice_start",
-      "community": 0,
+      "community": 10,
       "norm_label": ".start()"
     },
     {
@@ -1296,7 +1062,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L84",
       "id": "swingbot_service_botservice_stop",
-      "community": 0,
+      "community": 10,
       "norm_label": ".stop()"
     },
     {
@@ -1305,7 +1071,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L90",
       "id": "swingbot_service_botservice_pause",
-      "community": 0,
+      "community": 10,
       "norm_label": ".pause()"
     },
     {
@@ -1314,7 +1080,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L94",
       "id": "swingbot_service_botservice_resume",
-      "community": 0,
+      "community": 10,
       "norm_label": ".resume()"
     },
     {
@@ -1323,7 +1089,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L98",
       "id": "swingbot_service_botservice_halt",
-      "community": 0,
+      "community": 10,
       "norm_label": ".halt()"
     },
     {
@@ -1332,7 +1098,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L104",
       "id": "swingbot_service_botservice_reset",
-      "community": 0,
+      "community": 10,
       "norm_label": ".reset()"
     },
     {
@@ -1341,7 +1107,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L110",
       "id": "swingbot_service_botservice_flatten",
-      "community": 0,
+      "community": 10,
       "norm_label": ".flatten()"
     },
     {
@@ -1350,7 +1116,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L114",
       "id": "swingbot_service_botservice_set_mode",
-      "community": 0,
+      "community": 10,
       "norm_label": ".set_mode()"
     },
     {
@@ -1359,7 +1125,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L128",
       "id": "swingbot_service_botservice_journal_trades",
-      "community": 0,
+      "community": 10,
       "norm_label": "._journal_trades()"
     },
     {
@@ -1368,7 +1134,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L131",
       "id": "swingbot_service_botservice_status",
-      "community": 0,
+      "community": 10,
       "norm_label": ".status()"
     },
     {
@@ -1377,7 +1143,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L154",
       "id": "swingbot_service_botservice_journal",
-      "community": 0,
+      "community": 10,
       "norm_label": ".journal()"
     },
     {
@@ -1386,7 +1152,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L157",
       "id": "swingbot_service_botservice_metrics",
-      "community": 0,
+      "community": 10,
       "norm_label": ".metrics()"
     },
     {
@@ -1395,7 +1161,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L161",
       "id": "swingbot_service_pos_dict",
-      "community": 0,
+      "community": 10,
       "norm_label": "_pos_dict()"
     },
     {
@@ -1404,7 +1170,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L170",
       "id": "swingbot_service_trade_dict",
-      "community": 0,
+      "community": 10,
       "norm_label": "_trade_dict()"
     },
     {
@@ -1413,7 +1179,7 @@
       "source_file": "src/swingbot/service.py",
       "source_location": "L39",
       "id": "swingbot_service_rationale_39",
-      "community": 0,
+      "community": 10,
       "norm_label": "runs the orchestrator in a background thread; exposes control + status."
     },
     {
@@ -1440,7 +1206,7 @@
       "source_file": "src/swingbot/backtest.py",
       "source_location": "L19",
       "id": "src_swingbot_backtest_py_dataframe",
-      "community": 4,
+      "community": 0,
       "norm_label": "dataframe"
     },
     {
@@ -1449,7 +1215,7 @@
       "source_file": "src/swingbot/backtest.py",
       "source_location": "L19",
       "id": "src_swingbot_backtest_py_int",
-      "community": 4,
+      "community": 0,
       "norm_label": "int"
     },
     {
@@ -1476,7 +1242,7 @@
       "source_file": "src/swingbot/backtest.py",
       "source_location": "L50",
       "id": "src_swingbot_backtest_py_strategyprofile",
-      "community": 4,
+      "community": 0,
       "norm_label": "strategyprofile"
     },
     {
@@ -1485,7 +1251,7 @@
       "source_file": "src/swingbot/backtest.py",
       "source_location": "L59",
       "id": "swingbot_backtest_run_backtest",
-      "community": 4,
+      "community": 17,
       "norm_label": "run_backtest()"
     },
     {
@@ -1494,7 +1260,7 @@
       "source_file": "src/swingbot/backtest.py",
       "source_location": "L59",
       "id": "src_swingbot_backtest_py_float",
-      "community": 4,
+      "community": 0,
       "norm_label": "float"
     },
     {
@@ -1503,7 +1269,7 @@
       "source_file": "src/swingbot/backtest.py",
       "source_location": "L59",
       "id": "src_swingbot_backtest_py_trade",
-      "community": 4,
+      "community": 0,
       "norm_label": "trade"
     },
     {
@@ -1512,7 +1278,7 @@
       "source_file": "src/swingbot/backtest.py",
       "source_location": "L59",
       "id": "src_swingbot_backtest_py_metrics",
-      "community": 4,
+      "community": 0,
       "norm_label": "metrics"
     },
     {
@@ -1539,7 +1305,7 @@
       "source_file": "src/swingbot/backtest.py",
       "source_location": "L65",
       "id": "swingbot_backtest_rationale_65",
-      "community": 4,
+      "community": 17,
       "norm_label": "replay candles through the real strategy. lookahead-safe:     decide on the last"
     },
     {
@@ -1548,7 +1314,7 @@
       "source_file": "src/swingbot/confluence.py",
       "source_location": "L1",
       "id": "src_swingbot_confluence_py",
-      "community": 4,
+      "community": 41,
       "norm_label": "confluence.py"
     },
     {
@@ -1557,7 +1323,7 @@
       "source_file": "src/swingbot/confluence.py",
       "source_location": "L21",
       "id": "swingbot_confluence_build_signals",
-      "community": 4,
+      "community": 41,
       "norm_label": "build_signals()"
     },
     {
@@ -1584,7 +1350,7 @@
       "source_file": "src/swingbot/confluence.py",
       "source_location": "L29",
       "id": "swingbot_confluence_confluenceengine",
-      "community": 4,
+      "community": 0,
       "norm_label": "confluenceengine"
     },
     {
@@ -1971,7 +1737,7 @@
       "source_file": "src/swingbot/orchestrator.py",
       "source_location": "L148",
       "id": "timedelta",
-      "community": 6,
+      "community": 0,
       "norm_label": "timedelta"
     },
     {
@@ -2025,7 +1791,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L1",
       "id": "src_swingbot_profiles_py",
-      "community": 20,
+      "community": 57,
       "norm_label": "profiles.py"
     },
     {
@@ -2034,7 +1800,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L9",
       "id": "swingbot_profiles_profilestore",
-      "community": 20,
+      "community": 57,
       "norm_label": "profilestore"
     },
     {
@@ -2043,7 +1809,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L12",
       "id": "swingbot_profiles_profilestore_init",
-      "community": 20,
+      "community": 57,
       "norm_label": ".__init__()"
     },
     {
@@ -2052,7 +1818,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L12",
       "id": "src_swingbot_profiles_py_str",
-      "community": 20,
+      "community": 57,
       "norm_label": "str"
     },
     {
@@ -2061,7 +1827,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L22",
       "id": "swingbot_profiles_profilestore_save",
-      "community": 20,
+      "community": 57,
       "norm_label": ".save()"
     },
     {
@@ -2070,7 +1836,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L33",
       "id": "swingbot_profiles_profilestore_get",
-      "community": 20,
+      "community": 57,
       "norm_label": ".get()"
     },
     {
@@ -2079,7 +1845,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L39",
       "id": "swingbot_profiles_profilestore_list",
-      "community": 20,
+      "community": 57,
       "norm_label": ".list()"
     },
     {
@@ -2088,7 +1854,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L43",
       "id": "swingbot_profiles_profilestore_delete",
-      "community": 20,
+      "community": 57,
       "norm_label": ".delete()"
     },
     {
@@ -2097,7 +1863,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L47",
       "id": "swingbot_profiles_profilestore_set_active",
-      "community": 20,
+      "community": 57,
       "norm_label": ".set_active()"
     },
     {
@@ -2106,7 +1872,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L55",
       "id": "swingbot_profiles_profilestore_get_active_name",
-      "community": 20,
+      "community": 57,
       "norm_label": ".get_active_name()"
     },
     {
@@ -2115,7 +1881,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L59",
       "id": "swingbot_profiles_profilestore_get_active",
-      "community": 20,
+      "community": 57,
       "norm_label": ".get_active()"
     },
     {
@@ -2124,7 +1890,7 @@
       "source_file": "src/swingbot/profiles.py",
       "source_location": "L10",
       "id": "swingbot_profiles_rationale_10",
-      "community": 20,
+      "community": 57,
       "norm_label": "sqlite-backed strategy profiles + an 'active' pointer."
     },
     {
@@ -2376,7 +2142,7 @@
       "source_file": "src/swingbot/signals/relative_strength.py",
       "source_location": "L15",
       "id": "signals_relative_strength_relativestrengthsignal_evaluate",
-      "community": 64,
+      "community": 1,
       "norm_label": ".evaluate()"
     },
     {
@@ -2385,7 +2151,7 @@
       "source_file": "src/swingbot/signals/relative_strength.py",
       "source_location": "L15",
       "id": "src_swingbot_signals_relative_strength_py_marketcontext",
-      "community": 64,
+      "community": 1,
       "norm_label": "marketcontext"
     },
     {
@@ -2394,7 +2160,7 @@
       "source_file": "src/swingbot/signals/relative_strength.py",
       "source_location": "L15",
       "id": "src_swingbot_signals_relative_strength_py_signalresult",
-      "community": 64,
+      "community": 1,
       "norm_label": "signalresult"
     },
     {
@@ -2466,7 +2232,7 @@
       "source_file": "src/swingbot/signals/fvg.py",
       "source_location": "L15",
       "id": "signals_fvg_fvgsignal_init",
-      "community": 1,
+      "community": 41,
       "norm_label": ".__init__()"
     },
     {
@@ -2475,7 +2241,7 @@
       "source_file": "src/swingbot/signals/fvg.py",
       "source_location": "L15",
       "id": "src_swingbot_signals_fvg_py_float",
-      "community": 1,
+      "community": 41,
       "norm_label": "float"
     },
     {
@@ -2538,7 +2304,7 @@
       "source_file": "src/swingbot/signals/kronos_adapter.py",
       "source_location": "L12",
       "id": "signals_kronos_adapter_predictorprotocol",
-      "community": 50,
+      "community": 46,
       "norm_label": "predictorprotocol"
     },
     {
@@ -2655,7 +2421,7 @@
       "source_file": "src/swingbot/signals/kronos_adapter.py",
       "source_location": "L13",
       "id": "signals_kronos_adapter_rationale_13",
-      "community": 50,
+      "community": 46,
       "norm_label": "matches the real kronospredictor.predict() signature."
     },
     {
@@ -2763,7 +2529,7 @@
       "source_file": "src/swingbot/signals/oversold.py",
       "source_location": "L15",
       "id": "signals_oversold_oversoldsignal_evaluate",
-      "community": 63,
+      "community": 1,
       "norm_label": ".evaluate()"
     },
     {
@@ -2772,7 +2538,7 @@
       "source_file": "src/swingbot/signals/oversold.py",
       "source_location": "L15",
       "id": "src_swingbot_signals_oversold_py_marketcontext",
-      "community": 63,
+      "community": 1,
       "norm_label": "marketcontext"
     },
     {
@@ -2781,7 +2547,7 @@
       "source_file": "src/swingbot/signals/oversold.py",
       "source_location": "L15",
       "id": "src_swingbot_signals_oversold_py_signalresult",
-      "community": 63,
+      "community": 1,
       "norm_label": "signalresult"
     },
     {
@@ -2790,7 +2556,7 @@
       "source_file": "src/swingbot/signals/kronos_forecast.py",
       "source_location": "L1",
       "id": "src_swingbot_signals_kronos_forecast_py",
-      "community": 4,
+      "community": 50,
       "norm_label": "kronos_forecast.py"
     },
     {
@@ -2799,7 +2565,7 @@
       "source_file": "src/swingbot/signals/kronos_forecast.py",
       "source_location": "L7",
       "id": "signals_kronos_forecast_kronosforecastsignal",
-      "community": 4,
+      "community": 50,
       "norm_label": "kronosforecastsignal"
     },
     {
@@ -2880,7 +2646,7 @@
       "source_file": "src/swingbot/signals/kronos_forecast.py",
       "source_location": "L8",
       "id": "signals_kronos_forecast_rationale_8",
-      "community": 4,
+      "community": 50,
       "norm_label": "kronos-based forecast signal. satisfies the signal protocol.      in tests, inje"
     },
     {
@@ -3033,7 +2799,7 @@
       "source_file": "src/swingbot/data/alpaca.py",
       "source_location": "L44",
       "id": "data_alpaca_alpacadata",
-      "community": 0,
+      "community": 54,
       "norm_label": "alpacadata"
     },
     {
@@ -3060,7 +2826,7 @@
       "source_file": "src/swingbot/data/alpaca.py",
       "source_location": "L64",
       "id": "data_alpaca_alpacadata_get_latest_price",
-      "community": 2,
+      "community": 54,
       "norm_label": ".get_latest_price()"
     },
     {
@@ -3069,7 +2835,7 @@
       "source_file": "src/swingbot/data/alpaca.py",
       "source_location": "L64",
       "id": "src_swingbot_data_alpaca_py_float",
-      "community": 2,
+      "community": 54,
       "norm_label": "float"
     },
     {
@@ -3087,7 +2853,7 @@
       "source_file": "src/swingbot/data/alpaca.py",
       "source_location": "L45",
       "id": "data_alpaca_rationale_45",
-      "community": 0,
+      "community": 54,
       "norm_label": "alpaca crypto market data. implements the marketdataprovider protocol."
     },
     {
@@ -3258,7 +3024,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L1",
       "id": "src_swingbot_data_market_py",
-      "community": 20,
+      "community": 22,
       "norm_label": "market.py"
     },
     {
@@ -3267,7 +3033,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L12",
       "id": "data_market_timeframe_seconds",
-      "community": 20,
+      "community": 22,
       "norm_label": "timeframe_seconds()"
     },
     {
@@ -3276,7 +3042,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L12",
       "id": "src_swingbot_data_market_py_str",
-      "community": 20,
+      "community": 22,
       "norm_label": "str"
     },
     {
@@ -3285,7 +3051,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L12",
       "id": "src_swingbot_data_market_py_int",
-      "community": 20,
+      "community": 22,
       "norm_label": "int"
     },
     {
@@ -3294,7 +3060,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L20",
       "id": "data_market_marketdata",
-      "community": 20,
+      "community": 22,
       "norm_label": "marketdata"
     },
     {
@@ -3303,7 +3069,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L28",
       "id": "data_market_marketdata_init",
-      "community": 20,
+      "community": 22,
       "norm_label": ".__init__()"
     },
     {
@@ -3312,7 +3078,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L28",
       "id": "candlestore",
-      "community": 20,
+      "community": 54,
       "norm_label": "candlestore"
     },
     {
@@ -3321,7 +3087,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L33",
       "id": "data_market_marketdata_provider",
-      "community": 20,
+      "community": 22,
       "norm_label": "._provider()"
     },
     {
@@ -3339,7 +3105,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L39",
       "id": "data_market_marketdata_refresh",
-      "community": 20,
+      "community": 22,
       "norm_label": ".refresh()"
     },
     {
@@ -3348,7 +3114,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L47",
       "id": "data_market_marketdata_get",
-      "community": 20,
+      "community": 22,
       "norm_label": ".get()"
     },
     {
@@ -3357,7 +3123,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L61",
       "id": "data_market_marketdata_is_stale",
-      "community": 20,
+      "community": 22,
       "norm_label": "._is_stale()"
     },
     {
@@ -3375,7 +3141,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L13",
       "id": "data_market_rationale_13",
-      "community": 20,
+      "community": 22,
       "norm_label": "bar interval in seconds for a timeframe like '15m', '4h', '1d'."
     },
     {
@@ -3384,7 +3150,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L21",
       "id": "data_market_rationale_21",
-      "community": 20,
+      "community": 22,
       "norm_label": "serves candles from the candlestore, fetching + caching from alpaca on a     cac"
     },
     {
@@ -3393,7 +3159,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L40",
       "id": "data_market_rationale_40",
-      "community": 20,
+      "community": 22,
       "norm_label": "force a live fetch from alpaca and upsert into the store."
     },
     {
@@ -3402,7 +3168,7 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L49",
       "id": "data_market_rationale_49",
-      "community": 20,
+      "community": 22,
       "norm_label": "return up to `limit` bars (oldest-first). if the store is empty or the         n"
     },
     {
@@ -3492,7 +3258,7 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L1",
       "id": "src_swingbot_data_poller_py",
-      "community": 20,
+      "community": 61,
       "norm_label": "poller.py"
     },
     {
@@ -3501,7 +3267,7 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L10",
       "id": "data_poller_candlepoller",
-      "community": 20,
+      "community": 61,
       "norm_label": "candlepoller"
     },
     {
@@ -3510,7 +3276,7 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L19",
       "id": "data_poller_candlepoller_init",
-      "community": 20,
+      "community": 54,
       "norm_label": ".__init__()"
     },
     {
@@ -3519,7 +3285,7 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L19",
       "id": "marketdata",
-      "community": 20,
+      "community": 54,
       "norm_label": "marketdata"
     },
     {
@@ -3528,7 +3294,7 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L19",
       "id": "src_swingbot_data_poller_py_profilestore",
-      "community": 20,
+      "community": 54,
       "norm_label": "profilestore"
     },
     {
@@ -3537,7 +3303,7 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L19",
       "id": "src_swingbot_data_poller_py_int",
-      "community": 20,
+      "community": 54,
       "norm_label": "int"
     },
     {
@@ -3546,7 +3312,7 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L26",
       "id": "data_poller_candlepoller_poll_once",
-      "community": 20,
+      "community": 54,
       "norm_label": ".poll_once()"
     },
     {
@@ -3555,7 +3321,7 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L36",
       "id": "data_poller_candlepoller_start",
-      "community": 20,
+      "community": 61,
       "norm_label": ".start()"
     },
     {
@@ -3564,7 +3330,7 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L55",
       "id": "data_poller_candlepoller_stop",
-      "community": 20,
+      "community": 61,
       "norm_label": ".stop()"
     },
     {
@@ -3573,7 +3339,7 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L11",
       "id": "data_poller_rationale_11",
-      "community": 20,
+      "community": 61,
       "norm_label": "periodically refreshes the active profile's symbol/timeframe candles via     mar"
     },
     {
@@ -3600,7 +3366,7 @@
       "source_file": "src/swingbot/broker/simulated.py",
       "source_location": "L23",
       "id": "broker_simulated_simulatedbroker",
-      "community": 4,
+      "community": 0,
       "norm_label": "simulatedbroker"
     },
     {
@@ -3609,7 +3375,7 @@
       "source_file": "src/swingbot/broker/simulated.py",
       "source_location": "L30",
       "id": "broker_simulated_simulatedbroker_init",
-      "community": 4,
+      "community": 0,
       "norm_label": ".__init__()"
     },
     {
@@ -3699,7 +3465,7 @@
       "source_file": "src/swingbot/broker/simulated.py",
       "source_location": "L88",
       "id": "broker_simulated_simulatedbroker_equity",
-      "community": 4,
+      "community": 0,
       "norm_label": ".equity()"
     },
     {
@@ -3708,7 +3474,7 @@
       "source_file": "src/swingbot/broker/simulated.py",
       "source_location": "L24",
       "id": "broker_simulated_rationale_24",
-      "community": 4,
+      "community": 0,
       "norm_label": "backtest broker: models long-only bracket fills with fees + slippage.      exit"
     },
     {
@@ -4153,42 +3919,6 @@
       "norm_label": "api"
     },
     {
-      "label": "PresetGallery.jsx",
-      "file_type": "code",
-      "source_file": "frontend/src/components/PresetGallery.jsx",
-      "source_location": "L1",
-      "id": "frontend_src_components_presetgallery_jsx",
-      "community": 8,
-      "norm_label": "presetgallery.jsx"
-    },
-    {
-      "label": "fmt()",
-      "file_type": "code",
-      "source_file": "frontend/src/components/PresetGallery.jsx",
-      "source_location": "L5",
-      "id": "components_presetgallery_fmt",
-      "community": 8,
-      "norm_label": "fmt()"
-    },
-    {
-      "label": "pct()",
-      "file_type": "code",
-      "source_file": "frontend/src/components/PresetGallery.jsx",
-      "source_location": "L6",
-      "id": "components_presetgallery_pct",
-      "community": 8,
-      "norm_label": "pct()"
-    },
-    {
-      "label": "PresetGallery()",
-      "file_type": "code",
-      "source_file": "frontend/src/components/PresetGallery.jsx",
-      "source_location": "L8",
-      "id": "components_presetgallery_presetgallery",
-      "community": 8,
-      "norm_label": "presetgallery()"
-    },
-    {
       "label": "SignalPanel.jsx",
       "file_type": "code",
       "source_file": "frontend/src/components/SignalPanel.jsx",
@@ -4322,60 +4052,6 @@
       "id": "components_tokengate_tokengate",
       "community": 8,
       "norm_label": "tokengate()"
-    },
-    {
-      "label": "StrategyBuilder.jsx",
-      "file_type": "code",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L1",
-      "id": "frontend_src_components_strategybuilder_jsx",
-      "community": 8,
-      "norm_label": "strategybuilder.jsx"
-    },
-    {
-      "label": "RISKS",
-      "file_type": "code",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L5",
-      "id": "components_strategybuilder_risks",
-      "community": 8,
-      "norm_label": "risks"
-    },
-    {
-      "label": "STYLES",
-      "file_type": "code",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L6",
-      "id": "components_strategybuilder_styles",
-      "community": 8,
-      "norm_label": "styles"
-    },
-    {
-      "label": "fmt()",
-      "file_type": "code",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L7",
-      "id": "components_strategybuilder_fmt",
-      "community": 8,
-      "norm_label": "fmt()"
-    },
-    {
-      "label": "pct()",
-      "file_type": "code",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L8",
-      "id": "components_strategybuilder_pct",
-      "community": 8,
-      "norm_label": "pct()"
-    },
-    {
-      "label": "StrategyBuilder()",
-      "file_type": "code",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L10",
-      "id": "components_strategybuilder_strategybuilder",
-      "community": 8,
-      "norm_label": "strategybuilder()"
     },
     {
       "label": "RiskPanel.jsx",
@@ -4561,7 +4237,7 @@
       "label": "BLANK",
       "file_type": "code",
       "source_file": "frontend/src/pages/Strategy.jsx",
-      "source_location": "L7",
+      "source_location": "L5",
       "id": "pages_strategy_blank",
       "community": 8,
       "norm_label": "blank"
@@ -4570,7 +4246,7 @@
       "label": "g()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Strategy.jsx",
-      "source_location": "L20",
+      "source_location": "L18",
       "id": "pages_strategy_g",
       "community": 8,
       "norm_label": "g()"
@@ -4579,7 +4255,7 @@
       "label": "parseProfile()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Strategy.jsx",
-      "source_location": "L22",
+      "source_location": "L20",
       "id": "pages_strategy_parseprofile",
       "community": 8,
       "norm_label": "parseprofile()"
@@ -4588,7 +4264,7 @@
       "label": "assembleProfile()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Strategy.jsx",
-      "source_location": "L55",
+      "source_location": "L53",
       "id": "pages_strategy_assembleprofile",
       "community": 8,
       "norm_label": "assembleprofile()"
@@ -4597,7 +4273,7 @@
       "label": "Num()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Strategy.jsx",
-      "source_location": "L79",
+      "source_location": "L77",
       "id": "pages_strategy_num",
       "community": 8,
       "norm_label": "num()"
@@ -4606,7 +4282,7 @@
       "label": "Txt()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Strategy.jsx",
-      "source_location": "L87",
+      "source_location": "L85",
       "id": "pages_strategy_txt",
       "community": 8,
       "norm_label": "txt()"
@@ -4615,7 +4291,7 @@
       "label": "Toggle()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Strategy.jsx",
-      "source_location": "L95",
+      "source_location": "L93",
       "id": "pages_strategy_toggle",
       "community": 8,
       "norm_label": "toggle()"
@@ -4624,91 +4300,10 @@
       "label": "Strategy()",
       "file_type": "code",
       "source_file": "frontend/src/pages/Strategy.jsx",
-      "source_location": "L104",
+      "source_location": "L102",
       "id": "pages_strategy_strategy",
       "community": 8,
       "norm_label": "strategy()"
-    },
-    {
-      "label": "test_strategy_search.py",
-      "file_type": "code",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L1",
-      "id": "tests_test_strategy_search_py",
-      "community": 18,
-      "norm_label": "test_strategy_search.py"
-    },
-    {
-      "label": "_bars()",
-      "file_type": "code",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L7",
-      "id": "tests_test_strategy_search_bars",
-      "community": 18,
-      "norm_label": "_bars()"
-    },
-    {
-      "label": "FakeMarket",
-      "file_type": "code",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L16",
-      "id": "tests_test_strategy_search_fakemarket",
-      "community": 18,
-      "norm_label": "fakemarket"
-    },
-    {
-      "label": ".__init__()",
-      "file_type": "code",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L17",
-      "id": "tests_test_strategy_search_fakemarket_init",
-      "community": 18,
-      "norm_label": ".__init__()"
-    },
-    {
-      "label": ".get()",
-      "file_type": "code",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L19",
-      "id": "tests_test_strategy_search_fakemarket_get",
-      "community": 18,
-      "norm_label": ".get()"
-    },
-    {
-      "label": "test_metrics_dict_uses_getattr_defaults()",
-      "file_type": "code",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L23",
-      "id": "tests_test_strategy_search_test_metrics_dict_uses_getattr_defaults",
-      "community": 18,
-      "norm_label": "test_metrics_dict_uses_getattr_defaults()"
-    },
-    {
-      "label": "test_backtest_profile_runs_end_to_end()",
-      "file_type": "code",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L30",
-      "id": "tests_test_strategy_search_test_backtest_profile_runs_end_to_end",
-      "community": 18,
-      "norm_label": "test_backtest_profile_runs_end_to_end()"
-    },
-    {
-      "label": "test_search_ranks_by_expectancy_and_flags_recommended()",
-      "file_type": "code",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L38",
-      "id": "tests_test_strategy_search_test_search_ranks_by_expectancy_and_flags_recommended",
-      "community": 18,
-      "norm_label": "test_search_ranks_by_expectancy_and_flags_recommended()"
-    },
-    {
-      "label": "test_search_captures_candidate_errors()",
-      "file_type": "code",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L54",
-      "id": "tests_test_strategy_search_test_search_captures_candidate_errors",
-      "community": 18,
-      "norm_label": "test_search_captures_candidate_errors()"
     },
     {
       "label": "test_config.py",
@@ -4950,7 +4545,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L1",
       "id": "tests_test_risk_py",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_risk.py"
     },
     {
@@ -4959,7 +4554,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L11",
       "id": "tests_test_risk_profile",
-      "community": 6,
+      "community": 18,
       "norm_label": "_profile()"
     },
     {
@@ -4968,7 +4563,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L19",
       "id": "tests_test_risk_trade",
-      "community": 6,
+      "community": 18,
       "norm_label": "_trade()"
     },
     {
@@ -4977,7 +4572,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L25",
       "id": "tests_test_risk_test_entry_approved_when_clean",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_entry_approved_when_clean()"
     },
     {
@@ -4986,7 +4581,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L30",
       "id": "tests_test_risk_test_entry_blocked_when_killswitch_active",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_entry_blocked_when_killswitch_active()"
     },
     {
@@ -4995,7 +4590,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L35",
       "id": "tests_test_risk_test_entry_blocked_when_max_concurrent_reached",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_entry_blocked_when_max_concurrent_reached()"
     },
     {
@@ -5004,7 +4599,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L40",
       "id": "tests_test_risk_test_entry_blocked_during_cooldown",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_entry_blocked_during_cooldown()"
     },
     {
@@ -5013,7 +4608,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L46",
       "id": "tests_test_risk_test_entry_allowed_after_cooldown_expires",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_entry_allowed_after_cooldown_expires()"
     },
     {
@@ -5022,7 +4617,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L52",
       "id": "tests_test_risk_test_sizing_uses_fixed_fractional",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_sizing_uses_fixed_fractional()"
     },
     {
@@ -5031,7 +4626,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L57",
       "id": "tests_test_risk_test_stop_out_sets_cooldown_and_counts_loss",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_stop_out_sets_cooldown_and_counts_loss()"
     },
     {
@@ -5040,7 +4635,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L65",
       "id": "tests_test_risk_test_win_resets_consecutive_losses",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_win_resets_consecutive_losses()"
     },
     {
@@ -5049,7 +4644,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L71",
       "id": "tests_test_risk_test_killswitch_trips_on_consecutive_losses",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_killswitch_trips_on_consecutive_losses()"
     },
     {
@@ -5058,7 +4653,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L77",
       "id": "tests_test_risk_test_killswitch_trips_on_daily_loss",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_killswitch_trips_on_daily_loss()"
     },
     {
@@ -5067,7 +4662,7 @@
       "source_file": "tests/test_risk.py",
       "source_location": "L83",
       "id": "tests_test_risk_test_daily_counters_reset_on_new_day",
-      "community": 6,
+      "community": 18,
       "norm_label": "test_daily_counters_reset_on_new_day()"
     },
     {
@@ -5094,7 +4689,7 @@
       "source_file": "tests/test_kronos_backtest.py",
       "source_location": "L12",
       "id": "tests_test_kronos_backtest_py_int",
-      "community": 4,
+      "community": 50,
       "norm_label": "int"
     },
     {
@@ -5103,7 +4698,7 @@
       "source_file": "tests/test_kronos_backtest.py",
       "source_location": "L12",
       "id": "tests_test_kronos_backtest_py_float",
-      "community": 4,
+      "community": 50,
       "norm_label": "float"
     },
     {
@@ -5130,7 +4725,7 @@
       "source_file": "tests/test_kronos_backtest.py",
       "source_location": "L27",
       "id": "tests_test_kronos_backtest_recordingpredictor_init",
-      "community": 4,
+      "community": 50,
       "norm_label": ".__init__()"
     },
     {
@@ -5166,7 +4761,7 @@
       "source_file": "tests/test_kronos_backtest.py",
       "source_location": "L48",
       "id": "tests_test_kronos_backtest_py_strategyprofile",
-      "community": 4,
+      "community": 50,
       "norm_label": "strategyprofile"
     },
     {
@@ -5256,7 +4851,7 @@
       "source_file": "tests/test_journal_metrics.py",
       "source_location": "L1",
       "id": "tests_test_journal_metrics_py",
-      "community": 54,
+      "community": 10,
       "norm_label": "test_journal_metrics.py"
     },
     {
@@ -5265,7 +4860,7 @@
       "source_file": "tests/test_journal_metrics.py",
       "source_location": "L7",
       "id": "tests_test_journal_metrics_trade",
-      "community": 54,
+      "community": 10,
       "norm_label": "_trade()"
     },
     {
@@ -5274,7 +4869,7 @@
       "source_file": "tests/test_journal_metrics.py",
       "source_location": "L17",
       "id": "tests_test_journal_metrics_test_journal_records_and_lists",
-      "community": 54,
+      "community": 10,
       "norm_label": "test_journal_records_and_lists()"
     },
     {
@@ -5283,7 +4878,7 @@
       "source_file": "tests/test_journal_metrics.py",
       "source_location": "L28",
       "id": "tests_test_journal_metrics_test_metrics_on_known_trades",
-      "community": 54,
+      "community": 10,
       "norm_label": "test_metrics_on_known_trades()"
     },
     {
@@ -5292,7 +4887,7 @@
       "source_file": "tests/test_journal_metrics.py",
       "source_location": "L39",
       "id": "tests_test_journal_metrics_test_metrics_empty",
-      "community": 54,
+      "community": 10,
       "norm_label": "test_metrics_empty()"
     },
     {
@@ -5301,7 +4896,7 @@
       "source_file": "tests/test_journal_metrics.py",
       "source_location": "L46",
       "id": "tests_test_journal_metrics_test_profit_factor_infinite_when_all_wins",
-      "community": 54,
+      "community": 10,
       "norm_label": "test_profit_factor_infinite_when_all_wins()"
     },
     {
@@ -5310,7 +4905,7 @@
       "source_file": "tests/test_journal_metrics.py",
       "source_location": "L51",
       "id": "tests_test_journal_metrics_test_profit_factor_zero_when_all_losses",
-      "community": 54,
+      "community": 10,
       "norm_label": "test_profit_factor_zero_when_all_losses()"
     },
     {
@@ -5346,7 +4941,7 @@
       "source_file": "tests/test_sizing.py",
       "source_location": "L1",
       "id": "tests_test_sizing_py",
-      "community": 57,
+      "community": 17,
       "norm_label": "test_sizing.py"
     },
     {
@@ -5355,7 +4950,7 @@
       "source_file": "tests/test_sizing.py",
       "source_location": "L4",
       "id": "tests_test_sizing_test_risk_based_size",
-      "community": 57,
+      "community": 17,
       "norm_label": "test_risk_based_size()"
     },
     {
@@ -5364,7 +4959,7 @@
       "source_file": "tests/test_sizing.py",
       "source_location": "L10",
       "id": "tests_test_sizing_test_position_cap_clamps_size",
-      "community": 57,
+      "community": 17,
       "norm_label": "test_position_cap_clamps_size()"
     },
     {
@@ -5373,7 +4968,7 @@
       "source_file": "tests/test_sizing.py",
       "source_location": "L16",
       "id": "tests_test_sizing_test_zero_stop_distance_returns_zero",
-      "community": 57,
+      "community": 17,
       "norm_label": "test_zero_stop_distance_returns_zero()"
     },
     {
@@ -5571,7 +5166,7 @@
       "source_file": "tests/test_signals.py",
       "source_location": "L1",
       "id": "tests_test_signals_py",
-      "community": 61,
+      "community": 41,
       "norm_label": "test_signals.py"
     },
     {
@@ -5580,7 +5175,7 @@
       "source_file": "tests/test_signals.py",
       "source_location": "L10",
       "id": "tests_test_signals_df",
-      "community": 61,
+      "community": 41,
       "norm_label": "_df()"
     },
     {
@@ -5589,7 +5184,7 @@
       "source_file": "tests/test_signals.py",
       "source_location": "L22",
       "id": "tests_test_signals_test_oversold_high_when_falling",
-      "community": 61,
+      "community": 41,
       "norm_label": "test_oversold_high_when_falling()"
     },
     {
@@ -5598,7 +5193,7 @@
       "source_file": "tests/test_signals.py",
       "source_location": "L28",
       "id": "tests_test_signals_test_oversold_zero_when_rising",
-      "community": 61,
+      "community": 41,
       "norm_label": "test_oversold_zero_when_rising()"
     },
     {
@@ -5607,7 +5202,7 @@
       "source_file": "tests/test_signals.py",
       "source_location": "L32",
       "id": "tests_test_signals_test_vwap_high_when_price_below_vwap",
-      "community": 61,
+      "community": 41,
       "norm_label": "test_vwap_high_when_price_below_vwap()"
     },
     {
@@ -5616,7 +5211,7 @@
       "source_file": "tests/test_signals.py",
       "source_location": "L38",
       "id": "tests_test_signals_test_vwap_zero_when_price_above_vwap",
-      "community": 61,
+      "community": 41,
       "norm_label": "test_vwap_zero_when_price_above_vwap()"
     },
     {
@@ -5625,7 +5220,7 @@
       "source_file": "tests/test_signals.py",
       "source_location": "L43",
       "id": "tests_test_signals_test_relative_strength_high_when_outperforming",
-      "community": 61,
+      "community": 41,
       "norm_label": "test_relative_strength_high_when_outperforming()"
     },
     {
@@ -5634,7 +5229,7 @@
       "source_file": "tests/test_signals.py",
       "source_location": "L50",
       "id": "tests_test_signals_test_relative_strength_neutral_without_benchmark",
-      "community": 61,
+      "community": 41,
       "norm_label": "test_relative_strength_neutral_without_benchmark()"
     },
     {
@@ -5643,7 +5238,7 @@
       "source_file": "tests/test_signals.py",
       "source_location": "L54",
       "id": "tests_test_signals_test_fvg_stub_returns_neutral_zero",
-      "community": 61,
+      "community": 41,
       "norm_label": "test_fvg_stub_returns_neutral_zero()"
     },
     {
@@ -6120,7 +5715,7 @@
       "source_file": "tests/test_snapshot.py",
       "source_location": "L1",
       "id": "tests_test_snapshot_py",
-      "community": 4,
+      "community": 27,
       "norm_label": "test_snapshot.py"
     },
     {
@@ -6129,7 +5724,7 @@
       "source_file": "tests/test_snapshot.py",
       "source_location": "L8",
       "id": "tests_test_snapshot_series",
-      "community": 4,
+      "community": 27,
       "norm_label": "_series()"
     },
     {
@@ -6138,7 +5733,7 @@
       "source_file": "tests/test_snapshot.py",
       "source_location": "L15",
       "id": "tests_test_snapshot_profile",
-      "community": 4,
+      "community": 27,
       "norm_label": "_profile()"
     },
     {
@@ -6147,7 +5742,7 @@
       "source_file": "tests/test_snapshot.py",
       "source_location": "L22",
       "id": "tests_test_snapshot_test_snapshot_shape",
-      "community": 4,
+      "community": 27,
       "norm_label": "test_snapshot_shape()"
     },
     {
@@ -6228,7 +5823,7 @@
       "source_file": "tests/test_regime.py",
       "source_location": "L1",
       "id": "tests_test_regime_py",
-      "community": 4,
+      "community": 21,
       "norm_label": "test_regime.py"
     },
     {
@@ -6237,7 +5832,7 @@
       "source_file": "tests/test_regime.py",
       "source_location": "L8",
       "id": "tests_test_regime_df",
-      "community": 4,
+      "community": 21,
       "norm_label": "_df()"
     },
     {
@@ -6246,7 +5841,7 @@
       "source_file": "tests/test_regime.py",
       "source_location": "L17",
       "id": "tests_test_regime_profile",
-      "community": 4,
+      "community": 21,
       "norm_label": "_profile()"
     },
     {
@@ -6255,7 +5850,7 @@
       "source_file": "tests/test_regime.py",
       "source_location": "L23",
       "id": "tests_test_regime_test_uptrend_when_price_above_rising_ma",
-      "community": 4,
+      "community": 21,
       "norm_label": "test_uptrend_when_price_above_rising_ma()"
     },
     {
@@ -6264,7 +5859,7 @@
       "source_file": "tests/test_regime.py",
       "source_location": "L28",
       "id": "tests_test_regime_test_downtrend_when_price_below_falling_ma",
-      "community": 4,
+      "community": 21,
       "norm_label": "test_downtrend_when_price_below_falling_ma()"
     },
     {
@@ -6273,7 +5868,7 @@
       "source_file": "tests/test_regime.py",
       "source_location": "L33",
       "id": "tests_test_regime_test_permits_entry_respects_allowed_regimes",
-      "community": 4,
+      "community": 21,
       "norm_label": "test_permits_entry_respects_allowed_regimes()"
     },
     {
@@ -6282,7 +5877,7 @@
       "source_file": "tests/test_regime.py",
       "source_location": "L39",
       "id": "tests_test_regime_test_uses_htf_when_present",
-      "community": 4,
+      "community": 21,
       "norm_label": "test_uses_htf_when_present()"
     },
     {
@@ -6291,7 +5886,7 @@
       "source_file": "tests/test_regime.py",
       "source_location": "L47",
       "id": "tests_test_regime_test_single_row_returns_neutral",
-      "community": 4,
+      "community": 21,
       "norm_label": "test_single_row_returns_neutral()"
     },
     {
@@ -6475,60 +6070,6 @@
       "norm_label": "test_open_position_roundtrips_fields()"
     },
     {
-      "label": "test_presets.py",
-      "file_type": "code",
-      "source_file": "tests/test_presets.py",
-      "source_location": "L1",
-      "id": "tests_test_presets_py",
-      "community": 18,
-      "norm_label": "test_presets.py"
-    },
-    {
-      "label": "test_archetypes_have_required_fields()",
-      "file_type": "code",
-      "source_file": "tests/test_presets.py",
-      "source_location": "L7",
-      "id": "tests_test_presets_test_archetypes_have_required_fields",
-      "community": 18,
-      "norm_label": "test_archetypes_have_required_fields()"
-    },
-    {
-      "label": "test_archetype_profile_is_valid_and_overrides_symbol()",
-      "file_type": "code",
-      "source_file": "tests/test_presets.py",
-      "source_location": "L14",
-      "id": "tests_test_presets_test_archetype_profile_is_valid_and_overrides_symbol",
-      "community": 18,
-      "norm_label": "test_archetype_profile_is_valid_and_overrides_symbol()"
-    },
-    {
-      "label": "test_build_candidates_non_ai()",
-      "file_type": "code",
-      "source_file": "tests/test_presets.py",
-      "source_location": "L22",
-      "id": "tests_test_presets_test_build_candidates_non_ai",
-      "community": 18,
-      "norm_label": "test_build_candidates_non_ai()"
-    },
-    {
-      "label": "test_build_candidates_ai_includes_kronos()",
-      "file_type": "code",
-      "source_file": "tests/test_presets.py",
-      "source_location": "L32",
-      "id": "tests_test_presets_test_build_candidates_ai_includes_kronos",
-      "community": 18,
-      "norm_label": "test_build_candidates_ai_includes_kronos()"
-    },
-    {
-      "label": "test_build_candidates_rejects_bad_knobs()",
-      "file_type": "code",
-      "source_file": "tests/test_presets.py",
-      "source_location": "L39",
-      "id": "tests_test_presets_test_build_candidates_rejects_bad_knobs",
-      "community": 18,
-      "norm_label": "test_build_candidates_rejects_bad_knobs()"
-    },
-    {
       "label": "test_alpaca_broker.py",
       "file_type": "code",
       "source_file": "tests/test_alpaca_broker.py",
@@ -6561,7 +6102,7 @@
       "source_file": "tests/test_confluence.py",
       "source_location": "L1",
       "id": "tests_test_confluence_py",
-      "community": 4,
+      "community": 41,
       "norm_label": "test_confluence.py"
     },
     {
@@ -6570,7 +6111,7 @@
       "source_file": "tests/test_confluence.py",
       "source_location": "L8",
       "id": "tests_test_confluence_df",
-      "community": 4,
+      "community": 41,
       "norm_label": "_df()"
     },
     {
@@ -6579,7 +6120,7 @@
       "source_file": "tests/test_confluence.py",
       "source_location": "L18",
       "id": "tests_test_confluence_profile",
-      "community": 4,
+      "community": 41,
       "norm_label": "_profile()"
     },
     {
@@ -6588,7 +6129,7 @@
       "source_file": "tests/test_confluence.py",
       "source_location": "L29",
       "id": "tests_test_confluence_test_build_signals_returns_configured_signals",
-      "community": 4,
+      "community": 41,
       "norm_label": "test_build_signals_returns_configured_signals()"
     },
     {
@@ -6597,7 +6138,7 @@
       "source_file": "tests/test_confluence.py",
       "source_location": "L33",
       "id": "tests_test_confluence_test_confluence_passes_when_score_meets_threshold",
-      "community": 4,
+      "community": 41,
       "norm_label": "test_confluence_passes_when_score_meets_threshold()"
     },
     {
@@ -6606,7 +6147,7 @@
       "source_file": "tests/test_confluence.py",
       "source_location": "L42",
       "id": "tests_test_confluence_test_confluence_fails_in_clean_uptrend",
-      "community": 4,
+      "community": 41,
       "norm_label": "test_confluence_fails_in_clean_uptrend()"
     },
     {
@@ -6804,7 +6345,7 @@
       "source_file": "tests/test_backtest_integration.py",
       "source_location": "L1",
       "id": "tests_test_backtest_integration_py",
-      "community": 4,
+      "community": 17,
       "norm_label": "test_backtest_integration.py"
     },
     {
@@ -6813,7 +6354,7 @@
       "source_file": "tests/test_backtest_integration.py",
       "source_location": "L8",
       "id": "tests_test_backtest_integration_make_series",
-      "community": 4,
+      "community": 17,
       "norm_label": "_make_series()"
     },
     {
@@ -6822,7 +6363,7 @@
       "source_file": "tests/test_backtest_integration.py",
       "source_location": "L21",
       "id": "tests_test_backtest_integration_dip_and_recover",
-      "community": 4,
+      "community": 17,
       "norm_label": "_dip_and_recover()"
     },
     {
@@ -6831,7 +6372,7 @@
       "source_file": "tests/test_backtest_integration.py",
       "source_location": "L28",
       "id": "tests_test_backtest_integration_profile",
-      "community": 4,
+      "community": 17,
       "norm_label": "_profile()"
     },
     {
@@ -6840,7 +6381,7 @@
       "source_file": "tests/test_backtest_integration.py",
       "source_location": "L48",
       "id": "tests_test_backtest_integration_test_backtest_produces_trades_and_metrics",
-      "community": 4,
+      "community": 17,
       "norm_label": "test_backtest_produces_trades_and_metrics()"
     },
     {
@@ -6849,7 +6390,7 @@
       "source_file": "tests/test_backtest_integration.py",
       "source_location": "L56",
       "id": "tests_test_backtest_integration_test_backtest_no_trades_in_pure_downtrend",
-      "community": 4,
+      "community": 17,
       "norm_label": "test_backtest_no_trades_in_pure_downtrend()"
     },
     {
@@ -6858,7 +6399,7 @@
       "source_file": "tests/test_backtest_integration.py",
       "source_location": "L61",
       "id": "tests_test_backtest_integration_test_backtest_is_lookahead_safe_entry_at_next_open",
-      "community": 4,
+      "community": 17,
       "norm_label": "test_backtest_is_lookahead_safe_entry_at_next_open()"
     },
     {
@@ -6867,7 +6408,7 @@
       "source_file": "tests/test_backtest_integration.py",
       "source_location": "L68",
       "id": "tests_test_backtest_integration_test_backtest_rejects_too_short_input",
-      "community": 4,
+      "community": 17,
       "norm_label": "test_backtest_rejects_too_short_input()"
     },
     {
@@ -7038,7 +6579,7 @@
       "source_file": "tests/test_market.py",
       "source_location": "L1",
       "id": "tests_test_market_py",
-      "community": 20,
+      "community": 63,
       "norm_label": "test_market.py"
     },
     {
@@ -7047,7 +6588,7 @@
       "source_file": "tests/test_market.py",
       "source_location": "L9",
       "id": "tests_test_market_df",
-      "community": 20,
+      "community": 63,
       "norm_label": "_df()"
     },
     {
@@ -7056,7 +6597,7 @@
       "source_file": "tests/test_market.py",
       "source_location": "L19",
       "id": "tests_test_market_fakeprovider",
-      "community": 20,
+      "community": 63,
       "norm_label": "_fakeprovider"
     },
     {
@@ -7065,7 +6606,7 @@
       "source_file": "tests/test_market.py",
       "source_location": "L20",
       "id": "tests_test_market_fakeprovider_init",
-      "community": 20,
+      "community": 63,
       "norm_label": ".__init__()"
     },
     {
@@ -7074,7 +6615,7 @@
       "source_file": "tests/test_market.py",
       "source_location": "L24",
       "id": "tests_test_market_fakeprovider_get_candles",
-      "community": 20,
+      "community": 63,
       "norm_label": ".get_candles()"
     },
     {
@@ -7083,7 +6624,7 @@
       "source_file": "tests/test_market.py",
       "source_location": "L29",
       "id": "tests_test_market_test_timeframe_seconds",
-      "community": 20,
+      "community": 22,
       "norm_label": "test_timeframe_seconds()"
     },
     {
@@ -7092,7 +6633,7 @@
       "source_file": "tests/test_market.py",
       "source_location": "L37",
       "id": "tests_test_market_test_get_fetches_on_empty_store",
-      "community": 20,
+      "community": 63,
       "norm_label": "test_get_fetches_on_empty_store()"
     },
     {
@@ -7101,7 +6642,7 @@
       "source_file": "tests/test_market.py",
       "source_location": "L48",
       "id": "tests_test_market_test_get_serves_cache_when_fresh",
-      "community": 20,
+      "community": 63,
       "norm_label": "test_get_serves_cache_when_fresh()"
     },
     {
@@ -7110,7 +6651,7 @@
       "source_file": "tests/test_market.py",
       "source_location": "L62",
       "id": "tests_test_market_test_get_without_creds_returns_store_only",
-      "community": 20,
+      "community": 63,
       "norm_label": "test_get_without_creds_returns_store_only()"
     },
     {
@@ -7425,7 +6966,7 @@
       "source_file": "tests/test_kronos_forecast.py",
       "source_location": "L135",
       "id": "kronosforecastsignal",
-      "community": 5,
+      "community": 50,
       "norm_label": "kronosforecastsignal"
     },
     {
@@ -7695,7 +7236,7 @@
       "source_file": "tests/test_simulated_broker.py",
       "source_location": "L1",
       "id": "tests_test_simulated_broker_py",
-      "community": 6,
+      "community": 0,
       "norm_label": "test_simulated_broker.py"
     },
     {
@@ -7704,7 +7245,7 @@
       "source_file": "tests/test_simulated_broker.py",
       "source_location": "L7",
       "id": "tests_test_simulated_broker_candle",
-      "community": 6,
+      "community": 0,
       "norm_label": "_candle()"
     },
     {
@@ -7713,7 +7254,7 @@
       "source_file": "tests/test_simulated_broker.py",
       "source_location": "L14",
       "id": "tests_test_simulated_broker_test_take_profit_fill",
-      "community": 6,
+      "community": 0,
       "norm_label": "test_take_profit_fill()"
     },
     {
@@ -7722,7 +7263,7 @@
       "source_file": "tests/test_simulated_broker.py",
       "source_location": "L25",
       "id": "tests_test_simulated_broker_test_stop_fill_takes_priority_over_tp_same_bar",
-      "community": 6,
+      "community": 0,
       "norm_label": "test_stop_fill_takes_priority_over_tp_same_bar()"
     },
     {
@@ -7731,7 +7272,7 @@
       "source_file": "tests/test_simulated_broker.py",
       "source_location": "L34",
       "id": "tests_test_simulated_broker_test_time_cap_fill_at_close",
-      "community": 6,
+      "community": 0,
       "norm_label": "test_time_cap_fill_at_close()"
     },
     {
@@ -7740,7 +7281,7 @@
       "source_file": "tests/test_simulated_broker.py",
       "source_location": "L43",
       "id": "tests_test_simulated_broker_test_fees_reduce_pnl",
-      "community": 6,
+      "community": 0,
       "norm_label": "test_fees_reduce_pnl()"
     },
     {
@@ -7749,7 +7290,7 @@
       "source_file": "tests/test_simulated_broker.py",
       "source_location": "L52",
       "id": "tests_test_simulated_broker_test_equity_reflects_open_position",
-      "community": 6,
+      "community": 0,
       "norm_label": "test_equity_reflects_open_position()"
     },
     {
@@ -7796,195 +7337,6 @@
       "id": "tests_test_graduation_test_allowed_when_criteria_met",
       "community": 10,
       "norm_label": "test_allowed_when_criteria_met()"
-    },
-    {
-      "label": "test_web_strategy.py",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L1",
-      "id": "tests_test_web_strategy_py",
-      "community": 21,
-      "norm_label": "test_web_strategy.py"
-    },
-    {
-      "label": "_bars()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L6",
-      "id": "tests_test_web_strategy_bars",
-      "community": 21,
-      "norm_label": "_bars()"
-    },
-    {
-      "label": "FakeMarket",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L15",
-      "id": "tests_test_web_strategy_fakemarket",
-      "community": 21,
-      "norm_label": "fakemarket"
-    },
-    {
-      "label": ".get()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L16",
-      "id": "tests_test_web_strategy_fakemarket_get",
-      "community": 21,
-      "norm_label": ".get()"
-    },
-    {
-      "label": "_Ctl",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L20",
-      "id": "tests_test_web_strategy_ctl",
-      "community": 21,
-      "norm_label": "_ctl"
-    },
-    {
-      "label": ".status()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L21",
-      "id": "tests_test_web_strategy_ctl_status",
-      "community": 21,
-      "norm_label": ".status()"
-    },
-    {
-      "label": ".journal()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L22",
-      "id": "tests_test_web_strategy_ctl_journal",
-      "community": 21,
-      "norm_label": ".journal()"
-    },
-    {
-      "label": ".metrics()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L23",
-      "id": "tests_test_web_strategy_ctl_metrics",
-      "community": 21,
-      "norm_label": ".metrics()"
-    },
-    {
-      "label": ".halt()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L24",
-      "id": "tests_test_web_strategy_ctl_halt",
-      "community": 21,
-      "norm_label": ".halt()"
-    },
-    {
-      "label": ".reset()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L25",
-      "id": "tests_test_web_strategy_ctl_reset",
-      "community": 21,
-      "norm_label": ".reset()"
-    },
-    {
-      "label": ".pause()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L26",
-      "id": "tests_test_web_strategy_ctl_pause",
-      "community": 21,
-      "norm_label": ".pause()"
-    },
-    {
-      "label": ".resume()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L27",
-      "id": "tests_test_web_strategy_ctl_resume",
-      "community": 21,
-      "norm_label": ".resume()"
-    },
-    {
-      "label": ".flatten()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L28",
-      "id": "tests_test_web_strategy_ctl_flatten",
-      "community": 21,
-      "norm_label": ".flatten()"
-    },
-    {
-      "label": ".set_mode()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L29",
-      "id": "tests_test_web_strategy_ctl_set_mode",
-      "community": 21,
-      "norm_label": ".set_mode()"
-    },
-    {
-      "label": ".start()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L30",
-      "id": "tests_test_web_strategy_ctl_start",
-      "community": 21,
-      "norm_label": ".start()"
-    },
-    {
-      "label": ".stop()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L31",
-      "id": "tests_test_web_strategy_ctl_stop",
-      "community": 21,
-      "norm_label": ".stop()"
-    },
-    {
-      "label": "_client()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L34",
-      "id": "tests_test_web_strategy_client",
-      "community": 21,
-      "norm_label": "_client()"
-    },
-    {
-      "label": "test_presets_lists_archetypes()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L40",
-      "id": "tests_test_web_strategy_test_presets_lists_archetypes",
-      "community": 21,
-      "norm_label": "test_presets_lists_archetypes()"
-    },
-    {
-      "label": "test_build_requires_token()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L48",
-      "id": "tests_test_web_strategy_test_build_requires_token",
-      "community": 21,
-      "norm_label": "test_build_requires_token()"
-    },
-    {
-      "label": "test_build_returns_ranked_results()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L54",
-      "id": "tests_test_web_strategy_test_build_returns_ranked_results",
-      "community": 21,
-      "norm_label": "test_build_returns_ranked_results()"
-    },
-    {
-      "label": "test_backtest_single_profile()",
-      "file_type": "code",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L64",
-      "id": "tests_test_web_strategy_test_backtest_single_profile",
-      "community": 21,
-      "norm_label": "test_backtest_single_profile()"
     },
     {
       "label": "README.md",
@@ -8084,105 +7436,6 @@
       "id": "crypto_swing_bot_readme_status",
       "community": 52,
       "norm_label": "status"
-    },
-    {
-      "label": "2026-05-31-strategy-presets-builder.md",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L1",
-      "id": "docs_superpowers_plans_2026_05_31_strategy_presets_builder_md",
-      "community": 27,
-      "norm_label": "2026-05-31-strategy-presets-builder.md"
-    },
-    {
-      "label": "Strategy Presets + Guided Builder Implementation Plan",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L1",
-      "id": "plans_2026_05_31_strategy_presets_builder_strategy_presets_guided_builder_implementation_plan",
-      "community": 27,
-      "norm_label": "strategy presets + guided builder implementation plan"
-    },
-    {
-      "label": "Task 1: Preset archetypes + candidate builder",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L17",
-      "id": "plans_2026_05_31_strategy_presets_builder_task_1_preset_archetypes_candidate_builder",
-      "community": 27,
-      "norm_label": "task 1: preset archetypes + candidate builder"
-    },
-    {
-      "label": "Task 2: Backtest search over candidates",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L208",
-      "id": "plans_2026_05_31_strategy_presets_builder_task_2_backtest_search_over_candidates",
-      "community": 27,
-      "norm_label": "task 2: backtest search over candidates"
-    },
-    {
-      "label": "Task 3: Web endpoints (presets / backtest / build)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L381",
-      "id": "plans_2026_05_31_strategy_presets_builder_task_3_web_endpoints_presets_backtest_build",
-      "community": 27,
-      "norm_label": "task 3: web endpoints (presets / backtest / build)"
-    },
-    {
-      "label": "Task 4: Frontend API methods",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L544",
-      "id": "plans_2026_05_31_strategy_presets_builder_task_4_frontend_api_methods",
-      "community": 27,
-      "norm_label": "task 4: frontend api methods"
-    },
-    {
-      "label": "Task 5: Preset gallery component",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L571",
-      "id": "plans_2026_05_31_strategy_presets_builder_task_5_preset_gallery_component",
-      "community": 27,
-      "norm_label": "task 5: preset gallery component"
-    },
-    {
-      "label": "Task 6: Guided builder component",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L654",
-      "id": "plans_2026_05_31_strategy_presets_builder_task_6_guided_builder_component",
-      "community": 27,
-      "norm_label": "task 6: guided builder component"
-    },
-    {
-      "label": "Task 7: Wire the 3 tiers into the Strategy page + styles",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L742",
-      "id": "plans_2026_05_31_strategy_presets_builder_task_7_wire_the_3_tiers_into_the_strategy_page_styles",
-      "community": 27,
-      "norm_label": "task 7: wire the 3 tiers into the strategy page + styles"
-    },
-    {
-      "label": "Task 8: Deploy + end-to-end verification",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L812",
-      "id": "plans_2026_05_31_strategy_presets_builder_task_8_deploy_end_to_end_verification",
-      "community": 27,
-      "norm_label": "task 8: deploy + end-to-end verification"
-    },
-    {
-      "label": "Self-Review",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L858",
-      "id": "plans_2026_05_31_strategy_presets_builder_self_review",
-      "community": 27,
-      "norm_label": "self-review"
     },
     {
       "label": "2026-05-30-kronos-integration.md",
@@ -9337,150 +8590,6 @@
       "norm_label": "12. tech notes (non-binding, for the planner)"
     },
     {
-      "label": "2026-05-31-strategy-presets-builder-design.md",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L1",
-      "id": "docs_superpowers_specs_2026_05_31_strategy_presets_builder_design_md",
-      "community": 22,
-      "norm_label": "2026-05-31-strategy-presets-builder-design.md"
-    },
-    {
-      "label": "Strategy Presets + Backtest-Driven Guided Builder \u2014 Design",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L1",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_strategy_presets_backtest_driven_guided_builder_design",
-      "community": 22,
-      "norm_label": "strategy presets + backtest-driven guided builder \u2014 design"
-    },
-    {
-      "label": "1. Problem & Goal",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L7",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_1_problem_goal",
-      "community": 22,
-      "norm_label": "1. problem & goal"
-    },
-    {
-      "label": "2. Decisions (from brainstorming)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L18",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_2_decisions_from_brainstorming",
-      "community": 22,
-      "norm_label": "2. decisions (from brainstorming)"
-    },
-    {
-      "label": "3. Architecture",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L29",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_3_architecture",
-      "community": 22,
-      "norm_label": "3. architecture"
-    },
-    {
-      "label": "4. Backend components",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L51",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_4_backend_components",
-      "community": 22,
-      "norm_label": "4. backend components"
-    },
-    {
-      "label": "4.1 `swingbot/presets.py` (new)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L53",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_4_1_swingbot_presets_py_new",
-      "community": 22,
-      "norm_label": "4.1 `swingbot/presets.py` (new)"
-    },
-    {
-      "label": "4.2 `swingbot/strategy_search.py` (new)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L80",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_4_2_swingbot_strategy_search_py_new",
-      "community": 22,
-      "norm_label": "4.2 `swingbot/strategy_search.py` (new)"
-    },
-    {
-      "label": "4.3 `web.py` endpoints",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L89",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_4_3_web_py_endpoints",
-      "community": 22,
-      "norm_label": "4.3 `web.py` endpoints"
-    },
-    {
-      "label": "5. Frontend (`Strategy.jsx` \u2192 3 tiers)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L96",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_5_frontend_strategy_jsx_3_tiers",
-      "community": 22,
-      "norm_label": "5. frontend (`strategy.jsx` \u2192 3 tiers)"
-    },
-    {
-      "label": "6. Error handling",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L105",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_6_error_handling",
-      "community": 22,
-      "norm_label": "6. error handling"
-    },
-    {
-      "label": "7. Testing",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L112",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_7_testing",
-      "community": 22,
-      "norm_label": "7. testing"
-    },
-    {
-      "label": "8. Scope / YAGNI (this iteration)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L118",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_8_scope_yagni_this_iteration",
-      "community": 22,
-      "norm_label": "8. scope / yagni (this iteration)"
-    },
-    {
-      "label": "9. Future Directions (explicitly seeded by this design)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L125",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_9_future_directions_explicitly_seeded_by_this_design",
-      "community": 22,
-      "norm_label": "9. future directions (explicitly seeded by this design)"
-    },
-    {
-      "label": "9.1 Extensive backtesting platform (\u00e0 la btfdbot.com/backtester)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L129",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_9_1_extensive_backtesting_platform_\u00e0_la_btfdbot_com_backtester",
-      "community": 22,
-      "norm_label": "9.1 extensive backtesting platform (a la btfdbot.com/backtester)"
-    },
-    {
-      "label": "9.2 Persistent historical market-data archive + pluggable providers",
-      "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L137",
-      "id": "specs_2026_05_31_strategy_presets_builder_design_9_2_persistent_historical_market_data_archive_pluggable_providers",
-      "community": 22,
-      "norm_label": "9.2 persistent historical market-data archive + pluggable providers"
-    },
-    {
       "label": "2026-05-31-docker-gpu-deployment-design.md",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/2026-05-31-docker-gpu-deployment-design.md",
@@ -10205,7 +9314,7 @@
       "file_type": "code",
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L20",
-      "community": 20,
+      "community": 54,
       "norm_label": "credentialstore",
       "id": "src_swingbot_data_poller_py_credentialstore"
     },
@@ -10214,7 +9323,7 @@
       "file_type": "rationale",
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L13",
-      "community": 20,
+      "community": 61,
       "norm_label": "periodically fetches ohlc bars for the active profile's symbol/timeframe     fro",
       "id": "data_poller_rationale_13"
     },
@@ -10223,7 +9332,7 @@
       "file_type": "rationale",
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L31",
-      "community": 20,
+      "community": 54,
       "norm_label": "fetch + persist the active symbol's bars. returns rows written.",
       "id": "data_poller_rationale_31"
     },
@@ -11033,26 +10142,6 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/swingbot/web.py",
-      "source_location": "L43",
-      "weight": 1.0,
-      "source": "src_swingbot_web_py",
-      "target": "swingbot_web_backtestbody",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/web.py",
-      "source_location": "L36",
-      "weight": 1.0,
-      "source": "src_swingbot_web_py",
-      "target": "swingbot_web_buildbody",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/web.py",
       "source_location": "L26",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -11108,26 +10197,6 @@
       "confidence_score": 1.0,
       "source": "swingbot_web_activebody",
       "target": "basemodel"
-    },
-    {
-      "relation": "inherits",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/web.py",
-      "source_location": "L43",
-      "weight": 1.0,
-      "source": "swingbot_web_backtestbody",
-      "target": "basemodel",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "inherits",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/web.py",
-      "source_location": "L36",
-      "weight": 1.0,
-      "source": "swingbot_web_buildbody",
-      "target": "basemodel",
-      "confidence_score": 1.0
     },
     {
       "relation": "inherits",
@@ -11271,17 +10340,6 @@
       "target": "swingbot_web_create_app"
     },
     {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L35",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_client",
-      "target": "swingbot_web_create_app"
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/swingbot/webmain.py",
@@ -11329,9 +10387,9 @@
       "source_file": "src/swingbot/webmain.py",
       "source_location": "L9",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "src_swingbot_webmain_py_str",
-      "target": "data_market_marketdata"
+      "target": "data_market_marketdata",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -11405,260 +10463,6 @@
       "weight": 1.0,
       "source": "swingbot_webmain_main",
       "target": "swingbot_service_botservice"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L26",
-      "weight": 1.0,
-      "source": "src_swingbot_presets_py",
-      "target": "swingbot_presets_archetype",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L75",
-      "weight": 1.0,
-      "source": "src_swingbot_presets_py",
-      "target": "swingbot_presets_archetype_profile",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L80",
-      "weight": 1.0,
-      "source": "src_swingbot_presets_py",
-      "target": "swingbot_presets_build_candidates",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L51",
-      "weight": 1.0,
-      "source": "src_swingbot_presets_py",
-      "target": "swingbot_presets_profile_for",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L5",
-      "weight": 0.8,
-      "source": "swingbot_presets_archetype",
-      "target": "swingbot_profile_strategyprofile",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L75",
-      "weight": 1.0,
-      "source": "swingbot_presets_archetype_profile",
-      "target": "swingbot_presets_archetype",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L51",
-      "weight": 1.0,
-      "source": "swingbot_presets_profile_for",
-      "target": "swingbot_presets_archetype",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L77",
-      "weight": 1.0,
-      "source": "swingbot_presets_archetype_profile",
-      "target": "swingbot_presets_profile_for",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L91",
-      "weight": 1.0,
-      "source": "swingbot_presets_build_candidates",
-      "target": "swingbot_presets_profile_for",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L51",
-      "weight": 1.0,
-      "source": "swingbot_presets_profile_for",
-      "target": "src_swingbot_presets_py_str",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L5",
-      "weight": 0.8,
-      "source": "src_swingbot_presets_py_str",
-      "target": "swingbot_profile_strategyprofile",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L75",
-      "weight": 1.0,
-      "source": "swingbot_presets_archetype_profile",
-      "target": "src_swingbot_presets_py_str",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L80",
-      "weight": 1.0,
-      "source": "swingbot_presets_build_candidates",
-      "target": "src_swingbot_presets_py_str",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L76",
-      "weight": 1.0,
-      "source": "swingbot_presets_rationale_76",
-      "target": "swingbot_presets_archetype_profile",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_presets.py",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "tests_test_presets_test_archetype_profile_is_valid_and_overrides_symbol",
-      "target": "swingbot_presets_archetype_profile"
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L80",
-      "weight": 1.0,
-      "source": "swingbot_presets_build_candidates",
-      "target": "src_swingbot_presets_py_bool",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L80",
-      "weight": 1.0,
-      "source": "swingbot_presets_build_candidates",
-      "target": "src_swingbot_presets_py_int",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L82",
-      "weight": 1.0,
-      "source": "swingbot_presets_rationale_82",
-      "target": "swingbot_presets_build_candidates",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L49",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_search",
-      "target": "swingbot_presets_build_candidates"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_presets.py",
-      "source_location": "L33",
-      "weight": 1.0,
-      "source": "tests_test_presets_test_build_candidates_ai_includes_kronos",
-      "target": "swingbot_presets_build_candidates"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_presets.py",
-      "source_location": "L23",
-      "weight": 1.0,
-      "source": "tests_test_presets_test_build_candidates_non_ai",
-      "target": "swingbot_presets_build_candidates"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_presets.py",
-      "source_location": "L41",
-      "weight": 1.0,
-      "source": "tests_test_presets_test_build_candidates_rejects_bad_knobs",
-      "target": "swingbot_presets_build_candidates"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L5",
-      "weight": 0.8,
-      "source": "src_swingbot_presets_py_bool",
-      "target": "swingbot_profile_strategyprofile",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "src/swingbot/presets.py",
-      "source_location": "L5",
-      "weight": 0.8,
-      "source": "src_swingbot_presets_py_int",
-      "target": "swingbot_profile_strategyprofile",
-      "confidence_score": 0.5
     },
     {
       "relation": "contains",
@@ -12833,46 +11637,6 @@
     {
       "relation": "uses",
       "confidence": "INFERRED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L7",
-      "weight": 0.8,
-      "source": "src_swingbot_strategy_search_py_bool",
-      "target": "swingbot_profile_strategyprofile",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L7",
-      "weight": 0.8,
-      "source": "src_swingbot_strategy_search_py_dataframe",
-      "target": "swingbot_profile_strategyprofile",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L7",
-      "weight": 0.8,
-      "source": "src_swingbot_strategy_search_py_int",
-      "target": "swingbot_profile_strategyprofile",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L7",
-      "weight": 0.8,
-      "source": "src_swingbot_strategy_search_py_str",
-      "target": "swingbot_profile_strategyprofile",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
       "source_file": "src/swingbot/orchestrator.py",
       "source_location": "L10",
       "weight": 0.8,
@@ -12979,16 +11743,6 @@
       "confidence_score": 0.5,
       "source": "swingbot_service_botservice",
       "target": "swingbot_profile_strategyprofile"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L7",
-      "weight": 0.8,
-      "source": "swingbot_strategy_search_insufficientdata",
-      "target": "swingbot_profile_strategyprofile",
-      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -13338,272 +12092,6 @@
       "confidence_score": 0.5,
       "source": "src_swingbot_metrics_py_trade",
       "target": "swingbot_journal_trade"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L35",
-      "weight": 1.0,
-      "source": "src_swingbot_strategy_search_py",
-      "target": "swingbot_strategy_search_backtest_profile",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "src_swingbot_strategy_search_py",
-      "target": "swingbot_strategy_search_df_from_market",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "src_swingbot_strategy_search_py",
-      "target": "swingbot_strategy_search_insufficientdata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L28",
-      "weight": 1.0,
-      "source": "src_swingbot_strategy_search_py",
-      "target": "swingbot_strategy_search_metrics_dict",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L46",
-      "weight": 1.0,
-      "source": "src_swingbot_strategy_search_py",
-      "target": "swingbot_strategy_search_search",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_df_from_market",
-      "target": "swingbot_strategy_search_insufficientdata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "inherits",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_insufficientdata",
-      "target": "exception",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L38",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_backtest_profile",
-      "target": "swingbot_strategy_search_df_from_market",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "return_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_df_from_market",
-      "target": "src_swingbot_strategy_search_py_dataframe",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_df_from_market",
-      "target": "src_swingbot_strategy_search_py_int",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_df_from_market",
-      "target": "src_swingbot_strategy_search_py_str",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L46",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_search",
-      "target": "src_swingbot_strategy_search_py_str",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L35",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_backtest_profile",
-      "target": "src_swingbot_strategy_search_py_int",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L46",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_search",
-      "target": "src_swingbot_strategy_search_py_int",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L29",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_rationale_29",
-      "target": "swingbot_strategy_search_metrics_dict",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L67",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_search",
-      "target": "swingbot_strategy_search_metrics_dict",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L25",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_test_metrics_dict_uses_getattr_defaults",
-      "target": "swingbot_strategy_search_metrics_dict"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L42",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_backtest_profile",
-      "target": "swingbot_backtest_run_backtest"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L36",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_rationale_36",
-      "target": "swingbot_strategy_search_backtest_profile",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L53",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_search",
-      "target": "swingbot_strategy_search_backtest_profile",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L34",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_test_backtest_profile_runs_end_to_end",
-      "target": "swingbot_strategy_search_backtest_profile"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L48",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_rationale_48",
-      "target": "swingbot_strategy_search_search",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "parameter_type",
-      "confidence": "EXTRACTED",
-      "source_file": "src/swingbot/strategy_search.py",
-      "source_location": "L46",
-      "weight": 1.0,
-      "source": "swingbot_strategy_search_search",
-      "target": "src_swingbot_strategy_search_py_bool",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L61",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_test_search_captures_candidate_errors",
-      "target": "swingbot_strategy_search_search"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L46",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_test_search_ranks_by_expectancy_and_flags_recommended",
-      "target": "swingbot_strategy_search_search"
     },
     {
       "relation": "imports_from",
@@ -21051,9 +19539,9 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L7",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "marketdata",
-      "target": "swingbot_profiles_profilestore"
+      "target": "swingbot_profiles_profilestore",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23194,9 +21682,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L6",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "alpacadata",
-      "target": "data_alpaca_alpacadata"
+      "target": "data_alpaca_alpacadata",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23254,9 +21742,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L6",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "data_market_marketdata",
-      "target": "data_alpaca_alpacadata"
+      "target": "data_alpaca_alpacadata",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23295,9 +21783,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L6",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "src_swingbot_data_market_py_bool",
-      "target": "data_alpaca_alpacadata"
+      "target": "data_alpaca_alpacadata",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23305,9 +21793,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L6",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "src_swingbot_data_market_py_int",
-      "target": "data_alpaca_alpacadata"
+      "target": "data_alpaca_alpacadata",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23315,9 +21803,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L6",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "src_swingbot_data_market_py_str",
-      "target": "data_alpaca_alpacadata"
+      "target": "data_alpaca_alpacadata",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23451,9 +21939,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L7",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "alpacadata",
-      "target": "data_store_candlestore"
+      "target": "data_store_candlestore",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23471,9 +21959,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L7",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "data_market_marketdata",
-      "target": "data_store_candlestore"
+      "target": "data_store_candlestore",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23551,9 +22039,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L7",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "src_swingbot_data_market_py_bool",
-      "target": "data_store_candlestore"
+      "target": "data_store_candlestore",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23561,9 +22049,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L7",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "src_swingbot_data_market_py_int",
-      "target": "data_store_candlestore"
+      "target": "data_store_candlestore",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23571,9 +22059,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L7",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "src_swingbot_data_market_py_str",
-      "target": "data_store_candlestore"
+      "target": "data_store_candlestore",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23631,9 +22119,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L6",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "tests_test_market_fakeprovider",
-      "target": "data_store_candlestore"
+      "target": "data_store_candlestore",
+      "confidence_score": 0.5
     },
     {
       "relation": "calls",
@@ -23782,9 +22270,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L20",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "src_swingbot_data_market_py",
-      "target": "data_market_marketdata"
+      "target": "data_market_marketdata",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -23792,9 +22280,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L12",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "src_swingbot_data_market_py",
-      "target": "data_market_timeframe_seconds"
+      "target": "data_market_timeframe_seconds",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -23802,9 +22290,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L13",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_rationale_13",
-      "target": "data_market_timeframe_seconds"
+      "target": "data_market_timeframe_seconds",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -23813,9 +22301,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L12",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_timeframe_seconds",
-      "target": "src_swingbot_data_market_py_int"
+      "target": "src_swingbot_data_market_py_int",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -23824,9 +22312,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L12",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_timeframe_seconds",
-      "target": "src_swingbot_data_market_py_str"
+      "target": "src_swingbot_data_market_py_str",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -23846,9 +22334,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L47",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_get",
-      "target": "src_swingbot_data_market_py_str"
+      "target": "src_swingbot_data_market_py_str",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -23857,9 +22345,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L39",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_refresh",
-      "target": "src_swingbot_data_market_py_str"
+      "target": "src_swingbot_data_market_py_str",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -23868,9 +22356,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L47",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_get",
-      "target": "src_swingbot_data_market_py_int"
+      "target": "src_swingbot_data_market_py_int",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -23879,9 +22367,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L28",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_init",
-      "target": "src_swingbot_data_market_py_int"
+      "target": "src_swingbot_data_market_py_int",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -23890,9 +22378,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L61",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_is_stale",
-      "target": "src_swingbot_data_market_py_int"
+      "target": "src_swingbot_data_market_py_int",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -23901,9 +22389,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L39",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_refresh",
-      "target": "src_swingbot_data_market_py_int"
+      "target": "src_swingbot_data_market_py_int",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -23911,9 +22399,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L47",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata",
-      "target": "data_market_marketdata_get"
+      "target": "data_market_marketdata_get",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -23921,9 +22409,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L28",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata",
-      "target": "data_market_marketdata_init"
+      "target": "data_market_marketdata_init",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -23931,9 +22419,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L61",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata",
-      "target": "data_market_marketdata_is_stale"
+      "target": "data_market_marketdata_is_stale",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -23941,9 +22429,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L33",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata",
-      "target": "data_market_marketdata_provider"
+      "target": "data_market_marketdata_provider",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -23951,9 +22439,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L39",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata",
-      "target": "data_market_marketdata_refresh"
+      "target": "data_market_marketdata_refresh",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -23961,9 +22449,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L21",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_rationale_21",
-      "target": "data_market_marketdata"
+      "target": "data_market_marketdata",
+      "confidence_score": 1.0
     },
     {
       "relation": "uses",
@@ -23971,9 +22459,9 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L6",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "data_poller_candlepoller",
-      "target": "data_market_marketdata"
+      "target": "data_market_marketdata",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23981,9 +22469,9 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L6",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "marketdata",
-      "target": "data_market_marketdata"
+      "target": "data_market_marketdata",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -23991,9 +22479,9 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L6",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "src_swingbot_data_poller_py_int",
-      "target": "data_market_marketdata"
+      "target": "data_market_marketdata",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -24001,9 +22489,9 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L6",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "src_swingbot_data_poller_py_profilestore",
-      "target": "data_market_marketdata"
+      "target": "data_market_marketdata",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -24011,9 +22499,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L5",
       "weight": 0.8,
-      "confidence_score": 0.5,
       "source": "tests_test_market_fakeprovider",
-      "target": "data_market_marketdata"
+      "target": "data_market_marketdata",
+      "confidence_score": 0.5
     },
     {
       "relation": "references",
@@ -24022,9 +22510,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L28",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_init",
-      "target": "candlestore"
+      "target": "candlestore",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -24044,9 +22532,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L33",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_provider",
-      "target": "alpacadata"
+      "target": "alpacadata",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -24055,9 +22543,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L34",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_provider",
-      "target": "data_market_marketdata_get"
+      "target": "data_market_marketdata_get",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -24066,9 +22554,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L41",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_refresh",
-      "target": "data_market_marketdata_provider"
+      "target": "data_market_marketdata_provider",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -24077,9 +22565,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L54",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_get",
-      "target": "data_market_marketdata_refresh"
+      "target": "data_market_marketdata_refresh",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -24087,9 +22575,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L40",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_rationale_40",
-      "target": "data_market_marketdata_refresh"
+      "target": "data_market_marketdata_refresh",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -24098,9 +22586,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L52",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_get",
-      "target": "data_market_marketdata_is_stale"
+      "target": "data_market_marketdata_is_stale",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -24108,9 +22596,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L49",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_rationale_49",
-      "target": "data_market_marketdata_get"
+      "target": "data_market_marketdata_get",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -24119,9 +22607,9 @@
       "source_file": "src/swingbot/data/market.py",
       "source_location": "L61",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_market_marketdata_is_stale",
-      "target": "src_swingbot_data_market_py_bool"
+      "target": "src_swingbot_data_market_py_bool",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -24264,9 +22752,9 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L11",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_poller_rationale_11",
-      "target": "data_poller_candlepoller"
+      "target": "data_poller_candlepoller",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -24285,9 +22773,9 @@
       "source_file": "src/swingbot/data/poller.py",
       "source_location": "L19",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "data_poller_candlepoller_init",
-      "target": "marketdata"
+      "target": "marketdata",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -25414,28 +23902,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/PresetGallery.jsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "frontend_src_components_presetgallery_jsx",
-      "target": "frontend_src_api_js",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "frontend_src_components_strategybuilder_jsx",
-      "target": "frontend_src_api_js",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "frontend/src/components/TokenGate.jsx",
       "source_location": "L2",
       "weight": 1.0,
@@ -25557,28 +24023,6 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/PresetGallery.jsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "frontend_src_components_presetgallery_jsx",
-      "target": "src_api_api",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "frontend_src_components_strategybuilder_jsx",
-      "target": "src_api_api",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "frontend/src/pages/Settings.jsx",
       "source_location": "L2",
       "weight": 1.0,
@@ -25607,58 +24051,6 @@
       "confidence_score": 1.0,
       "source": "pages_strategy_strategy",
       "target": "src_api_api"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/PresetGallery.jsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "frontend_src_components_presetgallery_jsx",
-      "target": "components_presetgallery_fmt",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/PresetGallery.jsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "frontend_src_components_presetgallery_jsx",
-      "target": "components_presetgallery_pct",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/PresetGallery.jsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "frontend_src_components_presetgallery_jsx",
-      "target": "components_presetgallery_presetgallery",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/PresetGallery.jsx",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "frontend_src_components_presetgallery_jsx",
-      "target": "frontend_src_components_hint_jsx",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/pages/Strategy.jsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "frontend_src_pages_strategy_jsx",
-      "target": "frontend_src_components_presetgallery_jsx",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -25784,9 +24176,9 @@
       "source_file": "frontend/src/components/ChartPanel.jsx",
       "source_location": "L26",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "frontend_src_components_chartpanel_jsx",
-      "target": "components_chartpanel_default_cfg"
+      "target": "components_chartpanel_default_cfg",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -25794,9 +24186,9 @@
       "source_file": "frontend/src/components/ChartPanel.jsx",
       "source_location": "L51",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "frontend_src_components_chartpanel_jsx",
-      "target": "components_chartpanel_ema"
+      "target": "components_chartpanel_ema",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -25804,9 +24196,9 @@
       "source_file": "frontend/src/components/ChartPanel.jsx",
       "source_location": "L36",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "frontend_src_components_chartpanel_jsx",
-      "target": "components_chartpanel_loadcfg"
+      "target": "components_chartpanel_loadcfg",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -25814,9 +24206,9 @@
       "source_file": "frontend/src/components/ChartPanel.jsx",
       "source_location": "L42",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "frontend_src_components_chartpanel_jsx",
-      "target": "components_chartpanel_sma"
+      "target": "components_chartpanel_sma",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -25824,9 +24216,9 @@
       "source_file": "frontend/src/components/ChartPanel.jsx",
       "source_location": "L10",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "frontend_src_components_chartpanel_jsx",
-      "target": "components_chartpanel_timeframes"
+      "target": "components_chartpanel_timeframes",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -25834,9 +24226,9 @@
       "source_file": "frontend/src/components/ChartPanel.jsx",
       "source_location": "L13",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "frontend_src_components_chartpanel_jsx",
-      "target": "components_chartpanel_toggles"
+      "target": "components_chartpanel_toggles",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -25901,78 +24293,6 @@
       "confidence_score": 1.0,
       "source": "frontend_src_pages_settings_jsx",
       "target": "frontend_src_components_tokengate_jsx"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "frontend_src_components_strategybuilder_jsx",
-      "target": "components_strategybuilder_fmt",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "frontend_src_components_strategybuilder_jsx",
-      "target": "components_strategybuilder_pct",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "frontend_src_components_strategybuilder_jsx",
-      "target": "components_strategybuilder_risks",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "frontend_src_components_strategybuilder_jsx",
-      "target": "components_strategybuilder_strategybuilder",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "frontend_src_components_strategybuilder_jsx",
-      "target": "components_strategybuilder_styles",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/components/StrategyBuilder.jsx",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "frontend_src_components_strategybuilder_jsx",
-      "target": "frontend_src_components_hint_jsx",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/src/pages/Strategy.jsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "frontend_src_pages_strategy_jsx",
-      "target": "frontend_src_components_strategybuilder_jsx",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -26454,152 +24774,6 @@
       "confidence_score": 1.0,
       "source": "pages_strategy_strategy",
       "target": "pages_strategy_toggle"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_py",
-      "target": "tests_test_strategy_search_bars",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_py",
-      "target": "tests_test_strategy_search_fakemarket",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L30",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_py",
-      "target": "tests_test_strategy_search_test_backtest_profile_runs_end_to_end",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L23",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_py",
-      "target": "tests_test_strategy_search_test_metrics_dict_uses_getattr_defaults",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L54",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_py",
-      "target": "tests_test_strategy_search_test_search_captures_candidate_errors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L38",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_py",
-      "target": "tests_test_strategy_search_test_search_ranks_by_expectancy_and_flags_recommended",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L31",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_test_backtest_profile_runs_end_to_end",
-      "target": "tests_test_strategy_search_bars",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L55",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_test_search_captures_candidate_errors",
-      "target": "tests_test_strategy_search_bars",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L39",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_test_search_ranks_by_expectancy_and_flags_recommended",
-      "target": "tests_test_strategy_search_bars",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_fakemarket",
-      "target": "tests_test_strategy_search_fakemarket_get",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L17",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_fakemarket",
-      "target": "tests_test_strategy_search_fakemarket_init",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L31",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_test_backtest_profile_runs_end_to_end",
-      "target": "tests_test_strategy_search_fakemarket",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L55",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_test_search_captures_candidate_errors",
-      "target": "tests_test_strategy_search_fakemarket",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_strategy_search.py",
-      "source_location": "L39",
-      "weight": 1.0,
-      "source": "tests_test_strategy_search_test_search_ranks_by_expectancy_and_flags_recommended",
-      "target": "tests_test_strategy_search_fakemarket",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -29677,56 +27851,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "tests/test_presets.py",
-      "source_location": "L14",
-      "weight": 1.0,
-      "source": "tests_test_presets_py",
-      "target": "tests_test_presets_test_archetype_profile_is_valid_and_overrides_symbol",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_presets.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "tests_test_presets_py",
-      "target": "tests_test_presets_test_archetypes_have_required_fields",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_presets.py",
-      "source_location": "L32",
-      "weight": 1.0,
-      "source": "tests_test_presets_py",
-      "target": "tests_test_presets_test_build_candidates_ai_includes_kronos",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_presets.py",
-      "source_location": "L22",
-      "weight": 1.0,
-      "source": "tests_test_presets_py",
-      "target": "tests_test_presets_test_build_candidates_non_ai",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_presets.py",
-      "source_location": "L39",
-      "weight": 1.0,
-      "source": "tests_test_presets_py",
-      "target": "tests_test_presets_test_build_candidates_rejects_bad_knobs",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "tests/test_alpaca_broker.py",
       "source_location": "L14",
       "weight": 1.0,
@@ -30559,9 +28683,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L9",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_py",
-      "target": "tests_test_market_df"
+      "target": "tests_test_market_df",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -30569,9 +28693,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L19",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_py",
-      "target": "tests_test_market_fakeprovider"
+      "target": "tests_test_market_fakeprovider",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -30579,9 +28703,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L37",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_py",
-      "target": "tests_test_market_test_get_fetches_on_empty_store"
+      "target": "tests_test_market_test_get_fetches_on_empty_store",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -30589,9 +28713,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L48",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_py",
-      "target": "tests_test_market_test_get_serves_cache_when_fresh"
+      "target": "tests_test_market_test_get_serves_cache_when_fresh",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -30599,9 +28723,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L62",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_py",
-      "target": "tests_test_market_test_get_without_creds_returns_store_only"
+      "target": "tests_test_market_test_get_without_creds_returns_store_only",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -30609,9 +28733,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L29",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_py",
-      "target": "tests_test_market_test_timeframe_seconds"
+      "target": "tests_test_market_test_timeframe_seconds",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -30620,9 +28744,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L40",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_test_get_fetches_on_empty_store",
-      "target": "tests_test_market_df"
+      "target": "tests_test_market_df",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -30631,9 +28755,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L52",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_test_get_serves_cache_when_fresh",
-      "target": "tests_test_market_df"
+      "target": "tests_test_market_df",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -30641,9 +28765,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L24",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_fakeprovider",
-      "target": "tests_test_market_fakeprovider_get_candles"
+      "target": "tests_test_market_fakeprovider_get_candles",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -30651,9 +28775,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L20",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_fakeprovider",
-      "target": "tests_test_market_fakeprovider_init"
+      "target": "tests_test_market_fakeprovider_init",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -30662,9 +28786,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L40",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_test_get_fetches_on_empty_store",
-      "target": "tests_test_market_fakeprovider"
+      "target": "tests_test_market_fakeprovider",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -30673,9 +28797,9 @@
       "source_file": "tests/test_market.py",
       "source_location": "L54",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "tests_test_market_test_get_serves_cache_when_fresh",
-      "target": "tests_test_market_fakeprovider"
+      "target": "tests_test_market_fakeprovider",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -32140,294 +30264,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_py",
-      "target": "tests_test_web_strategy_bars",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L34",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_py",
-      "target": "tests_test_web_strategy_client",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L20",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_py",
-      "target": "tests_test_web_strategy_ctl",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L15",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_py",
-      "target": "tests_test_web_strategy_fakemarket",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L64",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_py",
-      "target": "tests_test_web_strategy_test_backtest_single_profile",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L48",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_py",
-      "target": "tests_test_web_strategy_test_build_requires_token",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L54",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_py",
-      "target": "tests_test_web_strategy_test_build_returns_ranked_results",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L40",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_py",
-      "target": "tests_test_web_strategy_test_presets_lists_archetypes",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L17",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_fakemarket_get",
-      "target": "tests_test_web_strategy_bars",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L36",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_client",
-      "target": "tests_test_web_strategy_fakemarket",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_fakemarket",
-      "target": "tests_test_web_strategy_fakemarket_get",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L41",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_test_presets_lists_archetypes",
-      "target": "tests_test_web_strategy_fakemarket_get",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L35",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_client",
-      "target": "tests_test_web_strategy_ctl",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L28",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_ctl",
-      "target": "tests_test_web_strategy_ctl_flatten",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L24",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_ctl",
-      "target": "tests_test_web_strategy_ctl_halt",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L22",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_ctl",
-      "target": "tests_test_web_strategy_ctl_journal",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L23",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_ctl",
-      "target": "tests_test_web_strategy_ctl_metrics",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L26",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_ctl",
-      "target": "tests_test_web_strategy_ctl_pause",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L25",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_ctl",
-      "target": "tests_test_web_strategy_ctl_reset",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L27",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_ctl",
-      "target": "tests_test_web_strategy_ctl_resume",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L29",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_ctl",
-      "target": "tests_test_web_strategy_ctl_set_mode",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L30",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_ctl",
-      "target": "tests_test_web_strategy_ctl_start",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L21",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_ctl",
-      "target": "tests_test_web_strategy_ctl_status",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L31",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_ctl",
-      "target": "tests_test_web_strategy_ctl_stop",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L65",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_test_backtest_single_profile",
-      "target": "tests_test_web_strategy_client",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L49",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_test_build_requires_token",
-      "target": "tests_test_web_strategy_client",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L55",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_test_build_returns_ranked_results",
-      "target": "tests_test_web_strategy_client",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_web_strategy.py",
-      "source_location": "L41",
-      "weight": 1.0,
-      "source": "tests_test_web_strategy_test_presets_lists_archetypes",
-      "target": "tests_test_web_strategy_client",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "README.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -32524,106 +30360,6 @@
       "confidence_score": 1.0,
       "source": "crypto_swing_bot_readme_swingbot",
       "target": "crypto_swing_bot_readme_status"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "docs_superpowers_plans_2026_05_31_strategy_presets_builder_md",
-      "target": "plans_2026_05_31_strategy_presets_builder_strategy_presets_guided_builder_implementation_plan",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L858",
-      "weight": 1.0,
-      "source": "plans_2026_05_31_strategy_presets_builder_strategy_presets_guided_builder_implementation_plan",
-      "target": "plans_2026_05_31_strategy_presets_builder_self_review",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L17",
-      "weight": 1.0,
-      "source": "plans_2026_05_31_strategy_presets_builder_strategy_presets_guided_builder_implementation_plan",
-      "target": "plans_2026_05_31_strategy_presets_builder_task_1_preset_archetypes_candidate_builder",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L208",
-      "weight": 1.0,
-      "source": "plans_2026_05_31_strategy_presets_builder_strategy_presets_guided_builder_implementation_plan",
-      "target": "plans_2026_05_31_strategy_presets_builder_task_2_backtest_search_over_candidates",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L381",
-      "weight": 1.0,
-      "source": "plans_2026_05_31_strategy_presets_builder_strategy_presets_guided_builder_implementation_plan",
-      "target": "plans_2026_05_31_strategy_presets_builder_task_3_web_endpoints_presets_backtest_build",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L544",
-      "weight": 1.0,
-      "source": "plans_2026_05_31_strategy_presets_builder_strategy_presets_guided_builder_implementation_plan",
-      "target": "plans_2026_05_31_strategy_presets_builder_task_4_frontend_api_methods",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L571",
-      "weight": 1.0,
-      "source": "plans_2026_05_31_strategy_presets_builder_strategy_presets_guided_builder_implementation_plan",
-      "target": "plans_2026_05_31_strategy_presets_builder_task_5_preset_gallery_component",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L654",
-      "weight": 1.0,
-      "source": "plans_2026_05_31_strategy_presets_builder_strategy_presets_guided_builder_implementation_plan",
-      "target": "plans_2026_05_31_strategy_presets_builder_task_6_guided_builder_component",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L742",
-      "weight": 1.0,
-      "source": "plans_2026_05_31_strategy_presets_builder_strategy_presets_guided_builder_implementation_plan",
-      "target": "plans_2026_05_31_strategy_presets_builder_task_7_wire_the_3_tiers_into_the_strategy_page_styles",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-05-31-strategy-presets-builder.md",
-      "source_location": "L812",
-      "weight": 1.0,
-      "source": "plans_2026_05_31_strategy_presets_builder_strategy_presets_guided_builder_implementation_plan",
-      "target": "plans_2026_05_31_strategy_presets_builder_task_8_deploy_end_to_end_verification",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -33838,156 +31574,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "docs_superpowers_specs_2026_05_31_strategy_presets_builder_design_md",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_strategy_presets_backtest_driven_guided_builder_design",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_strategy_presets_backtest_driven_guided_builder_design",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_1_problem_goal",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L18",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_strategy_presets_backtest_driven_guided_builder_design",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_2_decisions_from_brainstorming",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L29",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_strategy_presets_backtest_driven_guided_builder_design",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_3_architecture",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L51",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_strategy_presets_backtest_driven_guided_builder_design",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_4_backend_components",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L96",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_strategy_presets_backtest_driven_guided_builder_design",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_5_frontend_strategy_jsx_3_tiers",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L105",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_strategy_presets_backtest_driven_guided_builder_design",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_6_error_handling",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L112",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_strategy_presets_backtest_driven_guided_builder_design",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_7_testing",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L118",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_strategy_presets_backtest_driven_guided_builder_design",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_8_scope_yagni_this_iteration",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L125",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_strategy_presets_backtest_driven_guided_builder_design",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_9_future_directions_explicitly_seeded_by_this_design",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L53",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_4_backend_components",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_4_1_swingbot_presets_py_new",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L80",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_4_backend_components",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_4_2_swingbot_strategy_search_py_new",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L89",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_4_backend_components",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_4_3_web_py_endpoints",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L129",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_9_future_directions_explicitly_seeded_by_this_design",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_9_1_extensive_backtesting_platform_\u00e0_la_btfdbot_com_backtester",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md",
-      "source_location": "L137",
-      "weight": 1.0,
-      "source": "specs_2026_05_31_strategy_presets_builder_design_9_future_directions_explicitly_seeded_by_this_design",
-      "target": "specs_2026_05_31_strategy_presets_builder_design_9_2_persistent_historical_market_data_archive_pluggable_providers",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/specs/2026-05-31-docker-gpu-deployment-design.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -35117,5 +32703,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "d3415d74d83579bbde020cd4ba24ffd458d00abf"
+  "built_at_commit": "6d24acf1d6ba994b1b14ce3790e6e3d277ed65c1"
 }

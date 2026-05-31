@@ -5,8 +5,8 @@
     "semantic_hash": "073ea14ed4fd4499cec92ece207ae360"
   },
   "/home/redji/crypto-swing-bot/src/swingbot/web.py": {
-    "mtime": 1780206397.9744146,
-    "ast_hash": "4a5f0c325fb0f0352288da6b28d6a276",
+    "mtime": 1780203621.6457548,
+    "ast_hash": "82a9a9c5bee70a76c76ae9e0a136dd39",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/webmain.py": {
@@ -215,8 +215,8 @@
     "semantic_hash": "de511e8b18858691dcbb784d06dd8321"
   },
   "/home/redji/crypto-swing-bot/frontend/src/api.js": {
-    "mtime": 1780206470.3880663,
-    "ast_hash": "bc9bbbe8c633a58854a5eda124dd209f",
+    "mtime": 1780203125.616704,
+    "ast_hash": "0c3d81f7f003390bd1fcfc235b71e318",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/components/SignalPanel.jsx": {
@@ -275,9 +275,9 @@
     "semantic_hash": "66be0ddf7f4b0c7df8317315627bef37"
   },
   "/home/redji/crypto-swing-bot/frontend/src/pages/Strategy.jsx": {
-    "mtime": 1780206505.1408513,
-    "ast_hash": "d73c83502ffc41d11e39a52347d1108d",
-    "semantic_hash": ""
+    "mtime": 1780167186.8577957,
+    "ast_hash": "5a05bc2d04aa48991a1e4f5d9c3bdbeb",
+    "semantic_hash": "5a05bc2d04aa48991a1e4f5d9c3bdbeb"
   },
   "/home/redji/crypto-swing-bot/tests/test_config.py": {
     "mtime": 1780048007.2233794,
@@ -552,51 +552,6 @@
   "/home/redji/crypto-swing-bot/tests/test_market.py": {
     "mtime": 1780203644.7372215,
     "ast_hash": "98fd2c55cc057e9798baf0ca0b83fa3a",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/presets.py": {
-    "mtime": 1780206339.647066,
-    "ast_hash": "2311dc5ad7aa4c23380c0a2be17987eb",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/strategy_search.py": {
-    "mtime": 1780206348.9532824,
-    "ast_hash": "68406632a2ed9a2fd33d361f11c88b31",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/frontend/src/components/PresetGallery.jsx": {
-    "mtime": 1780206482.213334,
-    "ast_hash": "1f8e7c51220cbe35fbc08532a03bb801",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/frontend/src/components/StrategyBuilder.jsx": {
-    "mtime": 1780206491.9725544,
-    "ast_hash": "4bd5873cfc35aedbdccbedeccfd5b6d5",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_strategy_search.py": {
-    "mtime": 1780206370.092772,
-    "ast_hash": "3ff8df877e505b71f1f749857dc1fd51",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_presets.py": {
-    "mtime": 1780206361.3005686,
-    "ast_hash": "47f675fa197cc0e6cfe5c5217377b386",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_web_strategy.py": {
-    "mtime": 1780206377.80395,
-    "ast_hash": "5cb61f7d39d8e7075ad66ec6acc0a3b2",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/superpowers/plans/2026-05-31-strategy-presets-builder.md": {
-    "mtime": 1780206267.9494815,
-    "ast_hash": "0375537c8740d5941e097c3de0598f08",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/superpowers/specs/2026-05-31-strategy-presets-builder-design.md": {
-    "mtime": 1780204852.559801,
-    "ast_hash": "f0de8aec4fd84061982e431d7e892414",
     "semantic_hash": ""
   }
 }
