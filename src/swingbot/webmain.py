@@ -10,7 +10,8 @@ from swingbot.profiles import ProfileStore
 from swingbot.service import BotService
 from swingbot.web import create_app
 
-DATA_DIR = os.path.expanduser("~/.swingbot")
+HOST = os.environ.get("SWINGBOT_HOST", "127.0.0.1")
+DATA_DIR = os.environ.get("SWINGBOT_DATA_DIR", os.path.expanduser("~/.swingbot"))
 
 
 def _ensure_token(path: str) -> str:
@@ -33,8 +34,8 @@ def main() -> None:
                          state_db=os.path.join(DATA_DIR, "swingbot.db"))
     app = create_app(controller=service, profiles=profiles, creds=creds, token=token)
     print(f"[swingbot-web] token: {token}")
-    print("[swingbot-web] http://127.0.0.1:8000  (localhost only)")
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    print(f"[swingbot-web] http://{HOST}:8000")
+    uvicorn.run(app, host=HOST, port=8000)
 
 
 if __name__ == "__main__":

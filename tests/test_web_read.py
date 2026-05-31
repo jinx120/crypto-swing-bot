@@ -35,3 +35,26 @@ def test_write_requires_token():
     assert c.post("/api/control/halt").status_code == 401
     assert c.post("/api/control/halt", headers={"X-Token": "wrong"}).status_code == 401
     assert c.post("/api/control/halt", headers={"X-Token": "secret"}).status_code == 200
+
+
+import importlib
+
+
+def test_webmain_respects_swingbot_host_env(monkeypatch):
+    """SWINGBOT_HOST env var overrides the default 127.0.0.1 bind address."""
+    monkeypatch.setenv("SWINGBOT_HOST", "0.0.0.0")
+    import swingbot.webmain as wm
+    importlib.reload(wm)
+    assert wm.HOST == "0.0.0.0"
+    monkeypatch.delenv("SWINGBOT_HOST", raising=False)
+    importlib.reload(wm)
+
+
+def test_webmain_respects_swingbot_data_dir_env(monkeypatch, tmp_path):
+    """SWINGBOT_DATA_DIR env var overrides the default ~/.swingbot path."""
+    monkeypatch.setenv("SWINGBOT_DATA_DIR", str(tmp_path))
+    import swingbot.webmain as wm
+    importlib.reload(wm)
+    assert wm.DATA_DIR == str(tmp_path)
+    monkeypatch.delenv("SWINGBOT_DATA_DIR", raising=False)
+    importlib.reload(wm)
