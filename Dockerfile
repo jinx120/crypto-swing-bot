@@ -23,8 +23,12 @@ COPY pyproject.toml ./
 COPY src/ ./src/
 RUN pip install --no-cache-dir -e ".[kronos]"
 
-# Install Kronos package from GitHub
-RUN pip install --no-cache-dir git+https://github.com/shiyu-coder/Kronos.git
+# Clone Kronos repo (not pip-installable; model/ directory used directly)
+RUN git clone --depth 1 https://github.com/shiyu-coder/Kronos.git /kronos && \
+    pip install --no-cache-dir matplotlib
+
+# Kronos imports via 'from model import ...' — needs repo root on PYTHONPATH
+ENV PYTHONPATH=/kronos
 
 # Copy built frontend from Stage 1
 COPY --from=frontend-builder /build/dist ./frontend/dist

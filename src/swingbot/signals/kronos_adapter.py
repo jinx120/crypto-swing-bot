@@ -25,14 +25,22 @@ class PredictorProtocol(Protocol):
 
 
 def _load_kronos():
-    """Lazy import gate — only called from KronosAdapter.from_profile()."""
+    """Lazy import gate — only called from KronosAdapter.from_profile().
+
+    Kronos is not pip-installable. The Dockerfile clones the repo to /kronos
+    and sets PYTHONPATH=/kronos so 'from model import ...' resolves to
+    /kronos/model/__init__.py. For local dev, clone and set PYTHONPATH manually:
+        git clone https://github.com/shiyu-coder/Kronos.git /tmp/kronos
+        PYTHONPATH=/tmp/kronos python ...
+    """
     try:
-        from kronos.model import Kronos, KronosTokenizer, KronosPredictor  # noqa: F401
+        from model import Kronos, KronosTokenizer, KronosPredictor  # noqa: F401
         return Kronos, KronosTokenizer, KronosPredictor
     except ImportError as exc:
         raise ImportError(
-            "Kronos forecast signal requires torch and the Kronos package. "
-            "Install with: pip install -e '.[kronos]'"
+            "Kronos forecast signal requires torch and the Kronos repo on PYTHONPATH. "
+            "Clone https://github.com/shiyu-coder/Kronos and set "
+            "PYTHONPATH=/path/to/Kronos, then install: pip install -e '.[kronos]'"
         ) from exc
 
 
