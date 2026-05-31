@@ -3,6 +3,7 @@ import { api } from './api.js'
 import Dashboard from './pages/Dashboard.jsx'
 import Strategy from './pages/Strategy.jsx'
 import Settings from './pages/Settings.jsx'
+import Guide from './pages/Guide.jsx'
 import StatusBanner from './components/StatusBanner.jsx'
 import ControlBar from './components/ControlBar.jsx'
 import Hint from './components/Hint.jsx'
@@ -31,6 +32,7 @@ export default function App(){
         <button className={tab==='dashboard'?'active':''} onClick={()=>setTab('dashboard')}>Dashboard</button>
         <button className={tab==='strategy'?'active':''} onClick={()=>setTab('strategy')}>Strategy</button>
         <button className={tab==='settings'?'active':''} onClick={()=>setTab('settings')}>Settings</button>
+        <button className={`help ${tab==='guide'?'active':''}`} title="Trading guide" onClick={()=>setTab('guide')}>?</button>
         <span className={`mode ${live?'live':''}`}>{(state?.mode || 'paper').toUpperCase()}
           <Hint pos="below" text={live
             ? 'LIVE: the bot is trading real money on your Alpaca account. Every fill is a real buy/sell.'
@@ -45,6 +47,7 @@ export default function App(){
       </>}
       {tab==='strategy' && <Strategy />}
       {tab==='settings' && <Settings />}
+      {tab==='guide' && <Guide />}
     </div>
   )
 }

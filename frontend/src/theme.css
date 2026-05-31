@@ -9,7 +9,24 @@
 .nav .brand{font-weight:700;color:#fff;letter-spacing:.5px}
 .nav button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:6px 4px}
 .nav button.active{color:#fff;border-bottom:2px solid var(--accent)}
-.mode{margin-left:auto;font-weight:700;padding:4px 10px;border-radius:6px;background:#1f6f43;color:#fff}
+.nav button.help{margin-left:auto;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);
+  display:inline-flex;align-items:center;justify-content:center;padding:0;font-weight:700}
+.nav button.help:hover{color:#fff;border-color:var(--accent)}
+.nav button.help.active{border-bottom:1px solid var(--accent);color:#fff}
+.mode{font-weight:700;padding:4px 10px;border-radius:6px;background:#1f6f43;color:#fff}
+
+/* Rendered Trading Guide (markdown) */
+.guide{line-height:1.55;max-width:900px}
+.guide h1{font-size:22px;color:#fff;margin:0 0 12px}
+.guide h2{font-size:17px;color:#fff;margin:24px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px;text-transform:none;letter-spacing:0}
+.guide h3{font-size:14px;color:var(--text);margin:16px 0 6px;text-transform:none;letter-spacing:0}
+.guide a{color:var(--accent)}
+.guide code{background:#0c1320;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12px}
+.guide pre{background:#0c1320;border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto}
+.guide pre code{border:none;padding:0}
+.guide table{border-collapse:collapse;width:100%;margin:10px 0}
+.guide th,.guide td{border:1px solid var(--line);padding:6px 10px;text-align:left;font-size:13px}
+.guide blockquote{border-left:3px solid var(--accent);margin:10px 0;padding:6px 12px;color:var(--muted);background:var(--panel2)}
 .mode.live{background:var(--red)}
 .banner{display:flex;gap:16px;align-items:center;padding:10px 20px;background:#123a26;border-bottom:1px solid var(--line)}
 .banner.halted{background:#3a1620}
