@@ -45,12 +45,13 @@ class FakePredictor:
         self._forecast = forecast
         self._delay_s = delay_s
         self.call_count = 0
-        self.last_df_columns: list[str] = []
+        self.received_df_columns: list[str] = []
+        self.received_x_timestamp = None
 
-    def predict(self, df, x_timestamp, y_timestamp, pred_len,
-                T, top_k, top_p, sample_count, verbose):
+    def predict(self, df, x_timestamp, y_timestamp, pred_len, T, top_p, sample_count):
         import time
-        self.last_df_columns = list(df.columns)
+        self.received_df_columns = list(df.columns)
+        self.received_x_timestamp = x_timestamp
         self.call_count += 1
         if self._delay_s:
             time.sleep(self._delay_s)
@@ -59,15 +60,29 @@ class FakePredictor:
 
 # ── KronosAdapter tests ────────────────────────────────────────────────────
 
-def test_candle_ts_renamed_to_datetime():
-    """Adapter renames 'ts' → 'datetime' before calling predictor."""
+def test_x_timestamp_is_candle_ts_series():
+    """Adapter passes candles['ts'] as x_timestamp Series to predictor."""
     candles = _df([100.0, 101.0, 102.0])
     fcast = _forecast_df([103.0])
     predictor = FakePredictor(fcast)
     adapter = KronosAdapter(predictor=predictor, pred_len=1)
     adapter.forecast(candles)
-    assert "datetime" in predictor.last_df_columns
-    assert "ts" not in predictor.last_df_columns
+    pd.testing.assert_series_equal(
+        predictor.received_x_timestamp.reset_index(drop=True),
+        candles["ts"].reset_index(drop=True),
+    )
+
+
+def test_df_has_no_ts_or_datetime_column():
+    """df passed to predictor has no timestamp column — it goes in x_timestamp."""
+    candles = _df([100.0, 101.0, 102.0])
+    fcast = _forecast_df([103.0])
+    predictor = FakePredictor(fcast)
+    adapter = KronosAdapter(predictor=predictor, pred_len=1)
+    adapter.forecast(candles)
+    assert "ts" not in predictor.received_df_columns
+    assert "datetime" not in predictor.received_df_columns
+    assert "open" in predictor.received_df_columns
 
 
 def test_cache_calls_predictor_once():

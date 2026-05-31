@@ -10,17 +10,17 @@ logger = logging.getLogger(__name__)
 
 
 class PredictorProtocol(Protocol):
+    """Matches the real KronosPredictor.predict() signature."""
+
     def predict(
         self,
         df: pd.DataFrame,
-        x_timestamp: pd.Timestamp,
-        y_timestamp: pd.Timestamp,
+        x_timestamp: pd.Series,
+        y_timestamp: pd.Series,
         pred_len: int,
-        T: int,
-        top_k: int,
+        T: float,
         top_p: float,
         sample_count: int,
-        verbose: bool,
     ) -> pd.DataFrame: ...
 
 
@@ -37,23 +37,30 @@ def _load_kronos():
 
 
 class KronosAdapter:
-    """Wraps a PredictorProtocol: column mapping, single-entry cache, timeout."""
+    """Wraps a PredictorProtocol: column extraction, Series timestamps, cache, timeout.
+
+    Real Kronos API (NeoQuasar/Kronos-small):
+      - x_timestamp: pd.Series of historical bar timestamps
+      - y_timestamp: pd.Series of future bar timestamps
+      - df: DataFrame with open/high/low/close/volume (no ts column)
+      - T: temperature (float, default 1.0)
+      - top_p: nucleus sampling (float, default 0.9)
+      - sample_count: forecast paths to average (int, default 1)
+    """
 
     def __init__(
         self,
         predictor: PredictorProtocol,
         pred_len: int = 4,
         timeout_s: float = 30.0,
-        T: int = 200,
-        top_k: int = 5,
-        top_p: float = 1.0,
-        sample_count: int = 10,
+        T: float = 1.0,
+        top_p: float = 0.9,
+        sample_count: int = 1,
     ) -> None:
         self._predictor = predictor
         self.pred_len = pred_len
         self._timeout_s = timeout_s
         self._T = T
-        self._top_k = top_k
         self._top_p = top_p
         self._sample_count = sample_count
         self._cache_key = None
@@ -63,21 +70,25 @@ class KronosAdapter:
 
     @classmethod
     def from_profile(cls, params: dict) -> "KronosAdapter":
-        """Load real Kronos model. Only call this when torch is installed.
+        """Load real Kronos model from HuggingFace Hub.
 
-        Verify the exact KronosPredictor constructor against the Kronos README
-        (https://github.com/shiyu-coder/Kronos) before using in production.
+        Recommended models for RTX 3050 (8 GB VRAM):
+          - NeoQuasar/Kronos-small  (24.7M params, fast)   ← default
+          - NeoQuasar/Kronos-base   (102.3M params, more accurate)
         """
-        _, _, KronosPredictor = _load_kronos()
-        predictor = KronosPredictor()  # adjust args per Kronos README
+        Kronos, KronosTokenizer, KronosPredictor = _load_kronos()
+        model_name = params.get("model_name", "NeoQuasar/Kronos-small")
+        tokenizer_name = params.get("tokenizer_name", "NeoQuasar/Kronos-Tokenizer-base")
+        tokenizer = KronosTokenizer.from_pretrained(tokenizer_name)
+        model = Kronos.from_pretrained(model_name)
+        predictor = KronosPredictor(model, tokenizer, max_context=512)
         return cls(
             predictor=predictor,
             pred_len=params.get("pred_len", 4),
             timeout_s=params.get("timeout_s", 30.0),
-            T=params.get("T", 200),
-            top_k=params.get("top_k", 5),
-            top_p=params.get("top_p", 1.0),
-            sample_count=params.get("sample_count", 10),
+            T=params.get("T", 1.0),
+            top_p=params.get("top_p", 0.9),
+            sample_count=params.get("sample_count", 1),
         )
 
     def set_precomputed(self, cache: dict) -> None:
@@ -98,22 +109,27 @@ class KronosAdapter:
 
     def _run_with_timeout(self, candles: pd.DataFrame) -> pd.DataFrame | None:
         """Execute predictor.predict() in a thread; return None on timeout or error."""
-        kronos_df = candles.rename(columns={"ts": "datetime"})
-        last_ts = pd.Timestamp(kronos_df["datetime"].iloc[-1])
-        bar_dur = kronos_df["datetime"].iloc[-1] - kronos_df["datetime"].iloc[-2]
-        future_ts = last_ts + bar_dur * self.pred_len
+        x_timestamp = candles["ts"].reset_index(drop=True)
+        kronos_df = candles[["open", "high", "low", "close", "volume"]].reset_index(drop=True)
+
+        last_ts = candles["ts"].iloc[-1]
+        bar_dur = candles["ts"].iloc[-1] - candles["ts"].iloc[-2]
+        y_timestamp = pd.date_range(
+            start=last_ts + bar_dur,
+            periods=self.pred_len,
+            freq=bar_dur,
+            tz=last_ts.tzinfo,
+        ).to_series().reset_index(drop=True)
 
         def _call() -> pd.DataFrame:
             return self._predictor.predict(
                 df=kronos_df,
-                x_timestamp=last_ts,
-                y_timestamp=future_ts,
+                x_timestamp=x_timestamp,
+                y_timestamp=y_timestamp,
                 pred_len=self.pred_len,
                 T=self._T,
-                top_k=self._top_k,
                 top_p=self._top_p,
                 sample_count=self._sample_count,
-                verbose=False,
             )
 
         try:

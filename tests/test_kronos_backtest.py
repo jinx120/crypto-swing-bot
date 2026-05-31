@@ -31,7 +31,7 @@ class RecordingPredictor:
         self.received_max_ts: list = []
 
     def predict(self, df, x_timestamp, y_timestamp, pred_len,
-                T, top_k, top_p, sample_count, verbose):
+                T, top_p, sample_count):
         self.call_count += 1
         self.received_max_ts.append(df["datetime"].max())
         n = pred_len
