@@ -46,7 +46,7 @@ export default function App(){
         from a resolvable host (or via the Vite <code>/api</code> proxy on port 3000).
       </div>}
       {tab==='dashboard' && <StatusBanner state={state} />}
-      {err && <div className="err" style={{padding:'8px 20px'}}>{err}</div>}
+      {!unreachable && err && <div className="err" style={{padding:'8px 20px'}}>{err}</div>}
       {tab==='dashboard' && <>
         <Dashboard state={state} trades={trades} metrics={metrics} />
         <div className="wrap"><ControlBar state={state} onChange={refresh} /></div>
