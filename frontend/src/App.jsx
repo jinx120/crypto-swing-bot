@@ -14,12 +14,13 @@ export default function App(){
   const [trades, setTrades] = useState([])
   const [metrics, setMetrics] = useState(null)
   const [err, setErr] = useState('')
+  const [unreachable, setUnreachable] = useState(false)
 
   const refresh = useCallback(async()=>{
     try {
-      const s = await api.state(); setState(s); setErr('')
+      const s = await api.state(); setState(s); setErr(''); setUnreachable(false)
       setTrades(await api.journal()); setMetrics(await api.metrics())
-    } catch(e){ setErr(e.message) }
+    } catch(e){ setErr(e.message); if (e.network) setUnreachable(true) }
   }, [])
 
   useEffect(()=>{ refresh(); const id = setInterval(refresh, 2000); return ()=>clearInterval(id) }, [refresh])
@@ -39,6 +40,11 @@ export default function App(){
             : 'PAPER: simulated money on Alpaca’s test server — safe for trying things out. The bot blocks switching to LIVE until your paper results pass the graduation checks.'} />
         </span>
       </div>
+      {unreachable && <div className="err" style={{padding:'10px 20px'}}>
+        Cannot reach the backend. The dashboard can't resolve or connect to its API host.
+        Check that <code>swingbot-web</code> is running and that you're loading this page
+        from a resolvable host (or via the Vite <code>/api</code> proxy on port 3000).
+      </div>}
       {tab==='dashboard' && <StatusBanner state={state} />}
       {err && <div className="err" style={{padding:'8px 20px'}}>{err}</div>}
       {tab==='dashboard' && <>
