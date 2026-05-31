@@ -7,6 +7,10 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from swingbot.data.market import timeframe_seconds
+from swingbot import presets as presets_mod
+from swingbot.strategy_search import backtest_profile, search as run_strategy_search
+
 _DIST = str(pathlib.Path(__file__).parent.parent.parent / "frontend" / "dist")
 
 
@@ -29,7 +33,18 @@ class ModeBody(BaseModel):
     mode: str
 
 
-def create_app(controller, profiles, creds, token: str) -> FastAPI:
+class BuildBody(BaseModel):
+    symbol: str
+    risk: str = "balanced"
+    style: str = "swing"
+    ai: bool = False
+
+
+class BacktestBody(BaseModel):
+    profile: dict
+
+
+def create_app(controller, profiles, creds, token: str, store=None, market=None) -> FastAPI:
     app = FastAPI(title="swingbot")
 
     def require_token(x_token: str | None = Header(default=None)):
@@ -39,6 +54,55 @@ def create_app(controller, profiles, creds, token: str) -> FastAPI:
     @app.get("/api/state")
     def state():
         return controller.status()
+
+    @app.get("/api/candles")
+    def candles(symbol: str | None = None, timeframe: str | None = None,
+                limit: int = 500):
+        """OHLC bars for the chart. Defaults to the active profile's
+        symbol/timeframe when not specified. Read-only (no token)."""
+        if symbol is None or timeframe is None:
+            active = (profiles.get_active() if profiles else None) or {}
+            symbol = symbol or active.get("symbol")
+            timeframe = timeframe or active.get("timeframe", "15m")
+        if not symbol:
+            return {"symbol": symbol, "timeframe": timeframe, "candles": []}
+        limit = max(1, min(limit, 1500))
+        if market is not None:
+            bars = market.get(symbol, timeframe, limit,
+                              max_age=timeframe_seconds(timeframe))
+        elif store is not None:
+            bars = store.get(symbol, timeframe, limit)
+        else:
+            bars = []
+        return {"symbol": symbol, "timeframe": timeframe, "candles": bars}
+
+    def _require_market_ready():
+        if market is None or (creds is not None and creds.get() is None):
+            raise HTTPException(status_code=400, detail="set Alpaca credentials in Settings first")
+
+    @app.get("/api/presets")
+    def list_presets():
+        return [{"key": a.key, "name": a.name, "description": a.description,
+                 "signals": a.signals, "profile": presets_mod.archetype_profile(a)}
+                for a in presets_mod.ARCHETYPES]
+
+    @app.post("/api/strategy/backtest")
+    def strategy_backtest(body: BacktestBody, _=Depends(require_token)):
+        _require_market_ready()
+        try:
+            m = backtest_profile(market, body.profile)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        return {"metrics": {k: getattr(m, k, None) for k in
+                ("n_trades", "win_rate", "expectancy", "profit_factor", "max_drawdown")}}
+
+    @app.post("/api/strategy/build")
+    def strategy_build(body: BuildBody, _=Depends(require_token)):
+        _require_market_ready()
+        try:
+            return run_strategy_search(market, body.symbol, body.risk, body.style, body.ai)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     @app.get("/api/journal")
     def journal():
