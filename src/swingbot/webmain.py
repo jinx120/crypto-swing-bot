@@ -6,6 +6,9 @@ import secrets
 import uvicorn
 
 from swingbot.credentials import CredentialStore
+from swingbot.data.market import MarketData
+from swingbot.data.poller import CandlePoller
+from swingbot.data.store import CandleStore
 from swingbot.profiles import ProfileStore
 from swingbot.service import BotService
 from swingbot.web import create_app
@@ -32,7 +35,12 @@ def main() -> None:
     creds = CredentialStore(os.path.join(DATA_DIR, "credentials.json"))
     service = BotService(profiles=profiles, creds=creds,
                          state_db=os.path.join(DATA_DIR, "swingbot.db"))
-    app = create_app(controller=service, profiles=profiles, creds=creds, token=token)
+    store = CandleStore(os.path.join(DATA_DIR, "candles.db"))
+    market = MarketData(store, creds)
+    poller = CandlePoller(market, profiles)
+    poller.start()
+    app = create_app(controller=service, profiles=profiles, creds=creds,
+                     token=token, store=store, market=market)
     print(f"[swingbot-web] token: {token}")
     print(f"[swingbot-web] http://{HOST}:8000")
     uvicorn.run(app, host=HOST, port=8000)

@@ -3,11 +3,13 @@ import PositionPanel from '../components/PositionPanel.jsx'
 import RiskPanel from '../components/RiskPanel.jsx'
 import JournalTable from '../components/JournalTable.jsx'
 import MetricsPanel from '../components/MetricsPanel.jsx'
+import ChartPanel from '../components/ChartPanel.jsx'
 import Hint from '../components/Hint.jsx'
 
 export default function Dashboard({ state, trades, metrics }){
   return (
     <div className="wrap">
+      <ChartPanel symbol={state?.symbol} trades={trades} position={state?.position} />
       <SignalPanel signal={state?.signal} symbol={state?.symbol} />
       <PositionPanel position={state?.position} />
       <RiskPanel state={state} />
