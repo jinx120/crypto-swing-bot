@@ -1,7 +1,13 @@
 from __future__ import annotations
 
+import os
+import pathlib
+
 from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+
+_DIST = str(pathlib.Path(__file__).parent.parent.parent / "frontend" / "dist")
 
 
 class ProfileBody(BaseModel):
@@ -117,4 +123,8 @@ def create_app(controller, profiles, creds, token: str) -> FastAPI:
     app.state.profiles = profiles
     app.state.creds = creds
     app.state.token = token
+
+    if os.path.isdir(_DIST):
+        app.mount("/", StaticFiles(directory=_DIST, html=True), name="frontend")
+
     return app

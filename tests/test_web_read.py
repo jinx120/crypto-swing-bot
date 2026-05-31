@@ -38,6 +38,34 @@ def test_write_requires_token():
 
 
 import importlib
+import pathlib
+from unittest.mock import patch
+
+
+def test_create_app_mounts_static_when_dist_exists(tmp_path):
+    """create_app() mounts StaticFiles at / when frontend/dist exists."""
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "index.html").write_text("<html></html>")
+
+    from swingbot.web import create_app
+
+    with patch("swingbot.web._DIST", str(dist)):
+        app = create_app(FakeController(), None, None, token="test")
+
+    route_names = [r.name for r in app.routes]
+    assert "frontend" in route_names
+
+
+def test_create_app_skips_static_when_dist_missing():
+    """create_app() does NOT mount StaticFiles when frontend/dist is absent."""
+    from swingbot.web import create_app
+
+    with patch("swingbot.web._DIST", "/nonexistent/path/does/not/exist"):
+        app = create_app(FakeController(), None, None, token="test")
+
+    route_names = [r.name for r in app.routes]
+    assert "frontend" not in route_names
 
 
 def test_webmain_respects_swingbot_host_env(monkeypatch):
