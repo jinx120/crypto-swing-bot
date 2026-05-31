@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api.js'
 import Hint from '../components/Hint.jsx'
+import PresetGallery from '../components/PresetGallery.jsx'
+import StrategyBuilder from '../components/StrategyBuilder.jsx'
 
 const BLANK = {
   name: 'trx', symbol: 'TRX/USD', timeframe: '15m', benchmark_symbol: 'BTC/USD',
@@ -121,8 +123,16 @@ export default function Strategy(){
     catch (e) { setErr(e.message) }
   }
 
+  const applyProfile = (profile, name) => {
+    setErr('')
+    setF(parseProfile(name || f.name || 'built', profile))
+    setMsg('loaded into form below — review, name it, then Save')
+  }
+
   return (
     <div className="wrap">
+      <PresetGallery symbol={f.symbol} onUse={applyProfile} />
+      <StrategyBuilder symbol={f.symbol} onUse={applyProfile} />
       <div className="panel">
         <h3>Profiles</h3>
         {names.map(n => (

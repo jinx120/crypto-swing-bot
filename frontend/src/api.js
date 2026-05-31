@@ -29,4 +29,14 @@ export const api = {
   setCreds: (key_id, secret_key, base_url) =>
     req('PUT', '/api/credentials', { key_id, secret_key, base_url }),
   control: (action, body) => req('POST', `/api/control/${action}`, body),
+  candles: (symbol, timeframe, limit = 500) => {
+    const q = new URLSearchParams()
+    if (symbol) q.set('symbol', symbol)
+    if (timeframe) q.set('timeframe', timeframe)
+    q.set('limit', String(limit))
+    return req('GET', `/api/candles?${q.toString()}`)
+  },
+  presets: () => req('GET', '/api/presets'),
+  buildStrategy: (body) => req('POST', '/api/strategy/build', body),
+  backtestProfile: (profile) => req('POST', '/api/strategy/backtest', { profile }),
 }
