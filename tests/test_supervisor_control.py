@@ -59,3 +59,15 @@ def test_reload_picks_up_newly_armed(tmp_path):
     sup.reload()
     names = {s["name"] for s in sup.status()["strategies"]}
     assert names == {"btc", "eth"}
+
+
+def test_reload_is_noop_when_idle_and_unbuilt(tmp_path):
+    profiles = ProfileStore(str(tmp_path / "p.db"))
+    profiles.save("btc", _profile("BTC/USD")); profiles.arm("btc")
+    market = FakeMarket({"BTC/USD": _bars(100.0)})
+    sup = PortfolioSupervisor(profiles=profiles, creds=None,
+                              state_db=str(tmp_path / "s.db"), market=market,
+                              broker=None, mode="paper")
+    sup.reload()                      # must NOT raise (no creds, never built)
+    assert sup._store is None
+    assert sup.status()["strategies"] == []

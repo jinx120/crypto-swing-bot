@@ -297,8 +297,14 @@ class PortfolioSupervisor:
         return (True, f"mode set to {mode}")
 
     def reload(self) -> None:
-        """Rebuild the live strategy set after arming/disarming or settings changes."""
-        self.build()
+        """Rebuild the live strategy set after arming/disarming or settings changes.
+
+        No-op when idle and never built: arming is persisted to ProfileStore and
+        picked up by the next build()/start(). Only rebuilds an existing live set
+        (already running, or already built at least once).
+        """
+        if self._running or self._store is not None:
+            self.build()
 
     # ---- lifecycle ----
     def start(self) -> None:

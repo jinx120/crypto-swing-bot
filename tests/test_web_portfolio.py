@@ -75,3 +75,20 @@ def test_journal_metrics_strategy_filter(tmp_path):
     c, ctrl, _ = _client(tmp_path)
     c.get("/api/journal?strategy=btc"); c.get("/api/metrics?strategy=btc")
     assert ("journal", "btc") in ctrl.calls and ("metrics", "btc") in ctrl.calls
+
+
+def test_arm_without_credentials_does_not_500(tmp_path):
+    from swingbot.supervisor import PortfolioSupervisor
+    from tests.test_supervisor import FakeMarket, _bars
+    profiles = ProfileStore(str(tmp_path / "p.db"))
+    profiles.save("btc", {"symbol": "BTC/USD",
+                          "signals": {"oversold": {"weight": 1.0}}, "entry_threshold": 0.3})
+    market = FakeMarket({"BTC/USD": _bars(100.0)})
+    sup = PortfolioSupervisor(profiles=profiles, creds=None,
+                              state_db=str(tmp_path / "s.db"), market=market, broker=None)
+    app = create_app(controller=sup, profiles=profiles, creds=None, token="t")
+    from fastapi.testclient import TestClient
+    c = TestClient(app)
+    r = c.post("/api/strategies/arm", json={"name": "btc"}, headers={"X-Token": "t"})
+    assert r.status_code == 200
+    assert "btc" in profiles.list_armed()
