@@ -3,6 +3,7 @@ import { api } from '../api.js'
 import Hint from '../components/Hint.jsx'
 import PresetGallery from '../components/PresetGallery.jsx'
 import StrategyBuilder from '../components/StrategyBuilder.jsx'
+import StrategyManager from '../components/StrategyManager.jsx'
 
 const BLANK = {
   name: 'trx', symbol: 'TRX/USD', timeframe: '15m', benchmark_symbol: 'BTC/USD',
@@ -102,12 +103,12 @@ function Toggle({ f, set, label, k, hint }){
 }
 
 export default function Strategy(){
-  const [names, setNames] = useState([]); const [active, setActive] = useState(null)
+  const [names, setNames] = useState([]); const [refreshKey, setRefreshKey] = useState(0)
   const [f, setF] = useState(BLANK)
   const [err, setErr] = useState(''); const [msg, setMsg] = useState('')
   const set = (k) => (val) => setF(prev => ({ ...prev, [k]: val }))
 
-  const load = async () => { setNames(await api.listProfiles()); setActive((await api.activeProfile()).name) }
+  const load = async () => { setNames(await api.listProfiles()); setRefreshKey(k => k + 1) }
   useEffect(() => { load().catch(e => setErr(e.message)) }, [])
 
   const edit = async (name) => {
@@ -131,16 +132,16 @@ export default function Strategy(){
 
   return (
     <div className="wrap">
+      <StrategyManager refreshKey={refreshKey} />
       <PresetGallery symbol={f.symbol} onUse={applyProfile} />
       <StrategyBuilder symbol={f.symbol} onUse={applyProfile} />
       <div className="panel">
         <h3>Profiles</h3>
         {names.map(n => (
           <div className="row" key={n}>
-            <span>{n} {active === n && <span className="chip">active</span>}</span>
+            <span>{n}</span>
             <span>
               <button className="act" onClick={() => edit(n)}>Edit</button>
-              <button className="act" onClick={() => api.setActive(n).then(load).catch(e => setErr(e.message))}>Set active</button>
               <button className="act danger" onClick={() => api.deleteProfile(n).then(load)}>Delete</button>
             </span>
           </div>
