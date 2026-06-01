@@ -76,3 +76,18 @@ def test_portfolio_gate_allows_and_notifies_on_close(tmp_path):
     data._p = pos.stop * 0.99                       # force a stop-out
     orch.tick(now=T0 + timedelta(minutes=1))
     assert len(closed) == 1                          # portfolio_on_close fired with the pnl
+
+
+def test_flatten_notifies_on_close(tmp_path):
+    df = _dip(); data = FakeData(df, float(df["close"].iloc[-1])); broker = FakeBroker()
+    p = _profile(); st = StateStore(str(tmp_path / "s.db"))
+    closed = []
+    orch = Orchestrator(profile=p, data=data, broker=broker, state=st,
+                        risk=RiskManager(p, st.load_risk_state()), journal=TradeJournal(),
+                        portfolio_gate=lambda s, v: PortfolioDecision(True),
+                        portfolio_on_close=lambda pnl, now: closed.append(pnl))
+    orch.tick(now=T0)
+    assert len(broker.buys) == 1                  # a position was opened
+    orch.flatten(now=T0 + timedelta(minutes=1))   # manual close
+    assert orch.state.load_position() is None      # position cleared
+    assert len(closed) == 1                          # hook fired via flatten

@@ -76,10 +76,10 @@ class Orchestrator:
                       regime_at_entry=pos.regime_at_entry)
         self.journal.record(trade)
         self.risk.on_trade_closed(trade, now=now)
-        if self.portfolio_on_close is not None:
-            self.portfolio_on_close(trade.pnl, now)
         self.state.clear_position()
         self.state.save_risk_state(self.risk.state)
+        if self.portfolio_on_close is not None:
+            self.portfolio_on_close(trade.pnl, now)
 
     def flatten(self, now: datetime | None = None) -> None:
         """Force-close any open position at the latest price (manual control)."""
@@ -96,10 +96,10 @@ class Orchestrator:
                       score_at_entry=pos.score_at_entry, regime_at_entry=pos.regime_at_entry)
         self.journal.record(trade)
         self.risk.on_trade_closed(trade, now=now)
-        if self.portfolio_on_close is not None:
-            self.portfolio_on_close(trade.pnl, now)
         self.state.clear_position()
         self.state.save_risk_state(self.risk.state)
+        if self.portfolio_on_close is not None:
+            self.portfolio_on_close(trade.pnl, now)
 
     def _maybe_enter(self, now: datetime, equity: float) -> None:
         if self.paused:
