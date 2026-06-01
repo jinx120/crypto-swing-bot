@@ -24,18 +24,17 @@ async function req(method, path, body) {
 
 export const api = {
   state: () => req('GET', '/api/state'),
-  journal: () => req('GET', '/api/journal'),
-  metrics: () => req('GET', '/api/metrics'),
+  journal: (strategy) => req('GET', strategy ? `/api/journal?strategy=${encodeURIComponent(strategy)}` : '/api/journal'),
+  metrics: (strategy) => req('GET', strategy ? `/api/metrics?strategy=${encodeURIComponent(strategy)}` : '/api/metrics'),
   listProfiles: () => req('GET', '/api/profiles'),
-  activeProfile: () => req('GET', '/api/profiles/active'),
   getProfile: (name) => req('GET', `/api/profiles/${name}`),
   saveProfile: (name, profile) => req('POST', '/api/profiles', { name, profile }),
-  setActive: (name) => req('POST', '/api/profiles/active', { name }),
   deleteProfile: (name) => req('DELETE', `/api/profiles/${name}`),
   credStatus: () => req('GET', '/api/credentials'),
   setCreds: (key_id, secret_key, base_url) =>
     req('PUT', '/api/credentials', { key_id, secret_key, base_url }),
   control: (action, body) => req('POST', `/api/control/${action}`, body),
+  flattenStrategy: (name) => req('POST', `/api/control/${encodeURIComponent(name)}/flatten`),
   candles: (symbol, timeframe, limit = 500) => {
     const q = new URLSearchParams()
     if (symbol) q.set('symbol', symbol)
@@ -46,4 +45,11 @@ export const api = {
   presets: () => req('GET', '/api/presets'),
   buildStrategy: (body) => req('POST', '/api/strategy/build', body),
   backtestProfile: (profile) => req('POST', '/api/strategy/backtest', { profile }),
+  // --- portfolio / arming ---
+  strategies: () => req('GET', '/api/strategies'),
+  arm: (name) => req('POST', '/api/strategies/arm', { name }),
+  disarm: (name) => req('POST', '/api/strategies/disarm', { name }),
+  setLiveEligible: (name, eligible) => req('POST', '/api/strategies/live-eligible', { name, eligible }),
+  portfolioSettings: () => req('GET', '/api/portfolio/settings'),
+  setPortfolioSettings: (patch) => req('PUT', '/api/portfolio/settings', patch),
 }
