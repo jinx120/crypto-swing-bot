@@ -44,6 +44,14 @@ class MarketData:
         df = prov.get_candles(symbol, timeframe, lookback or self.default_lookback)
         return self.store.upsert_df(symbol, timeframe, df)
 
+    def refresh_many(self, symbols, timeframe: str, lookback: int | None = None) -> int:
+        """Batched fetch for many symbols at one timeframe; upsert each into the store."""
+        prov = self._provider()
+        if not prov:
+            return 0
+        dfs = prov.get_candles_multi(symbols, timeframe, lookback or self.default_lookback)
+        return sum(self.store.upsert_df(sym, timeframe, df) for sym, df in dfs.items())
+
     def get(self, symbol: str, timeframe: str, limit: int = 500,
             max_age: int | None = None) -> list[dict]:
         """Return up to `limit` bars (oldest-first). If the store is empty or the

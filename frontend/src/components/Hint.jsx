@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 
 // Small context hint: an "i" marker that reveals a tooltip on hover/focus.
 // The tooltip is fixed-positioned and clamped to the viewport so it never
@@ -25,7 +26,7 @@ export default function Hint({ text }){
     <span ref={ref} className="hint" tabIndex={0} role="note" aria-label={text}
       onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide}>
       i
-      {pos && (
+      {pos && createPortal(
         <span className={`hint-tip ${pos.above ? 'is-above' : 'is-below'}`}
           style={{
             left: pos.left, top: pos.top, width: pos.w,
@@ -34,7 +35,8 @@ export default function Hint({ text }){
             '--arrow-x': `${pos.arrowX}px`,
           }}>
           {text}
-        </span>
+        </span>,
+        document.body
       )}
     </span>
   )
