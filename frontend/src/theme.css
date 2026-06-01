@@ -208,6 +208,13 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
 tr.rec{background:rgba(108,123,242,0.12)}
 tr.rec td{font-weight:600}
 
+/* ── Per-strategy cards ── */
+.strategy-card .card-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.strategy-card .card-actions{display:flex;gap:8px;margin-top:12px}
+.chip.warn{background:linear-gradient(180deg,rgba(245,166,35,.9),rgba(245,166,35,.6));
+  border:1px solid rgba(245,166,35,.4);margin-left:8px}
+@media (max-width:820px){ .strategy-card .card-cols{grid-template-columns:1fr} }
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion:reduce){
   body::before,body::after{animation:none}
