@@ -205,8 +205,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/App.jsx": {
-    "mtime": 1780340299.4539683,
-    "ast_hash": "146c85eda5d92d9262b82878d13bf80c",
+    "mtime": 1780289209.3052669,
+    "ast_hash": "758078df540835b04e9a2a580e588e09",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/main.jsx": {
@@ -215,8 +215,8 @@
     "semantic_hash": "de511e8b18858691dcbb784d06dd8321"
   },
   "/home/redji/crypto-swing-bot/frontend/src/api.js": {
-    "mtime": 1780340299.4539683,
-    "ast_hash": "6b2d19961be9225cc8a6da6f3fa6774f",
+    "mtime": 1780289209.3052669,
+    "ast_hash": "256ff5843f68a04ce1fbcde8f5cce6fe",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/components/SignalPanel.jsx": {
@@ -260,13 +260,13 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/components/ControlBar.jsx": {
-    "mtime": 1780340299.4539683,
-    "ast_hash": "e5061d7eae0219b1557655c8b5d584f9",
+    "mtime": 1780201200.0106878,
+    "ast_hash": "7c18ceed07283eef74a623d934db2919",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/pages/Dashboard.jsx": {
-    "mtime": 1780340299.4549685,
-    "ast_hash": "84f9df883bb30ccd1cf9679716d90a8d",
+    "mtime": 1780242610.3799646,
+    "ast_hash": "ea8b1917a8854d1d13171861b22bcfd9",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/pages/Settings.jsx": {
@@ -275,8 +275,8 @@
     "semantic_hash": "66be0ddf7f4b0c7df8317315627bef37"
   },
   "/home/redji/crypto-swing-bot/frontend/src/pages/Strategy.jsx": {
-    "mtime": 1780340299.4549685,
-    "ast_hash": "0d8d9e2b3746f4967c9f3ca27a723d92",
+    "mtime": 1780242610.3809645,
+    "ast_hash": "d73c83502ffc41d11e39a52347d1108d",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_config.py": {
@@ -460,8 +460,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/components/ChartPanel.jsx": {
-    "mtime": 1780340299.4539683,
-    "ast_hash": "ea2a028b853e3d1ec7f90fad49e09094",
+    "mtime": 1780289209.3062668,
+    "ast_hash": "2ade32ca80ed8b68b2b2266e472e1b9d",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/pages/Guide.jsx": {
@@ -687,21 +687,6 @@
   "/home/redji/crypto-swing-bot/docs/superpowers/specs/2026-05-31-multi-asset-concurrent-trading-design.md": {
     "mtime": 1780289209.3052669,
     "ast_hash": "f14cf4df2617883258e52b774643eb9f",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/frontend/src/components/StrategyManager.jsx": {
-    "mtime": 1780340299.4549685,
-    "ast_hash": "266c04ef146f10c141fb291a139569ce",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/frontend/src/components/StrategyCard.jsx": {
-    "mtime": 1780340299.4549685,
-    "ast_hash": "4e95ac9cd8eccfaf5057ddbb95fe5080",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/frontend/src/components/PortfolioBanner.jsx": {
-    "mtime": 1780340299.4539683,
-    "ast_hash": "27a7be65b3def3542e17f62978748918",
     "semantic_hash": ""
   }
 }
