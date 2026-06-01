@@ -46,20 +46,22 @@ def test_get_limit_returns_most_recent(tmp_path):
 
 class _FakeController:
     def status(self): return {"mode": "paper", "running": False}
-    def journal(self): return []
-    def metrics(self): return {}
+    def journal(self, strategy=None): return []
+    def metrics(self, strategy=None): return {}
     def halt(self): pass
     def reset(self): pass
     def pause(self): pass
     def resume(self): pass
-    def flatten(self): pass
+    def flatten(self, name=None): pass
+    def reload(self): pass
     def set_mode(self, mode): return (True, "")
     def start(self): pass
     def stop(self): pass
 
 
 class _FakeProfiles:
-    def get_active(self): return {"symbol": "TRX/USD", "timeframe": "15m"}
+    def list_armed(self): return ["trx"]
+    def get(self, name): return {"symbol": "TRX/USD", "timeframe": "15m"}
 
 
 def test_candles_endpoint_serves_store(tmp_path):

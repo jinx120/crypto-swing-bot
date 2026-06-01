@@ -16,6 +16,10 @@ from swingbot.profile import StrategyProfile
 from swingbot.profiles import ProfileStore
 from swingbot.risk import RiskManager
 from swingbot.snapshot import signal_snapshot
+from dataclasses import asdict
+
+from swingbot.graduation import can_go_live
+from swingbot.metrics import compute_metrics
 from swingbot.state import StateStore, StrategyStateView
 from swingbot.types import MarketContext
 
@@ -226,6 +230,82 @@ class PortfolioSupervisor:
         return {"portfolio": self._summary or {"mode": self.mode, "running": self._running},
                 "strategies": strategies}
 
+    # ---- aggregate journal + metrics ----
+    def _trades(self, strategy: str | None = None) -> list:
+        out = []
+        for name, s in self._strategies.items():
+            if strategy and name != strategy:
+                continue
+            out.extend(s["orch"].journal.trades)
+        return out
+
+    def journal(self, strategy: str | None = None) -> list[dict]:
+        return [_trade_dict(t) for t in self._trades(strategy)]
+
+    def metrics(self, strategy: str | None = None) -> dict:
+        return asdict(compute_metrics(self._trades(strategy)))
+
+    # ---- controls ----
+    def halt(self) -> None:
+        if not self._portfolio_risk or not self._store:
+            return
+        self._portfolio_risk.state.kill_switch_active = True
+        self._portfolio_risk.state.kill_switch_reason = "manual halt"
+        self._store.save_portfolio_risk_state(self._portfolio_risk.state)
+        if "kill_switch" in self._summary:
+            self._summary["kill_switch"]["active"] = True
+            self._summary["kill_switch"]["reason"] = "manual halt"
+
+    def reset(self) -> None:
+        if not self._portfolio_risk or not self._store:
+            return
+        self._portfolio_risk.state.kill_switch_active = False
+        self._portfolio_risk.state.kill_switch_reason = ""
+        self._store.save_portfolio_risk_state(self._portfolio_risk.state)
+        if "kill_switch" in self._summary:
+            self._summary["kill_switch"]["active"] = False
+            self._summary["kill_switch"]["reason"] = ""
+
+    def flatten(self, name: str | None = None) -> None:
+        targets = [name] if name else list(self._strategies)
+        for n in targets:
+            s = self._strategies.get(n)
+            if s:
+                s["orch"].flatten()
+
+    def set_mode(self, mode: str) -> tuple[bool, str]:
+        if mode not in ("paper", "live"):
+            return (False, "mode must be 'paper' or 'live'")
+        if mode == "live":
+            ok, reason = can_go_live(compute_metrics(self._trades()))
+            if not ok:
+                return (False, f"go-live blocked: {reason}")
+        was_running = self._running
+        prev_thread = self._thread  # capture before stop() clears it
+        self.stop()
+        self.mode = mode
+        self._broker = None
+        if was_running:
+            # Only restart if the previous loop thread has actually exited; a
+            # timed-out join leaves stop() with _running=False but the thread
+            # still alive, and start()'s `if self._running` guard won't fire.
+            if prev_thread is not None and prev_thread.is_alive():
+                return (False, "previous loop thread still alive; mode updated but not restarted")
+            self.start()
+        else:
+            self.build()
+        return (True, f"mode set to {mode}")
+
+    def reload(self) -> None:
+        """Rebuild the live strategy set after arming/disarming or settings changes.
+
+        No-op when idle and never built: arming is persisted to ProfileStore and
+        picked up by the next build()/start(). Only rebuilds an existing live set
+        (already running, or already built at least once).
+        """
+        if self._running or self._store is not None:
+            self.build()
+
     # ---- lifecycle ----
     def start(self) -> None:
         if self._running:
@@ -273,3 +353,10 @@ def _pos_dict(pos):
             "stop": pos.stop, "tp": pos.tp,
             "max_hold_until": pos.max_hold_until.isoformat(),
             "entry_ts": pos.entry_ts.isoformat()}
+
+
+def _trade_dict(t):
+    return {"entry_ts": t.entry_ts.isoformat(), "exit_ts": t.exit_ts.isoformat(),
+            "entry_price": t.entry_price, "exit_price": t.exit_price, "qty": t.qty,
+            "pnl": t.pnl, "exit_reason": t.exit_reason.value,
+            "score_at_entry": t.score_at_entry, "regime_at_entry": t.regime_at_entry.value}

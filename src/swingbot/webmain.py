@@ -10,7 +10,7 @@ from swingbot.data.market import MarketData
 from swingbot.data.poller import CandlePoller
 from swingbot.data.store import CandleStore
 from swingbot.profiles import ProfileStore
-from swingbot.service import BotService
+from swingbot.supervisor import PortfolioSupervisor
 from swingbot.web import create_app
 
 HOST = os.environ.get("SWINGBOT_HOST", "127.0.0.1")
@@ -33,13 +33,14 @@ def main() -> None:
     token = _ensure_token(os.path.join(DATA_DIR, "token"))
     profiles = ProfileStore(os.path.join(DATA_DIR, "swingbot.db"))
     creds = CredentialStore(os.path.join(DATA_DIR, "credentials.json"))
-    service = BotService(profiles=profiles, creds=creds,
-                         state_db=os.path.join(DATA_DIR, "swingbot.db"))
     store = CandleStore(os.path.join(DATA_DIR, "candles.db"))
     market = MarketData(store, creds)
-    poller = CandlePoller(market, profiles)
+    supervisor = PortfolioSupervisor(
+        profiles=profiles, creds=creds,
+        state_db=os.path.join(DATA_DIR, "swingbot.db"), market=market)
+    poller = CandlePoller(market, profiles)        # keeps all armed symbols warm for charts
     poller.start()
-    app = create_app(controller=service, profiles=profiles, creds=creds,
+    app = create_app(controller=supervisor, profiles=profiles, creds=creds,
                      token=token, store=store, market=market)
     print(f"[swingbot-web] token: {token}")
     print(f"[swingbot-web] http://{HOST}:8000")

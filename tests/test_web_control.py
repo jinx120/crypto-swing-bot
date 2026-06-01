@@ -5,13 +5,14 @@ from swingbot.web import create_app
 class RecordingController:
     def __init__(self): self.calls = []
     def status(self): return {}
-    def journal(self): return []
-    def metrics(self): return {}
+    def journal(self, strategy=None): return []
+    def metrics(self, strategy=None): return {}
     def halt(self): self.calls.append("halt")
     def reset(self): self.calls.append("reset")
     def pause(self): self.calls.append("pause")
     def resume(self): self.calls.append("resume")
-    def flatten(self): self.calls.append("flatten")
+    def flatten(self, name=None): self.calls.append(("flatten", name))
+    def reload(self): self.calls.append("reload")
     def set_mode(self, mode): self.calls.append(("mode", mode)); return (mode == "paper", "live blocked" if mode == "live" else "ok")
     def start(self): self.calls.append("start")
     def stop(self): self.calls.append("stop")
@@ -26,7 +27,8 @@ def test_control_actions_invoke_controller():
     c, ctrl = _client(); h = {"X-Token": "t"}
     for action in ("reset", "pause", "resume", "flatten"):
         assert c.post(f"/api/control/{action}", headers=h).status_code == 200
-    assert {"reset", "pause", "resume", "flatten"} <= set(ctrl.calls)
+    assert {"reset", "pause", "resume"} <= set(ctrl.calls)
+    assert ("flatten", None) in ctrl.calls
 
 def test_mode_switch_returns_gate_result():
     c, _ = _client(); h = {"X-Token": "t"}

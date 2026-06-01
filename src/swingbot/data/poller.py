@@ -8,12 +8,11 @@ from swingbot.profiles import ProfileStore
 
 
 class CandlePoller:
-    """Periodically refreshes the active profile's symbol/timeframe candles via
-    MarketData (Alpaca -> SQLite).
+    """Periodically refreshes candles for all armed symbols via MarketData
+    (Alpaca -> SQLite), grouped by timeframe into batched fetches.
 
-    Runs independently of the trading loop so the dashboard chart always has
-    fresh data for the active timeframe, even when the bot is stopped. Other
-    timeframes are fetched on demand by the /api/candles endpoint.
+    Runs independently of the trading loop so the dashboard charts always have
+    fresh data for every armed strategy, even when the bot is stopped.
     """
 
     def __init__(self, market: MarketData, profiles: ProfileStore, interval: int = 60):
@@ -24,14 +23,17 @@ class CandlePoller:
         self._thread: threading.Thread | None = None
 
     def poll_once(self) -> int:
-        pdict = self.profiles.get_active()
-        if not pdict:
-            return 0
-        symbol = pdict.get("symbol")
-        timeframe = pdict.get("timeframe", "15m")
-        if not symbol:
-            return 0
-        return self.market.refresh(symbol, timeframe)
+        names = self.profiles.list_armed()
+        by_tf: dict[str, set[str]] = {}
+        for name in names:
+            pdict = self.profiles.get(name)
+            if not pdict or not pdict.get("symbol"):
+                continue
+            by_tf.setdefault(pdict.get("timeframe", "15m"), set()).add(pdict["symbol"])
+        total = 0
+        for tf, syms in by_tf.items():
+            total += self.market.refresh_many(sorted(syms), tf)
+        return total
 
     def start(self) -> None:
         if self._running:
