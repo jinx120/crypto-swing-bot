@@ -5,13 +5,14 @@ from swingbot.profiles import ProfileStore
 
 class FakeController:
     def status(self): return {}
-    def journal(self): return []
-    def metrics(self): return {}
+    def journal(self, strategy=None): return []
+    def metrics(self, strategy=None): return {}
     def halt(self): pass
     def reset(self): pass
     def pause(self): pass
     def resume(self): pass
-    def flatten(self): pass
+    def flatten(self, name=None): pass
+    def reload(self): pass
     def set_mode(self, m): return (True, "")
     def start(self): pass
     def stop(self): pass
@@ -23,15 +24,16 @@ def _client(tmp_path, token="tok"):
     return TestClient(app), profiles
 
 
-def test_profile_crud_and_active(tmp_path):
+def test_profile_crud_and_arm(tmp_path):
     c, _ = _client(tmp_path)
     h = {"X-Token": "tok"}
     body = {"name": "trx", "profile": {"symbol": "TRX/USD",
             "signals": {"oversold": {"weight": 1.0}}, "entry_threshold": 0.3}}
     assert c.post("/api/profiles", json=body, headers=h).status_code == 200
     assert "trx" in c.get("/api/profiles").json()
-    assert c.post("/api/profiles/active", json={"name": "trx"}, headers=h).status_code == 200
-    assert c.get("/api/profiles/active").json()["name"] == "trx"
+    assert c.post("/api/strategies/arm", json={"name": "trx"}, headers=h).status_code == 200
+    armed = [s for s in c.get("/api/strategies").json() if s["armed"]]
+    assert any(s["name"] == "trx" for s in armed)
 
 def test_profile_create_requires_token(tmp_path):
     c, _ = _client(tmp_path)

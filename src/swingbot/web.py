@@ -19,7 +19,7 @@ class ProfileBody(BaseModel):
     profile: dict
 
 
-class ActiveBody(BaseModel):
+class NameBody(BaseModel):
     name: str
 
 
@@ -31,6 +31,17 @@ class CredBody(BaseModel):
 
 class ModeBody(BaseModel):
     mode: str
+
+
+class LiveEligibleBody(BaseModel):
+    name: str
+    eligible: bool
+
+
+class PortfolioSettingsBody(BaseModel):
+    max_concurrent: int | None = None
+    max_total_deployed_frac: float | None = None
+    portfolio_daily_loss_limit_pct: float | None = None
 
 
 class BuildBody(BaseModel):
@@ -51,31 +62,123 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None)
         if x_token != token:
             raise HTTPException(status_code=401, detail="bad or missing token")
 
+    # ---- read ----
     @app.get("/api/state")
     def state():
         return controller.status()
 
+    @app.get("/api/journal")
+    def journal(strategy: str | None = None):
+        return controller.journal(strategy)
+
+    @app.get("/api/metrics")
+    def metrics(strategy: str | None = None):
+        return controller.metrics(strategy)
+
     @app.get("/api/candles")
-    def candles(symbol: str | None = None, timeframe: str | None = None,
-                limit: int = 500):
-        """OHLC bars for the chart. Defaults to the active profile's
-        symbol/timeframe when not specified. Read-only (no token)."""
+    def candles(symbol: str | None = None, timeframe: str | None = None, limit: int = 500):
         if symbol is None or timeframe is None:
-            active = (profiles.get_active() if profiles else None) or {}
-            symbol = symbol or active.get("symbol")
-            timeframe = timeframe or active.get("timeframe", "15m")
+            armed = profiles.list_armed() if profiles else []
+            first = (profiles.get(armed[0]) if armed else None) or {}
+            symbol = symbol or first.get("symbol")
+            timeframe = timeframe or first.get("timeframe", "15m")
         if not symbol:
             return {"symbol": symbol, "timeframe": timeframe, "candles": []}
         limit = max(1, min(limit, 1500))
         if market is not None:
-            bars = market.get(symbol, timeframe, limit,
-                              max_age=timeframe_seconds(timeframe))
+            bars = market.get(symbol, timeframe, limit, max_age=timeframe_seconds(timeframe))
         elif store is not None:
             bars = store.get(symbol, timeframe, limit)
         else:
             bars = []
         return {"symbol": symbol, "timeframe": timeframe, "candles": bars}
 
+    # ---- strategies / arming ----
+    @app.get("/api/strategies")
+    def list_strategies():
+        flags = {f["name"]: f["live_eligible"] for f in profiles.armed_with_flags()}
+        out = []
+        for name in profiles.list():
+            p = profiles.get(name) or {}
+            out.append({"name": name, "symbol": p.get("symbol"),
+                        "armed": name in flags, "live_eligible": flags.get(name, False)})
+        return out
+
+    @app.post("/api/strategies/arm")
+    def arm(body: NameBody, _=Depends(require_token)):
+        try:
+            profiles.arm(body.name)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        controller.reload()
+        return {"ok": True}
+
+    @app.post("/api/strategies/disarm")
+    def disarm(body: NameBody, _=Depends(require_token)):
+        controller.flatten(body.name)
+        profiles.disarm(body.name)
+        controller.reload()
+        return {"ok": True}
+
+    @app.post("/api/strategies/live-eligible")
+    def live_eligible(body: LiveEligibleBody, _=Depends(require_token)):
+        try:
+            profiles.set_live_eligible(body.name, body.eligible)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        return {"ok": True}
+
+    # ---- portfolio settings ----
+    @app.get("/api/portfolio/settings")
+    def get_portfolio_settings():
+        return profiles.get_portfolio_settings()
+
+    @app.put("/api/portfolio/settings")
+    def set_portfolio_settings(body: PortfolioSettingsBody, _=Depends(require_token)):
+        patch = {k: v for k, v in body.model_dump().items() if v is not None}
+        try:
+            profiles.set_portfolio_settings(patch)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        controller.reload()
+        return profiles.get_portfolio_settings()
+
+    # ---- profiles CRUD ----
+    @app.get("/api/profiles")
+    def list_profiles():
+        return profiles.list()
+
+    @app.post("/api/profiles")
+    def save_profile(body: ProfileBody, _=Depends(require_token)):
+        try:
+            profiles.save(body.name, body.profile)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        return {"ok": True}
+
+    @app.get("/api/profiles/{name}")
+    def get_profile(name: str):
+        p = profiles.get(name)
+        if p is None:
+            raise HTTPException(status_code=404, detail=f"no profile {name!r}")
+        return {"name": name, "profile": p}
+
+    @app.delete("/api/profiles/{name}")
+    def delete_profile(name: str, _=Depends(require_token)):
+        profiles.delete(name)
+        return {"ok": True}
+
+    # ---- credentials ----
+    @app.get("/api/credentials")
+    def cred_status():
+        return creds.status()
+
+    @app.put("/api/credentials")
+    def set_creds(body: CredBody, _=Depends(require_token)):
+        creds.set(body.key_id, body.secret_key, body.base_url)
+        return {"ok": True}
+
+    # ---- presets / strategy build (unchanged behavior) ----
     def _require_market_ready():
         if market is None or (creds is not None and creds.get() is None):
             raise HTTPException(status_code=400, detail="set Alpaca credentials in Settings first")
@@ -104,75 +207,10 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-    @app.get("/api/journal")
-    def journal():
-        return controller.journal()
-
-    @app.get("/api/metrics")
-    def metrics():
-        return controller.metrics()
-
+    # ---- controls (portfolio-level + per-strategy) ----
     @app.post("/api/control/halt")
     def halt(_=Depends(require_token)):
-        controller.halt()
-        return {"ok": True}
-
-    @app.get("/api/profiles")
-    def list_profiles():
-        return profiles.list()
-
-    @app.post("/api/profiles")
-    def save_profile(body: ProfileBody, _=Depends(require_token)):
-        try:
-            profiles.save(body.name, body.profile)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        return {"ok": True}
-
-    @app.get("/api/profiles/active")
-    def active_profile():
-        return {"name": profiles.get_active_name(), "profile": profiles.get_active()}
-
-    @app.post("/api/profiles/active")
-    def set_active(body: ActiveBody, _=Depends(require_token)):
-        try:
-            profiles.set_active(body.name)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        return {"ok": True}
-
-    @app.get("/api/profiles/{name}")
-    def get_profile(name: str):
-        p = profiles.get(name)
-        if p is None:
-            raise HTTPException(status_code=404, detail=f"no profile {name!r}")
-        return {"name": name, "profile": p}
-
-    @app.delete("/api/profiles/{name}")
-    def delete_profile(name: str, _=Depends(require_token)):
-        profiles.delete(name)
-        return {"ok": True}
-
-    @app.get("/api/credentials")
-    def cred_status():
-        return creds.status()
-
-    @app.put("/api/credentials")
-    def set_creds(body: CredBody, _=Depends(require_token)):
-        creds.set(body.key_id, body.secret_key, body.base_url)
-        return {"ok": True}
-
-    @app.post("/api/control/start")
-    def control_start(_=Depends(require_token)):
-        try:
-            controller.start()
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        return {"ok": True}
-
-    @app.post("/api/control/stop")
-    def control_stop(_=Depends(require_token)):
-        controller.stop(); return {"ok": True}
+        controller.halt(); return {"ok": True}
 
     @app.post("/api/control/reset")
     def control_reset(_=Depends(require_token)):
@@ -186,6 +224,18 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None)
     def control_resume(_=Depends(require_token)):
         controller.resume(); return {"ok": True}
 
+    @app.post("/api/control/start")
+    def control_start(_=Depends(require_token)):
+        try:
+            controller.start()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        return {"ok": True}
+
+    @app.post("/api/control/stop")
+    def control_stop(_=Depends(require_token)):
+        controller.stop(); return {"ok": True}
+
     @app.post("/api/control/flatten")
     def control_flatten(_=Depends(require_token)):
         controller.flatten(); return {"ok": True}
@@ -194,6 +244,10 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None)
     def control_mode(body: ModeBody, _=Depends(require_token)):
         ok, reason = controller.set_mode(body.mode)
         return {"ok": ok, "reason": reason}
+
+    @app.post("/api/control/{name}/flatten")
+    def control_flatten_one(name: str, _=Depends(require_token)):
+        controller.flatten(name); return {"ok": True}
 
     app.state.controller = controller
     app.state.profiles = profiles

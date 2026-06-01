@@ -3,14 +3,15 @@ from swingbot.web import create_app
 
 
 class FakeController:
-    def status(self): return {"mode": "paper", "running": True, "paused": False}
-    def journal(self): return [{"pnl": 1.0}]
-    def metrics(self): return {"n_trades": 1, "expectancy": 1.0}
+    def status(self): return {"portfolio": {"mode": "paper", "open_positions": 0}, "strategies": []}
+    def journal(self, strategy=None): return [{"pnl": 1.0}]
+    def metrics(self, strategy=None): return {"n_trades": 1, "expectancy": 1.0}
     def halt(self): self.halted = True
     def reset(self): pass
     def pause(self): pass
     def resume(self): pass
-    def flatten(self): pass
+    def flatten(self, name=None): pass
+    def reload(self): pass
     def set_mode(self, mode): return (True, f"mode set to {mode}")
     def start(self): pass
     def stop(self): pass
@@ -23,7 +24,7 @@ def _client(token="tok"):
 
 def test_state_ok():
     r = _client().get("/api/state")
-    assert r.status_code == 200 and r.json()["mode"] == "paper"
+    assert r.status_code == 200 and r.json()["portfolio"]["mode"] == "paper"
 
 def test_journal_and_metrics():
     c = _client()
