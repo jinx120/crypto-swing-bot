@@ -20,7 +20,6 @@ from dataclasses import asdict
 
 from swingbot.graduation import can_go_live
 from swingbot.metrics import compute_metrics
-from swingbot.types import ExitReason  # noqa: F401 (kept for _trade_dict regime/reason values)
 from swingbot.state import StateStore, StrategyStateView
 from swingbot.types import MarketContext
 
@@ -248,7 +247,7 @@ class PortfolioSupervisor:
 
     # ---- controls ----
     def halt(self) -> None:
-        if not self._portfolio_risk:
+        if not self._portfolio_risk or not self._store:
             return
         self._portfolio_risk.state.kill_switch_active = True
         self._portfolio_risk.state.kill_switch_reason = "manual halt"
@@ -258,7 +257,7 @@ class PortfolioSupervisor:
             self._summary["kill_switch"]["reason"] = "manual halt"
 
     def reset(self) -> None:
-        if not self._portfolio_risk:
+        if not self._portfolio_risk or not self._store:
             return
         self._portfolio_risk.state.kill_switch_active = False
         self._portfolio_risk.state.kill_switch_reason = ""
@@ -282,10 +281,16 @@ class PortfolioSupervisor:
             if not ok:
                 return (False, f"go-live blocked: {reason}")
         was_running = self._running
+        prev_thread = self._thread  # capture before stop() clears it
         self.stop()
         self.mode = mode
         self._broker = None
         if was_running:
+            # Only restart if the previous loop thread has actually exited; a
+            # timed-out join leaves stop() with _running=False but the thread
+            # still alive, and start()'s `if self._running` guard won't fire.
+            if prev_thread is not None and prev_thread.is_alive():
+                return (False, "previous loop thread still alive; mode updated but not restarted")
             self.start()
         else:
             self.build()
