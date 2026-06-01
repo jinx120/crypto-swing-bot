@@ -104,7 +104,7 @@ export default function ChartPanel({ symbol, timeframe, trades = [], position, m
 
   useEffect(() => { fittedRef.current = false }, [symbol])
 
-  useEffect(() => { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)) }, [cfg])
+  useEffect(() => { if (!mini) localStorage.setItem(CFG_KEY, JSON.stringify(cfg)) }, [cfg, mini])
 
   // ── create chart + all series once ──
   useEffect(() => {
