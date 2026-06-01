@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { api } from '../api.js'
 import Hint from './Hint.jsx'
 
-export default function ControlBar({ state, onChange }){
+export default function ControlBar({ portfolio, onChange }){
   const [err, setErr] = useState('')
   const run = async (fn) => { setErr(''); try { await fn(); onChange?.() } catch(e){ setErr(e.message) } }
   const confirmRun = (msg, fn) => { if (window.confirm(msg)) run(fn) }
-  const paused = state?.paused
-  const running = state?.running
+  const paused = portfolio?.paused
+  const running = portfolio?.running
   return (
     <div className="panel full">
       <h3>Controls
