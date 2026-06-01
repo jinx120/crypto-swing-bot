@@ -96,6 +96,7 @@ body::after{width:520px;height:520px;right:-160px;top:8%;
 /* ── Chart panel ── */
 .chart-panel{position:relative}
 .chart-panel .chart-box{width:100%;height:340px;border-radius:12px;overflow:hidden}
+.chart-panel .chart-box.mini{height:200px}
 .chart-sym{margin-left:auto;color:var(--text);font-weight:700;font-variant-numeric:tabular-nums;
   text-transform:none;letter-spacing:0;font-size:13px}
 .chart-empty{position:absolute;left:0;right:0;top:56%;transform:translateY(-50%);
