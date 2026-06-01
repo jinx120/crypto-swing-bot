@@ -16,7 +16,8 @@ from swingbot.types import ExitReason, MarketContext, OpenPosition, Regime, Side
 
 class Orchestrator:
     def __init__(self, profile: StrategyProfile, data, broker, state: StateStore,
-                 risk: RiskManager, journal: TradeJournal):
+                 risk: RiskManager, journal: TradeJournal,
+                 portfolio_gate=None, portfolio_on_close=None):
         self.profile = profile
         self.data = data
         self.broker = broker
@@ -26,6 +27,8 @@ class Orchestrator:
         self.engine = ConfluenceEngine(build_signals(profile), profile)
         self.regime = RegimeFilter(profile)
         self.paused = False
+        self.portfolio_gate = portfolio_gate          # (symbol, value) -> decision with .approved
+        self.portfolio_on_close = portfolio_on_close  # (pnl, now) -> None
 
     def reconcile(self, now: datetime) -> None:
         """Broker is source of truth. If broker holds a position we don't have
@@ -73,6 +76,8 @@ class Orchestrator:
                       regime_at_entry=pos.regime_at_entry)
         self.journal.record(trade)
         self.risk.on_trade_closed(trade, now=now)
+        if self.portfolio_on_close is not None:
+            self.portfolio_on_close(trade.pnl, now)
         self.state.clear_position()
         self.state.save_risk_state(self.risk.state)
 
@@ -91,6 +96,8 @@ class Orchestrator:
                       score_at_entry=pos.score_at_entry, regime_at_entry=pos.regime_at_entry)
         self.journal.record(trade)
         self.risk.on_trade_closed(trade, now=now)
+        if self.portfolio_on_close is not None:
+            self.portfolio_on_close(trade.pnl, now)
         self.state.clear_position()
         self.state.save_risk_state(self.risk.state)
 
@@ -128,6 +135,10 @@ class Orchestrator:
         qty = self.risk.size(equity=equity, entry_price=price, stop_price=stop)
         if qty <= 0:
             return
+        if self.portfolio_gate is not None:
+            decision = self.portfolio_gate(self.profile.symbol, qty * price)
+            if not decision.approved:
+                return
         self.broker.submit_market_buy(self.profile.symbol, qty)
         self.state.save_position(OpenPosition(
             symbol=self.profile.symbol, entry_ts=now, entry_price=price, qty=qty,
