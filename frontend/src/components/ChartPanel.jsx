@@ -78,7 +78,7 @@ function tradeMarkers(trades) {
   return m.sort((a, b) => a.time - b.time)
 }
 
-export default function ChartPanel({ symbol, trades, position }) {
+export default function ChartPanel({ symbol, timeframe, trades = [], position, mini = false }) {
   const boxRef = useRef(null)
   const chartRef = useRef(null)
   const candleRef = useRef(null)
@@ -90,7 +90,10 @@ export default function ChartPanel({ symbol, trades, position }) {
   const dataRef = useRef([])          // last candle array (for indicator recompute)
   const fittedRef = useRef(false)
 
-  const [cfg, setCfg] = useState(loadCfg)
+  const [cfg, setCfg] = useState(() => {
+    const base = loadCfg()
+    return mini ? { ...base, markers: false, sma: false, ema: false, volume: false } : base
+  })
   const [showCfg, setShowCfg] = useState(false)
   const [meta, setMeta] = useState({ symbol, timeframe: '' })
   const [count, setCount] = useState(null)
@@ -99,7 +102,9 @@ export default function ChartPanel({ symbol, trades, position }) {
   const activeTf = cfg.timeframe || meta.timeframe || ''
   const set = (patch) => setCfg(c => ({ ...c, ...patch }))
 
-  useEffect(() => { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)) }, [cfg])
+  useEffect(() => { fittedRef.current = false }, [symbol])
+
+  useEffect(() => { if (!mini) localStorage.setItem(CFG_KEY, JSON.stringify(cfg)) }, [cfg, mini])
 
   // ── create chart + all series once ──
   useEffect(() => {
@@ -123,15 +128,14 @@ export default function ChartPanel({ symbol, trades, position }) {
     return () => chart.remove()
   }, [])
 
-  // ── fetch candles for the active timeframe, poll every 10s ──
+  // ── fetch candles for the explicit symbol/timeframe, poll every 10s ──
   useEffect(() => {
+    if (!symbol) { setCount(0); return }
     let alive = true
+    const tf = cfg.timeframe || timeframe || '15m'
     const load = async () => {
       try {
-        const sym = meta.symbol || symbol
-        const r = (cfg.timeframe && sym)
-          ? await api.candles(sym, cfg.timeframe)
-          : await api.candles()
+        const r = await api.candles(symbol, tf)
         if (!alive) return
         setErr('')
         setMeta({ symbol: r.symbol, timeframe: r.timeframe })
@@ -149,7 +153,7 @@ export default function ChartPanel({ symbol, trades, position }) {
     const id = setInterval(load, 10000)
     return () => { alive = false; clearInterval(id) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cfg.timeframe, symbol])
+  }, [cfg.timeframe, symbol, timeframe])
 
   // recompute + show/hide indicator lines
   function applyIndicators() {
@@ -190,20 +194,20 @@ export default function ChartPanel({ symbol, trades, position }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cfg, trades, position])
 
-  const label = meta.symbol || symbol || '—'
+  const label = symbol || meta.symbol || '—'
   return (
     <div className="panel full chart-panel">
       <h3>Price
         <Hint text="Live OHLC candles for the selected timeframe, pulled from Alpaca into the local market-data store. ▲/▼ mark the bot's entries/exits; dashed lines show the open position's stop & target. Toggle overlays with the gear." />
         <span className="chart-sym">{label}</span>
-        <div className="chart-tfs">
+        {!mini && <div className="chart-tfs">
           {TIMEFRAMES.map(tf => (
             <button key={tf} className={`tf ${activeTf === tf ? 'active' : ''}`}
               onClick={() => set({ timeframe: tf })}>{tf}</button>
           ))}
           <button className={`tf gear ${showCfg ? 'active' : ''}`} title="Chart settings"
             onClick={() => setShowCfg(s => !s)} aria-label="Chart settings">⚙</button>
-        </div>
+        </div>}
       </h3>
 
       {showCfg && (
@@ -221,7 +225,7 @@ export default function ChartPanel({ symbol, trades, position }) {
         </div>
       )}
 
-      <div className="chart-box" ref={boxRef} />
+      <div className={`chart-box ${mini ? 'mini' : ''}`} ref={boxRef} />
       {err && <div className="err">{err}</div>}
       {count === 0 && !err && (
         <div className="chart-empty">No candles for <b>{label}</b>. If you just set this up, the poller fills this in within a minute. If it stays empty, check the symbol — Alpaca uses pairs like <code>BTC/USD</code> (not <code>BTC/USDT</code>).</div>

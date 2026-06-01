@@ -4,7 +4,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Strategy from './pages/Strategy.jsx'
 import Settings from './pages/Settings.jsx'
 import Guide from './pages/Guide.jsx'
-import StatusBanner from './components/StatusBanner.jsx'
+import PortfolioBanner from './components/PortfolioBanner.jsx'
 import ControlBar from './components/ControlBar.jsx'
 import Hint from './components/Hint.jsx'
 
@@ -23,9 +23,19 @@ export default function App(){
     } catch(e){ setErr(e.message); setUnreachable(!!e.network) }
   }, [])
 
-  useEffect(()=>{ refresh(); const id = setInterval(refresh, 2000); return ()=>clearInterval(id) }, [refresh])
+  useEffect(()=>{
+    refresh()
+    const fast = setInterval(async()=>{
+      try { const s = await api.state(); setState(s); setErr(''); setUnreachable(false) }
+      catch(e){ setErr(e.message); if (e.network) setUnreachable(true) }
+    }, 3000)
+    const slow = setInterval(async()=>{
+      try { setTrades(await api.journal()); setMetrics(await api.metrics()) } catch {}
+    }, 10000)
+    return ()=>{ clearInterval(fast); clearInterval(slow) }
+  }, [refresh])
 
-  const live = state?.mode === 'live'
+  const live = state?.portfolio?.mode === 'live'
   return (
     <div>
       <div className="nav">
@@ -34,7 +44,7 @@ export default function App(){
         <button className={tab==='strategy'?'active':''} onClick={()=>setTab('strategy')}>Strategy</button>
         <button className={tab==='settings'?'active':''} onClick={()=>setTab('settings')}>Settings</button>
         <button className={`help ${tab==='guide'?'active':''}`} title="Trading guide" onClick={()=>setTab('guide')}>?</button>
-        <span className={`mode ${live?'live':''}`}>{(state?.mode || 'paper').toUpperCase()}
+        <span className={`mode ${live?'live':''}`}>{(state?.portfolio?.mode || 'paper').toUpperCase()}
           <Hint pos="below" text={live
             ? 'LIVE: the bot is trading real money on your Alpaca account. Every fill is a real buy/sell.'
             : 'PAPER: simulated money on Alpaca’s test server — safe for trying things out. The bot blocks switching to LIVE until your paper results pass the graduation checks.'} />
@@ -45,11 +55,11 @@ export default function App(){
         Check that <code>swingbot-web</code> is running and that you're loading this page
         from a resolvable host (or via the Vite <code>/api</code> proxy on port 3000).
       </div>}
-      {tab==='dashboard' && <StatusBanner state={state} />}
-      {!unreachable && err && <div className="err" style={{padding:'8px 20px'}}>{err}</div>}
+      {tab==='dashboard' && <PortfolioBanner portfolio={state?.portfolio} />}
+      {err && !unreachable && <div className="err" style={{padding:'8px 20px'}}>{err}</div>}
       {tab==='dashboard' && <>
-        <Dashboard state={state} trades={trades} metrics={metrics} />
-        <div className="wrap"><ControlBar state={state} onChange={refresh} /></div>
+        <Dashboard state={state} trades={trades} metrics={metrics} onChange={refresh} />
+        <div className="wrap"><ControlBar portfolio={state?.portfolio} onChange={refresh} /></div>
       </>}
       {tab==='strategy' && <Strategy />}
       {tab==='settings' && <Settings />}

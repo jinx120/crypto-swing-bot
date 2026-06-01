@@ -1,26 +1,20 @@
-import SignalPanel from '../components/SignalPanel.jsx'
-import PositionPanel from '../components/PositionPanel.jsx'
-import RiskPanel from '../components/RiskPanel.jsx'
+import StrategyCard from '../components/StrategyCard.jsx'
 import JournalTable from '../components/JournalTable.jsx'
 import MetricsPanel from '../components/MetricsPanel.jsx'
-import ChartPanel from '../components/ChartPanel.jsx'
-import Hint from '../components/Hint.jsx'
 
-export default function Dashboard({ state, trades, metrics }){
+export default function Dashboard({ state, trades, metrics, onChange }){
+  const strategies = state?.strategies || []
+  const mode = state?.portfolio?.mode
   return (
     <div className="wrap">
-      <ChartPanel symbol={state?.symbol} trades={trades} position={state?.position} />
-      <SignalPanel signal={state?.signal} symbol={state?.symbol} />
-      <PositionPanel position={state?.position} />
-      <RiskPanel state={state} />
-      <div className="panel"><h3>Account
-        <Hint text="What the bot is set to trade and whether its loop is live. The active strategy profile (set in the Strategy tab) decides the symbol." />
-      </h3>
-        <div className="row"><span>Symbol
-          <Hint text="The crypto pair this run is trading, e.g. TRX/USD. Comes from the active strategy profile." /></span><span>{state?.symbol ?? '—'}</span></div>
-        <div className="row"><span>Running
-          <Hint text="true = the trading loop is alive and checking each new bar. false = stopped (no monitoring, no trading)." /></span><span>{String(state?.running)}</span></div>
-      </div>
+      {strategies.length === 0 && (
+        <div className="panel full"><h3>No strategies armed</h3>
+          <div>Arm one or more strategies on the <b>Strategy</b> tab to start trading them concurrently.</div>
+        </div>
+      )}
+      {strategies.map(s => (
+        <StrategyCard key={s.symbol || s.name} strategy={s} mode={mode} onChange={onChange} />
+      ))}
       <MetricsPanel metrics={metrics} />
       <JournalTable trades={trades} />
     </div>
