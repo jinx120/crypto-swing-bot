@@ -65,3 +65,36 @@ class AlpacaData:
         req = CryptoLatestTradeRequest(symbol_or_symbols=symbol)
         trade = self._client.get_crypto_latest_trade(req)
         return float(trade[symbol].price)
+
+    def get_candles_multi(self, symbols, timeframe: str, lookback: int) -> dict:
+        """One batched bars request for many symbols. Returns {symbol: DataFrame}."""
+        tf = parse_timeframe(timeframe)
+        start = datetime.now(timezone.utc) - timedelta(days=fetch_window_days(timeframe, lookback))
+        req = CryptoBarsRequest(symbol_or_symbols=list(symbols), timeframe=tf, start=start)
+        bars = self._client.get_crypto_bars(req)
+        out = {}
+        for sym in symbols:
+            records = []
+            try:
+                series = bars[sym]
+            except (KeyError, TypeError):
+                series = []
+            for bar in series:
+                records.append({
+                    "timestamp": bar.timestamp, "open": bar.open, "high": bar.high,
+                    "low": bar.low, "close": bar.close, "volume": bar.volume})
+            if records:
+                out[sym] = bars_to_df(records).tail(lookback).reset_index(drop=True)
+        return out
+
+    def get_latest_prices(self, symbols) -> dict:
+        """One batched latest-trade request for many symbols. Returns {symbol: price}."""
+        req = CryptoLatestTradeRequest(symbol_or_symbols=list(symbols))
+        trades = self._client.get_crypto_latest_trade(req)
+        out = {}
+        for sym in symbols:
+            try:
+                out[sym] = float(trades[sym].price)
+            except (KeyError, TypeError):
+                continue
+        return out
