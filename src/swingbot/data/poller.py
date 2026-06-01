@@ -24,14 +24,17 @@ class CandlePoller:
         self._thread: threading.Thread | None = None
 
     def poll_once(self) -> int:
-        pdict = self.profiles.get_active()
-        if not pdict:
-            return 0
-        symbol = pdict.get("symbol")
-        timeframe = pdict.get("timeframe", "15m")
-        if not symbol:
-            return 0
-        return self.market.refresh(symbol, timeframe)
+        names = self.profiles.list_armed()
+        by_tf: dict = {}
+        for name in names:
+            pdict = self.profiles.get(name)
+            if not pdict or not pdict.get("symbol"):
+                continue
+            by_tf.setdefault(pdict.get("timeframe", "15m"), set()).add(pdict["symbol"])
+        total = 0
+        for tf, syms in by_tf.items():
+            total += self.market.refresh_many(sorted(syms), tf)
+        return total
 
     def start(self) -> None:
         if self._running:
