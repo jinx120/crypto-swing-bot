@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import threading
 import time
+import traceback
 from datetime import datetime, timezone
 
 import pandas as pd
@@ -59,7 +60,14 @@ class CachedProvider:
 
 class PortfolioSupervisor:
     """Runs one Orchestrator per armed strategy in a single loop under a shared
-    PortfolioRiskManager. The only component that talks to the broker/data upstream."""
+    PortfolioRiskManager. The only component that talks to the broker/data upstream.
+
+    Single-writer invariant: tick_all/build/status/pause/resume must all be called
+    from ONE thread. The shared StateStore (check_same_thread=False, no internal
+    lock) and the in-memory PortfolioRiskManager are not synchronized; the start()
+    loop is the sole writer. Phase 2 must serialize any web/request-thread calls
+    onto this thread (or add locking) before invoking these methods concurrently.
+    """
 
     def __init__(self, profiles: ProfileStore, creds, state_db: str,
                  market: MarketData | None = None, broker=None, mode: str = "paper"):
@@ -82,7 +90,6 @@ class PortfolioSupervisor:
     # ---- construction ----
     def build(self) -> None:
         if self.market is None:
-            from swingbot.data.store import CandleStore  # local import to keep tests light
             raise RuntimeError("market must be provided (webmain wires MarketData)")
         if self._broker is None:
             c = self.creds.get() if self.creds else None
@@ -96,6 +103,8 @@ class PortfolioSupervisor:
             settings, self._store.load_portfolio_risk_state())
 
         provider = CachedProvider(self.market, self._latest_prices, self._timeframes)
+        self._timeframes.clear()
+        self._latest_prices.clear()
         self._strategies = {}
         for name in self.profiles.list_armed():
             pdict = self.profiles.get(name)
@@ -232,6 +241,7 @@ class PortfolioSupervisor:
                     self.tick_all()
                 except Exception as e:
                     print(f"[supervisor] cycle error: {e}")
+                    traceback.print_exc()
                 time.sleep(self._poll_seconds())
 
         self._thread = threading.Thread(target=loop, daemon=True)
