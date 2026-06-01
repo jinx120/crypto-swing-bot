@@ -43,6 +43,7 @@ def test_arm_disarm_reload_and_require_token(tmp_path):
     assert ctrl.armed_reloaded == 1
     assert "btc" in {s["name"] for s in c.get("/api/strategies").json() if s["armed"]}
     assert c.post("/api/strategies/disarm", json={"name": "btc"}, headers=h).status_code == 200
+    assert ctrl.armed_reloaded == 2
     assert ("flatten", "btc") in ctrl.calls
 
 
