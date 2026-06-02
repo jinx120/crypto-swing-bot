@@ -18,6 +18,7 @@ kronos = [
 swingbot-backtest = "swingbot.cli:main"
 swingbot-run = "swingbot.run:main"
 swingbot-web = "swingbot.webmain:main"
+swingbot-backfill = "swingbot.backfill_cli:main"
 
 [build-system]
 requires = ["setuptools>=68"]
