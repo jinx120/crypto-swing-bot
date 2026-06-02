@@ -51,3 +51,52 @@ class CcxtProvider:
             base, quote = symbol.split("/", 1)
             return f"{base}/{self.quote_map.get(quote, quote)}"
         return symbol
+
+    @staticmethod
+    def _rows_to_df(rows: list[list]) -> pd.DataFrame:
+        if not rows:
+            return pd.DataFrame(columns=_CANON)
+        df = pd.DataFrame(rows, columns=["ts", "open", "high", "low", "close", "volume"])
+        df["ts"] = pd.to_datetime(df["ts"], unit="ms", utc=True)
+        for c in ["open", "high", "low", "close", "volume"]:
+            df[c] = df[c].astype(float)
+        return df[_CANON]
+
+    def get_candles_range(self, symbol: str, timeframe: str,
+                          start_ms: int, end_ms: int, page_limit: int = 1000) -> pd.DataFrame:
+        """Fetch all bars in [start_ms, end_ms], paginating fetch_ohlcv forward.
+        CCXT returns <= ~1000 bars/page; we advance `since` past the last bar
+        until we reach end_ms or a page returns no progress."""
+        ex_symbol = self.map_symbol(symbol)
+        step_ms = timeframe_seconds(timeframe) * 1000
+        since = start_ms
+        collected: list[list] = []
+        while since <= end_ms:
+            page = self.exchange.fetch_ohlcv(ex_symbol, timeframe, since=since, limit=page_limit)
+            if not page:
+                break
+            for row in page:
+                if row[0] > end_ms:
+                    break
+                collected.append(row)
+            last_ts = page[-1][0]
+            if last_ts < since:           # exchange returned no forward progress
+                break
+            since = last_ts + step_ms     # advance past the last bar; an empty next
+                                          # page (or since>end_ms) ends the loop
+        df = self._rows_to_df(collected)
+        if not df.empty:
+            df = df.drop_duplicates(subset="ts").sort_values("ts").reset_index(drop=True)
+        return df
+
+    def get_candles(self, symbol: str, timeframe: str, lookback: int) -> pd.DataFrame:
+        """MarketDataProvider impl: most-recent `lookback` bars."""
+        step_ms = timeframe_seconds(timeframe) * 1000
+        end_ms = self.exchange.milliseconds() if hasattr(self.exchange, "milliseconds") \
+            else int(pd.Timestamp.utcnow().timestamp() * 1000)
+        start_ms = end_ms - lookback * step_ms * 3  # 3x cushion for venue gaps
+        df = self.get_candles_range(symbol, timeframe, start_ms, end_ms)
+        return df.tail(lookback).reset_index(drop=True)
+
+    def get_latest_price(self, symbol: str) -> float:
+        return float(self.exchange.fetch_ticker(self.map_symbol(symbol))["last"])
