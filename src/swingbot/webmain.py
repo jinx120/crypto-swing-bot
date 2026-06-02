@@ -6,6 +6,8 @@ import secrets
 import uvicorn
 
 from swingbot.credentials import CredentialStore
+from swingbot.data.backfill import ArchiveConfig, Backfiller
+from swingbot.data.ccxt_provider import CcxtProvider
 from swingbot.data.market import MarketData
 from swingbot.data.poller import CandlePoller
 from swingbot.data.store import CandleStore
@@ -34,6 +36,11 @@ def main() -> None:
     profiles = ProfileStore(os.path.join(DATA_DIR, "swingbot.db"))
     creds = CredentialStore(os.path.join(DATA_DIR, "credentials.json"))
     store = CandleStore(os.path.join(DATA_DIR, "candles.db"))
+    archive_cfg = ArchiveConfig()
+    archive_provider = CcxtProvider(exchange_id=archive_cfg.exchange,
+                                    quote_map=archive_cfg.quote_map,
+                                    symbol_overrides=archive_cfg.symbol_overrides)
+    backfiller = Backfiller(store, provider=archive_provider)
     market = MarketData(store, creds)
     supervisor = PortfolioSupervisor(
         profiles=profiles, creds=creds,
@@ -41,7 +48,8 @@ def main() -> None:
     poller = CandlePoller(market, profiles)        # keeps all armed symbols warm for charts
     poller.start()
     app = create_app(controller=supervisor, profiles=profiles, creds=creds,
-                     token=token, store=store, market=market)
+                     token=token, store=store, market=market, backfiller=backfiller)
+    app.state.archive_config = archive_cfg
     print(f"[swingbot-web] token: {token}")
     print(f"[swingbot-web] http://{HOST}:8000")
     uvicorn.run(app, host=HOST, port=8000)

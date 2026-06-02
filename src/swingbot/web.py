@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import pathlib
+import threading
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -55,7 +56,7 @@ class BacktestBody(BaseModel):
     profile: dict
 
 
-def create_app(controller, profiles, creds, token: str, store=None, market=None) -> FastAPI:
+def create_app(controller, profiles, creds, token: str, store=None, market=None, backfiller=None) -> FastAPI:
     app = FastAPI(title="swingbot")
 
     def require_token(x_token: str | None = Header(default=None)):
@@ -253,6 +254,39 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None)
     @app.post("/api/control/{name}/flatten")
     def control_flatten_one(name: str, _=Depends(require_token)):
         controller.flatten(name); return {"ok": True}
+
+    # ---- archive (deep historical backfill) ----
+    @app.get("/api/archive/status")
+    def archive_status():
+        if store is None:
+            return []
+        out = []
+        for entry in store.symbols():
+            cov = store.coverage(entry["symbol"], entry["timeframe"])
+            out.append({"symbol": entry["symbol"], "timeframe": entry["timeframe"],
+                        **cov})
+        return out
+
+    @app.post("/api/archive/backfill")
+    def archive_backfill(_=Depends(require_token)):
+        if backfiller is None or getattr(app.state, "archive_config", None) is None:
+            raise HTTPException(status_code=503,
+                                detail="archive backfill is not configured on this server")
+        cfg = app.state.archive_config
+
+        def job():
+            try:
+                backfiller.run(cfg)
+            except Exception as e:  # a backfill failure must never touch live trading
+                print(f"[archive-backfill] {e}")
+
+        threading.Thread(target=job, daemon=True).start()
+        return {"started": True}
+
+    app.state.archive_config = None
+    if backfiller is not None:
+        from swingbot.data.backfill import ArchiveConfig
+        app.state.archive_config = ArchiveConfig()
 
     app.state.controller = controller
     app.state.profiles = profiles
