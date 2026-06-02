@@ -75,6 +75,18 @@ class CandleStore:
             for ts, o, h, lo, c, v in rows
         ]
 
+    def coverage(self, symbol: str, timeframe: str) -> dict:
+        """Min/max bar timestamp (epoch seconds) and count for a series.
+        Powers backfill resumability and the archive status endpoint."""
+        with self._lock, self._connect() as con:
+            cur = con.execute(
+                "SELECT MIN(ts), MAX(ts), COUNT(*) FROM bars "
+                "WHERE symbol=? AND timeframe=?",
+                (symbol, timeframe),
+            )
+            min_ts, max_ts, count = cur.fetchone()
+        return {"min_ts": min_ts, "max_ts": max_ts, "count": count}
+
     def symbols(self) -> list[dict]:
         with self._lock, self._connect() as con:
             cur = con.execute("SELECT DISTINCT symbol, timeframe FROM bars")

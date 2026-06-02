@@ -44,6 +44,22 @@ def test_get_limit_returns_most_recent(tmp_path):
     assert bars[0]["open"] == 15   # only the last 5
 
 
+def test_coverage_reports_min_max_count(tmp_path):
+    store = CandleStore(str(tmp_path / "candles.db"))
+    store.upsert_df("TRX/USD", "15m", _df([10, 11, 12]))
+    cov = store.coverage("TRX/USD", "15m")
+    bars = store.get("TRX/USD", "15m")
+    assert cov["count"] == 3
+    assert cov["min_ts"] == bars[0]["time"]
+    assert cov["max_ts"] == bars[-1]["time"]
+
+
+def test_coverage_empty_when_no_bars(tmp_path):
+    store = CandleStore(str(tmp_path / "candles.db"))
+    cov = store.coverage("TRX/USD", "15m")
+    assert cov == {"min_ts": None, "max_ts": None, "count": 0}
+
+
 class _FakeController:
     def status(self): return {"mode": "paper", "running": False}
     def journal(self, strategy=None): return []
