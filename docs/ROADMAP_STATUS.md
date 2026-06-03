@@ -21,7 +21,7 @@
   frontend builds. See the B2 plan/spec rows below and `docs/DEVLOG.md`.
 
 **Housekeeping:** Sub-projects A and B1 are committed **and pushed to `origin/master`**. The B2 spec, plan,
-and full implementation (Tasks 1–10) are committed locally on `master` (**not yet pushed**) as of 2026-06-03.
+and full implementation (Tasks 1–10) are committed **and pushed to `origin/master`** as of 2026-06-03.
 
 ---
 
