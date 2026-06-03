@@ -525,12 +525,12 @@ git commit -m "feat(ui): PositionGrid — all open positions + watchlist as mini
 
 ---
 
-## Task 7: Devlog
+## Task 7: Devlog  ✅ DONE
 
 **Files:**
 - Create: `docs/DEVLOG.md`
 
-- [ ] **Step 1: Create the devlog with the first entry**
+- [x] **Step 1: Create the devlog with the first entry**
 
 ```markdown
 # Devlog
@@ -548,7 +548,7 @@ Running log of platform improvements. Newest first.
 - Roadmap: B (auto-discovery) → C (Ollama brain) → D (self-test gate) still to come.
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add docs/DEVLOG.md
