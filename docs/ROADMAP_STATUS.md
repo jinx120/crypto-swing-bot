@@ -10,16 +10,29 @@
 
 ## ▶ NEXT ACTION
 
-**Write the Sub-project D spec (self-test gate + LLM improvement proposals).**
+**Write the Sub-project D plan from the approved spec.** Phase = PLAN.
 
-- Use `superpowers:brainstorming` (design first), then `superpowers:writing-plans`. Output the spec to
-  `docs/superpowers/specs/<date>-subproject-d-self-test-gate-design.md`.
-- Scope outline (from roadmap §D): a runner executes `pytest` + `npm run build` + a Playwright smoke +
-  `ruff`, writes a health summary to `DEVLOG.md`; **if green**, an Ollama pass appends improvement
-  proposals. Scheduled via `/loop` or `/schedule`. Reuses Sub-project C's issues feed + `notify.py`
-  and A's Playwright smoke. Depends on A/B/C (all done).
+- The D spec is ✅ DONE & committed: `docs/superpowers/specs/2026-06-03-subproject-d-self-test-gate-design.md`.
+  Load `superpowers:writing-plans`, read that spec, and write the plan to
+  `docs/superpowers/plans/2026-06-03-subproject-d-self-test-gate.md`. Do NOT re-brainstorm — design is final.
+- Spec summary (all forks locked with user): new `src/swingbot/selftest/` package with a CLI
+  `python -m swingbot.selftest`. Deterministic gate (`pytest -q` + `ruff check` + `npm run build`) +
+  a **real headless Python Playwright probe** of the running `:8000` app (captures console errors,
+  failed/5xx requests, page exceptions, screenshots → `UIFinding`s). Gate-first: red → write report,
+  Discord ping, **skip LLM**, exit 1. Green → LLM pass via `decision/ollama.py` (model
+  **`qwen3.5:9b` Q4_K_M**, configurable) turns health+findings+`git diff --stat` into structured
+  `Proposal`s in C's `ProposalStore` inbox (recommend-only; new `ui_fix` action). Report →
+  overwrite `docs/SELFTEST_REPORT.md` + one dated GREEN/RED line in `DEVLOG.md`. Scheduled via `/loop`/`/schedule`.
+- Modules to build: `checks.py`, `uiprobe.py`, `llm.py`, `report.py`, `runner.py`, `__main__.py`.
+  Reuse `decision/ollama.py`, `decision/proposals.py`, `decision/guardrails.py`, `notify.py`.
+  New dev dep: `pytest-playwright` + `playwright install chromium`.
 - Sub-project C (Ollama Decision Brain) is ✅ DONE — all 11 plan tasks executed, `288 passed, 5 skipped`,
   frontend builds, live-verified with real qwen2.5. See `docs/DEVLOG.md` and `docs/SUBPROJECT_C_FINDINGS.md`.
+
+**Active-dev rebuild policy (NEW):** during D implementation the user expects a Docker
+rebuild/restart of `swingbot` on **every change** — it is pre-authorized and routine. Do NOT
+announce or block on it; just `docker compose build swingbot && docker compose up -d swingbot`.
+(Recorded in `~/CLAUDE.md` standing-authorization section.)
 
 **Housekeeping:** Sub-projects A, B1, B2 are committed **and pushed to `origin/master`**. Sub-project C
 (spec, plan, Tasks 1–11) is committed **and pushed to `origin/master`** as of 2026-06-03. One open
@@ -37,7 +50,7 @@ instance). See `docs/SUBPROJECT_C_FINDINGS.md`.
 | B1 | Historical data archive | ✅ **DONE** | `specs/2026-06-02-subproject-b-data-archive-design.md` | `plans/2026-06-02-subproject-b-phase1-data-archive.md` (all boxes ✓) | **Pushed to origin.** Use Coinbase for deep history (Binance 451-blocked, Kraken caps 720) |
 | B2 | Auto-strategy discovery | ✅ **DONE** | `specs/2026-06-03-subproject-b-phase2-discovery-design.md` | `plans/2026-06-03-subproject-b-phase2-discovery.md` (10 tasks, all boxes ✓) | sweep→rank→"eligible now"→`/api/discovery`→Discover panel; committed locally (not pushed) |
 | C | Ollama decision brain | ✅ **DONE** (live-verified) | `specs/2026-06-04-subproject-c-decision-brain-design.md` | `plans/2026-06-04-subproject-c-decision-brain.md` (11 tasks, all boxes ✓) | `decision/` pkg → qwen2.5; recommend-only default + autonomous toggle; Brain page. **Pushed to origin** |
-| D | Self-test gate + LLM proposals | 🟡 **SPEC NEXT** ← write spec | roadmap §D | — | pytest+build+Playwright+ruff health → devlog; reuses C's issues feed + A's smoke |
+| D | Self-test gate + LLM proposals | 🟡 **PLAN NEXT** ← write plan | `specs/2026-06-03-subproject-d-self-test-gate-design.md` (approved) | — ← write next | pytest+ruff+build gate + real Playwright probe → report+devlog; green→LLM (`qwen3.5:9b`) proposals into C's inbox |
 
 Paths are under `docs/superpowers/`. Roadmap spec: `docs/superpowers/specs/2026-06-02-platform-improvement-roadmap-design.md`.
 
