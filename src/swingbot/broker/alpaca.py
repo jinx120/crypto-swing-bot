@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from alpaca.trading.client import TradingClient
-from alpaca.trading.enums import OrderSide, TimeInForce
-from alpaca.trading.requests import MarketOrderRequest
+from alpaca.trading.enums import AssetClass, AssetStatus, OrderSide, TimeInForce
+from alpaca.trading.requests import GetAssetsRequest, MarketOrderRequest
 
 
 def normalize_symbol(symbol: str) -> str:
@@ -48,3 +48,11 @@ class AlpacaBroker:
 
     def cancel_all(self) -> None:
         self._client.cancel_orders()
+
+    def list_usd_pairs(self) -> list[str]:
+        """Tradable crypto */USD pairs, sorted. Network call — cache at call site."""
+        req = GetAssetsRequest(asset_class=AssetClass.CRYPTO, status=AssetStatus.ACTIVE)
+        assets = self._client.get_all_assets(req)
+        return sorted(
+            a.symbol for a in assets
+            if getattr(a, "tradable", False) and a.symbol.endswith("/USD"))

@@ -21,3 +21,20 @@ def test_default_symbol_setting(tmp_path):
     assert s.get_portfolio_settings()["default_symbol"] == ""
     s.set_portfolio_settings({"default_symbol": "ETH/USD"})
     assert s.get_portfolio_settings()["default_symbol"] == "ETH/USD"
+
+
+def test_list_usd_pairs_filters_tradable_usd(monkeypatch):
+    from swingbot.broker.alpaca import AlpacaBroker
+
+    class _Asset:
+        def __init__(self, symbol, tradable):
+            self.symbol, self.tradable = symbol, tradable
+
+    class _FakeClient:
+        def get_all_assets(self, req):
+            return [_Asset("BTC/USD", True), _Asset("ETH/USD", True),
+                    _Asset("LUNA/USD", False), _Asset("BTC/USDT", True)]
+
+    b = AlpacaBroker.__new__(AlpacaBroker)   # bypass __init__/network
+    b._client = _FakeClient()
+    assert b.list_usd_pairs() == ["BTC/USD", "ETH/USD"]

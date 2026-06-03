@@ -137,13 +137,13 @@ git commit -m "feat(universe): fallback USD-pair list + ProfileStore watchlist &
 
 ---
 
-## Task 2: Backend — broker `list_usd_pairs()`
+## Task 2: Backend — broker `list_usd_pairs()`  ✅ DONE (4 tests pass)
 
 **Files:**
 - Modify: `src/swingbot/broker/alpaca.py:13-21`
 - Test: `tests/test_universe.py` (extend)
 
-- [ ] **Step 1: Write the failing test** (append to `tests/test_universe.py`)
+- [x] **Step 1: Write the failing test** (append to `tests/test_universe.py`)
 
 ```python
 def test_list_usd_pairs_filters_tradable_usd(monkeypatch):
@@ -163,12 +163,12 @@ def test_list_usd_pairs_filters_tradable_usd(monkeypatch):
     assert b.list_usd_pairs() == ["BTC/USD", "ETH/USD"]
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_universe.py::test_list_usd_pairs_filters_tradable_usd -v`
 Expected: FAIL — `AttributeError: 'AlpacaBroker' object has no attribute 'list_usd_pairs'`.
 
-- [ ] **Step 3: Implement `list_usd_pairs`**
+- [x] **Step 3: Implement `list_usd_pairs`**
 
 In `src/swingbot/broker/alpaca.py`, extend imports and add the method to `AlpacaBroker`:
 
@@ -189,12 +189,12 @@ from alpaca.trading.requests import GetAssetsRequest, MarketOrderRequest
 
 (Keep the existing `OrderSide, TimeInForce` / `MarketOrderRequest` imports working — the lines above replace the two existing import lines.)
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_universe.py -v`
 Expected: PASS (4 tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/broker/alpaca.py tests/test_universe.py
