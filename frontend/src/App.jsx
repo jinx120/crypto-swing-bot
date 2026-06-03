@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { api } from './api.js'
 import Dashboard from './pages/Dashboard.jsx'
 import Strategy from './pages/Strategy.jsx'
+import Discover from './pages/Discover.jsx'
 import Settings from './pages/Settings.jsx'
 import Guide from './pages/Guide.jsx'
 import PortfolioBanner from './components/PortfolioBanner.jsx'
@@ -42,6 +43,7 @@ export default function App(){
         <span className="brand">⚡ SwingBot</span>
         <button className={tab==='dashboard'?'active':''} onClick={()=>setTab('dashboard')}>Dashboard</button>
         <button className={tab==='strategy'?'active':''} onClick={()=>setTab('strategy')}>Strategy</button>
+        <button className={tab==='discover'?'active':''} onClick={()=>setTab('discover')}>Discover</button>
         <button className={tab==='settings'?'active':''} onClick={()=>setTab('settings')}>Settings</button>
         <button className={`help ${tab==='guide'?'active':''}`} title="Trading guide" onClick={()=>setTab('guide')}>?</button>
         <span className={`mode ${live?'live':''}`}>{(state?.portfolio?.mode || 'paper').toUpperCase()}
@@ -62,6 +64,7 @@ export default function App(){
         <div className="wrap"><ControlBar portfolio={state?.portfolio} onChange={refresh} /></div>
       </>}
       {tab==='strategy' && <Strategy />}
+      {tab==='discover' && <Discover />}
       {tab==='settings' && <Settings />}
       {tab==='guide' && <Guide />}
     </div>

@@ -224,3 +224,19 @@ tr.rec td{font-weight:600}
 .position-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
 .pg-tile { border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 6px; }
 .pg-head { font-weight: 600; padding: 2px 4px 6px; }
+
+/* --- discovery --- */
+.discover-controls { display: flex; gap: .5rem; align-items: center; margin-bottom: 1rem; }
+.discover-fresh { color: var(--muted, #888); font-size: .85rem; }
+.discover-error { color: #c0392b; }
+.discover-coin { margin-bottom: 1.25rem; }
+.discover-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.discover-table th, .discover-table td { padding: .35rem .5rem; text-align: right; }
+.discover-table th:first-child, .discover-table td:first-child { text-align: left; }
+.discover-table tr.row-err { opacity: .5; }
+.tier-good { color: #1e8e3e; font-weight: 600; }
+.tier-ok { color: #b8860b; }
+.tier-bad { color: #c0392b; }
+.badge-eligible { background: #1e8e3e; color: #fff; border-radius: 4px; padding: 0 .4rem; font-size: .75rem; }
+.dot-fires { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #2e7dd1; margin-left: .35rem; }
+.arm-btn { padding: .15rem .6rem; }
