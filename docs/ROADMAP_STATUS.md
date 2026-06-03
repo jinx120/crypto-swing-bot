@@ -19,8 +19,7 @@
   `docs/superpowers/specs/2026-06-02-platform-improvement-roadmap-design.md` (§ "Sub-project B").
 - Phase 2 builds on the now-deep archive (B Phase 1) **and** Sub-project A's `/api/universe` + `/api/watchlist`.
 
-**Optional housekeeping (decide with user):** Sub-project A's commits are **local on `master`, not pushed**.
-Run `git push origin master` if you want them on GitHub.
+**Housekeeping:** Sub-projects A and B1 are both committed **and pushed to `origin/master`** (as of 2026-06-03).
 
 ---
 
@@ -28,7 +27,7 @@ Run `git push origin master` if you want them on GitHub.
 
 | # | Sub-project / phase | Status | Spec | Plan | Notes |
 |---|---------------------|--------|------|------|-------|
-| A | UI cleanup + multi-position dashboard | ✅ **DONE** (Playwright-verified) | roadmap §A | `plans/2026-06-02-subproject-a-ui-cleanup-dashboard.md` (all boxes ✓) | 10 commits **local on master, NOT pushed** |
+| A | UI cleanup + multi-position dashboard | ✅ **DONE** (Playwright-verified) | roadmap §A | `plans/2026-06-02-subproject-a-ui-cleanup-dashboard.md` (all boxes ✓) | committed **and pushed to origin** |
 | B1 | Historical data archive | ✅ **DONE** | `specs/2026-06-02-subproject-b-data-archive-design.md` | `plans/2026-06-02-subproject-b-phase1-data-archive.md` (all boxes ✓) | **Pushed to origin.** Use Coinbase for deep history (Binance 451-blocked, Kraken caps 720) |
 | B2 | Auto-strategy discovery | ⬜ **NOT STARTED** ← next | _none yet — write it_ | _none yet_ | sweep→rank→"eligible now"→`/api/discovery`→Discover panel; depends on A + B1 |
 | C | Ollama decision brain | ⬜ outline only | roadmap §C | — | `decision` module → local qwen2.5; recommend-only by default. Depends on B |
