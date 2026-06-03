@@ -45,6 +45,11 @@ ARCHETYPES: list[Archetype] = [
     Archetype("ai_kronos", "AI-Kronos",
               "Balanced plus the Kronos AI forecast signal.",
               ["oversold", "vwap", "kronos_forecast"], risk="balanced", needs_ai=True),
+    Archetype("ict_fvg", "ICT-FVG",
+              "ICT fair-value-gap discount entries: buy the retrace into a "
+              "bullish FVG, confirmed by an RSI dip and a VWAP discount, in a "
+              "non-bearish regime.",
+              ["fvg", "oversold", "vwap"], risk="balanced"),
 ]
 
 
@@ -52,6 +57,8 @@ def _profile_for(arch: Archetype, symbol: str, risk: str, style: str) -> dict:
     r = RISK[risk]
     s = STYLE[style]
     signals: dict = {}
+    if "fvg" in arch.signals:
+        signals["fvg"] = {"weight": 0.5, "lookback": 50, "min_gap_pct": 0.0005}
     if "oversold" in arch.signals:
         signals["oversold"] = {"weight": 0.5, "oversold_level": 45, "period": 14}
     if "vwap" in arch.signals:

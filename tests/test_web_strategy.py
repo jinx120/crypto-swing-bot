@@ -41,7 +41,7 @@ def test_presets_lists_archetypes():
     r = _client().get("/api/presets")
     assert r.status_code == 200
     keys = {p["key"] for p in r.json()}
-    assert keys == {"conservative", "balanced", "aggressive", "ai_kronos"}
+    assert keys == {"conservative", "balanced", "aggressive", "ai_kronos", "ict_fvg"}
     assert all("profile" in p for p in r.json())
 
 

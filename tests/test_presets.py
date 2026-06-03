@@ -6,7 +6,7 @@ from swingbot.profile import StrategyProfile
 
 def test_archetypes_have_required_fields():
     keys = {a.key for a in ARCHETYPES}
-    assert keys == {"conservative", "balanced", "aggressive", "ai_kronos"}
+    assert keys == {"conservative", "balanced", "aggressive", "ai_kronos", "ict_fvg"}
     for a in ARCHETYPES:
         assert a.name and a.description and a.signals
 
@@ -16,6 +16,15 @@ def test_archetype_profile_is_valid_and_overrides_symbol():
     p = archetype_profile(bal, symbol="ETH/USD")
     StrategyProfile.from_dict(p)          # must not raise
     assert p["symbol"] == "ETH/USD"
+    assert "oversold" in p["signals"] and "vwap" in p["signals"]
+
+
+def test_ict_fvg_archetype_profile_uses_fvg_signal():
+    fvg = next(a for a in ARCHETYPES if a.key == "ict_fvg")
+    p = archetype_profile(fvg, symbol="BTC/USD")
+    StrategyProfile.from_dict(p)          # must not raise
+    assert "fvg" in p["signals"]
+    assert p["signals"]["fvg"]["weight"] == 0.5
     assert "oversold" in p["signals"] and "vwap" in p["signals"]
 
 

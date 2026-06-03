@@ -51,8 +51,65 @@ def test_relative_strength_neutral_without_benchmark():
     ctx = MarketContext(candles=_df([100.0, 110.0]), benchmark=None)
     assert RelativeStrengthSignal(weight=0.3, band=0.05, lookback=1).evaluate(ctx).score == 0.5
 
-def test_fvg_stub_returns_neutral_zero():
+# --- FVG (ICT fair value gap) ---------------------------------------------
+# A bullish FVG is a 3-candle imbalance: low[3] > high[1], leaving an
+# un-traded gap [high[1], low[3]]. The signal scores the discount long entry:
+# high when price has retraced DOWN into the gap (deeper = stronger), zero
+# when price hasn't retraced yet (above the gap) or has broken below it.
+
+def _fvg_df(highs, lows, closes):
+    n = len(closes)
+    return pd.DataFrame({
+        "ts": pd.date_range("2026-01-01", periods=n, freq="15min", tz="UTC"),
+        "open": closes, "high": highs, "low": lows, "close": closes,
+        "volume": [100.0] * n,
+    })
+
+# gap forms at candles 0-1-2: gap_low=high[0]=100, gap_high=low[2]=103
+_FVG_HIGHS = [100.0, 108.0, 110.0, 109.0, 106.0, 103.0]
+_FVG_LOWS  = [98.0, 104.0, 103.0, 102.0, 101.0, 100.5]
+
+def test_fvg_name():
     ctx = MarketContext(candles=_df([100.0] * 5))
-    r = FvgSignal(weight=0.0).evaluate(ctx)
-    assert r.name == "fvg"
-    assert r.score == 0.0
+    assert FvgSignal(weight=0.0).evaluate(ctx).name == "fvg"
+
+def test_fvg_warmup_returns_zero():
+    ctx = MarketContext(candles=_df([100.0, 101.0]))
+    assert FvgSignal(weight=0.3).evaluate(ctx).score == 0.0
+
+def test_fvg_no_gap_returns_zero():
+    # flat candles never open a gap
+    ctx = MarketContext(candles=_df([100.0] * 6, highs=[100.5] * 6, lows=[99.5] * 6))
+    assert FvgSignal(weight=0.3).evaluate(ctx).score == 0.0
+
+def test_fvg_scores_when_price_retraces_into_gap():
+    # last close 101 sits inside the [100, 103] gap
+    closes = [99.0, 107.0, 104.0, 105.0, 102.0, 101.0]
+    ctx = MarketContext(candles=_fvg_df(_FVG_HIGHS, _FVG_LOWS, closes))
+    r = FvgSignal(weight=0.3).evaluate(ctx)
+    assert 0.6 < r.score < 0.72            # (103-101)/(103-100) = 0.667
+    assert r.meta["gap_low"] == 100.0 and r.meta["gap_high"] == 103.0
+
+def test_fvg_deeper_retrace_scores_higher():
+    closes = [99.0, 107.0, 104.0, 105.0, 102.0, 100.2]
+    ctx = MarketContext(candles=_fvg_df(_FVG_HIGHS, _FVG_LOWS, closes))
+    assert FvgSignal(weight=0.3).evaluate(ctx).score > 0.9   # near gap floor
+
+def test_fvg_zero_when_price_above_gap():
+    # no retrace yet — price still above gap_high
+    closes = [99.0, 107.0, 104.0, 105.0, 106.0, 104.0]
+    ctx = MarketContext(candles=_fvg_df(_FVG_HIGHS, _FVG_LOWS, closes))
+    assert FvgSignal(weight=0.3).evaluate(ctx).score == 0.0
+
+def test_fvg_zero_when_price_below_gap_invalidated():
+    closes = [99.0, 107.0, 104.0, 105.0, 102.0, 99.0]
+    ctx = MarketContext(candles=_fvg_df(_FVG_HIGHS, _FVG_LOWS, closes))
+    assert FvgSignal(weight=0.3).evaluate(ctx).score == 0.0
+
+def test_fvg_min_gap_pct_filters_tiny_gaps():
+    # tiny gap (~0.1%) filtered out when min_gap_pct = 0.5%
+    highs = [100.0, 101.0, 102.0, 101.5, 101.0, 100.6]
+    lows  = [99.5, 100.5, 100.1, 100.05, 100.02, 100.05]
+    closes = [99.8, 100.8, 100.2, 100.3, 100.1, 100.08]
+    ctx = MarketContext(candles=_fvg_df(highs, lows, closes))
+    assert FvgSignal(weight=0.3, min_gap_pct=0.005).evaluate(ctx).score == 0.0
