@@ -49,3 +49,22 @@ def test_discovery_windows_from_coverage():
     r = _client().get("/api/discovery/windows")
     assert r.status_code == 200
     assert [w["key"] for w in r.json()] == ["full", "last_1y", "last_90d", "last_30d"]
+
+
+def test_refresh_requires_token():
+    assert _client().post("/api/discovery/refresh", json={}).status_code == 401
+
+
+def test_refresh_runs_sweep_and_caches(tmp_path):
+    c = _client(discovery_cache_path=str(tmp_path / "discovery.json"))
+    # seed a tiny universe by monkeypatching the resolver via watchlist scope
+    r = c.post("/api/discovery/refresh", json={"scope": "watchlist", "window": "full"},
+               headers={"X-Token": "t"})
+    assert r.status_code == 200 and r.json()["started"] is True
+
+
+def test_refresh_guards_against_concurrent_sweep():
+    c = _client()
+    c.app.state.discovery = {**c.app.state.discovery, "status": "computing"}
+    r = c.post("/api/discovery/refresh", json={}, headers={"X-Token": "t"})
+    assert r.json() == {"started": False, "status": "computing"}

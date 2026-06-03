@@ -65,6 +65,12 @@ class BacktestBody(BaseModel):
     profile: dict
 
 
+class DiscoveryRefreshBody(BaseModel):
+    window: str = "full"
+    scope: str = "universe"
+    max_symbols: int = 50
+
+
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
                backfiller=None, discovery=None, discovery_cache_path=None) -> FastAPI:
     app = FastAPI(title="swingbot")
@@ -312,6 +318,36 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
             if pick:
                 cov = store.coverage(pick["symbol"], pick["timeframe"])
         return discovery_mod.windows_for(cov)
+
+    @app.post("/api/discovery/refresh")
+    def discovery_refresh(body: DiscoveryRefreshBody, _=Depends(require_token)):
+        if discovery is None:
+            raise HTTPException(status_code=503,
+                                detail="discovery is not configured on this server")
+        if app.state.discovery.get("status") == "computing":
+            return {"started": False, "status": "computing"}
+        if body.scope == "watchlist":
+            symbols = profiles.get_watchlist() if profiles is not None else []
+        else:
+            symbols = _resolve_universe()
+        app.state.discovery = {**app.state.discovery, "status": "computing", "error": None}
+
+        def job():
+            try:
+                rows = discovery.sweep(symbols, window_key=body.window,
+                                       max_symbols=body.max_symbols)
+                result = {"status": "idle", "error": None, "computed_at": int(time.time()),
+                          "window": body.window, "scope": body.scope, "rows": rows}
+                app.state.discovery = result
+                if discovery_cache_path:
+                    discovery_mod.save_cache(discovery_cache_path, result)
+            except Exception as e:   # a sweep failure must never touch live trading
+                app.state.discovery = {**app.state.discovery, "status": "idle",
+                                       "error": str(e)}
+                print(f"[discovery] {e}")
+
+        threading.Thread(target=job, daemon=True).start()
+        return {"started": True}
 
     # ---- archive (deep historical backfill) ----
     @app.get("/api/archive/status")
