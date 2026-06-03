@@ -52,4 +52,8 @@ export const api = {
   setLiveEligible: (name, eligible) => req('POST', '/api/strategies/live-eligible', { name, eligible }),
   portfolioSettings: () => req('GET', '/api/portfolio/settings'),
   setPortfolioSettings: (patch) => req('PUT', '/api/portfolio/settings', patch),
+  // --- universe / watchlist ---
+  universe: () => req('GET', '/api/universe'),
+  watchlist: () => req('GET', '/api/watchlist'),
+  setWatchlist: (symbols) => req('PUT', '/api/watchlist', { symbols }),
 }

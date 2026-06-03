@@ -332,12 +332,12 @@ git commit -m "feat(web): /api/universe (live+fallback) and /api/watchlist endpo
 
 ---
 
-## Task 4: Frontend — API client methods
+## Task 4: Frontend — API client methods  ✅ DONE (build OK)
 
 **Files:**
 - Modify: `frontend/src/api.js:53-54`
 
-- [ ] **Step 1: Add methods to the `api` object** (after `setPortfolioSettings`)
+- [x] **Step 1: Add methods to the `api` object** (after `setPortfolioSettings`)
 
 ```javascript
   universe: () => req('GET', '/api/universe'),
@@ -345,12 +345,12 @@ git commit -m "feat(web): /api/universe (live+fallback) and /api/watchlist endpo
   setWatchlist: (symbols) => req('PUT', '/api/watchlist', { symbols }),
 ```
 
-- [ ] **Step 2: Verify the frontend builds**
+- [x] **Step 2: Verify the frontend builds**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds, no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/api.js
