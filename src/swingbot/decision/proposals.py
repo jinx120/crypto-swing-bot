@@ -70,13 +70,16 @@ class ProposalStore:
                 p.status = "superseded"
         _atomic_write(self.path, [asdict(p) for p in rows])
 
-    def mark(self, pid: str, status: str, applied_at: int | None = None) -> None:
+    def mark(self, pid: str, status: str, applied_at: int | None = None,
+             source: str | None = None) -> None:
         rows = self.all()
         for p in rows:
             if p.id == pid:
                 p.status = status
                 if applied_at is not None:
                     p.applied_at = applied_at
+                if source is not None:
+                    p.source = source
         _atomic_write(self.path, [asdict(p) for p in rows])
 
 
