@@ -62,4 +62,12 @@ export const api = {
   refreshDiscovery: (body) => req('POST', '/api/discovery/refresh', body),
   armDiscovery: (symbol, archetype, window) =>
     req('POST', '/api/discovery/arm', { symbol, archetype, window }),
+  // --- decision brain ---
+  brainProposals: () => req('GET', '/api/brain/proposals'),
+  brainIssues: () => req('GET', '/api/brain/issues'),
+  brainRecommend: () => req('POST', '/api/brain/recommend'),
+  brainApply: (id) => req('POST', `/api/brain/proposals/${encodeURIComponent(id)}/apply`),
+  brainDismiss: (id) => req('POST', `/api/brain/proposals/${encodeURIComponent(id)}/dismiss`),
+  brainWebhookStatus: () => req('GET', '/api/brain/webhook'),
+  setBrainWebhook: (url) => req('PUT', '/api/brain/webhook', { url }),
 }
