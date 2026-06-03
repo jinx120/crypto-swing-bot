@@ -1,6 +1,6 @@
 # SwingBot
 
-A personal, **long-only crypto swing-trading bot** for [Alpaca](https://alpaca.markets/) (spot — Alpaca crypto can't short). Target asset TRX/USD; holds range from minutes to about a day. Design motto: *simple beats clever*.
+A personal, **long-only crypto swing-trading bot** for [Alpaca](https://alpaca.markets/) (spot — Alpaca crypto can't short). Trade any Alpaca USD pair (BTC/USD, ETH/USD, …), chosen from the in-app crypto picker; holds range from minutes to about a day. Design motto: *simple beats clever*.
 
 One strategy engine runs in three modes — **backtest**, **paper**, and **live** — and the whole thing is operable from a browser dashboard (no file editing required once it's running).
 

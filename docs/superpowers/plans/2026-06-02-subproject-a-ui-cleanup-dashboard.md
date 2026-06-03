@@ -557,24 +557,24 @@ git commit -m "docs(devlog): start devlog; Sub-project A entry"
 
 ---
 
-## Task 8: README wording
+## Task 8: README wording  ✅ DONE (no TRX/USD in shipped code/docs)
 
 **Files:**
 - Modify: `README.md:3`
 
-- [ ] **Step 1: Make the target-asset wording symbol-agnostic**
+- [x] **Step 1: Make the target-asset wording symbol-agnostic**
 
 Change the line referencing `Target asset TRX/USD` to:
 ```markdown
 A personal, **long-only crypto swing-trading bot** for [Alpaca](https://alpaca.markets/) (spot — Alpaca crypto can't short). Trade any Alpaca USD pair (BTC/USD, ETH/USD, …), chosen from the in-app crypto picker; holds range from minutes to about a day. Design motto: *simple beats clever*.
 ```
 
-- [ ] **Step 2: Confirm no stray literals remain in shipped code/docs**
+- [x] **Step 2: Confirm no stray literals remain in shipped code/docs**
 
 Run: `grep -rn "TRX/USD" README.md frontend/src src/swingbot`
 Expected: **no matches** (plan docs under `docs/superpowers/plans/` may still contain historical references — that's fine).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add README.md
