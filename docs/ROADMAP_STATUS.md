@@ -21,9 +21,9 @@
 - Sub-project C (Ollama Decision Brain) is ✅ DONE — all 11 plan tasks executed, `288 passed, 5 skipped`,
   frontend builds, live-verified with real qwen2.5. See `docs/DEVLOG.md` and `docs/SUBPROJECT_C_FINDINGS.md`.
 
-**Housekeeping:** Sub-projects A and B1 are committed **and pushed to `origin/master`**. B2 is committed
-and pushed. Sub-project C (spec, plan, Tasks 1–11) is committed on `master` — **not yet pushed** as of
-2026-06-03. One open finding to action: the brain's default `brain_ollama_url` (`localhost:11434`) does
+**Housekeeping:** Sub-projects A, B1, B2 are committed **and pushed to `origin/master`**. Sub-project C
+(spec, plan, Tasks 1–11) is committed **and pushed to `origin/master`** as of 2026-06-03. One open
+finding to action: the brain's default `brain_ollama_url` (`localhost:11434`) does
 not work inside Docker — use the bridge gateway `http://172.17.0.1:11434` (already set on the running
 instance). See `docs/SUBPROJECT_C_FINDINGS.md`.
 
@@ -36,7 +36,7 @@ instance). See `docs/SUBPROJECT_C_FINDINGS.md`.
 | A | UI cleanup + multi-position dashboard | ✅ **DONE** (Playwright-verified) | roadmap §A | `plans/2026-06-02-subproject-a-ui-cleanup-dashboard.md` (all boxes ✓) | committed **and pushed to origin** |
 | B1 | Historical data archive | ✅ **DONE** | `specs/2026-06-02-subproject-b-data-archive-design.md` | `plans/2026-06-02-subproject-b-phase1-data-archive.md` (all boxes ✓) | **Pushed to origin.** Use Coinbase for deep history (Binance 451-blocked, Kraken caps 720) |
 | B2 | Auto-strategy discovery | ✅ **DONE** | `specs/2026-06-03-subproject-b-phase2-discovery-design.md` | `plans/2026-06-03-subproject-b-phase2-discovery.md` (10 tasks, all boxes ✓) | sweep→rank→"eligible now"→`/api/discovery`→Discover panel; committed locally (not pushed) |
-| C | Ollama decision brain | ✅ **DONE** (live-verified) | `specs/2026-06-04-subproject-c-decision-brain-design.md` | `plans/2026-06-04-subproject-c-decision-brain.md` (11 tasks, all boxes ✓) | `decision/` pkg → qwen2.5; recommend-only default + autonomous toggle; Brain page. Committed on master (not pushed) |
+| C | Ollama decision brain | ✅ **DONE** (live-verified) | `specs/2026-06-04-subproject-c-decision-brain-design.md` | `plans/2026-06-04-subproject-c-decision-brain.md` (11 tasks, all boxes ✓) | `decision/` pkg → qwen2.5; recommend-only default + autonomous toggle; Brain page. **Pushed to origin** |
 | D | Self-test gate + LLM proposals | 🟡 **SPEC NEXT** ← write spec | roadmap §D | — | pytest+build+Playwright+ruff health → devlog; reuses C's issues feed + A's smoke |
 
 Paths are under `docs/superpowers/`. Roadmap spec: `docs/superpowers/specs/2026-06-02-platform-improvement-roadmap-design.md`.
