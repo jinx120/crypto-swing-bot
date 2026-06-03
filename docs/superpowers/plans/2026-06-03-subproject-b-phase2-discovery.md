@@ -21,7 +21,7 @@
 - Create: `src/swingbot/discovery.py`
 - Test: `tests/test_discovery.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_discovery.py
@@ -58,12 +58,12 @@ def test_apply_window_slices_trailing_days():
     assert last30["ts"].iloc[-1] == df["ts"].iloc[-1]
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_discovery.py -q`
 Expected: FAIL — `ModuleNotFoundError: No module named 'swingbot.discovery'`.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```python
 # src/swingbot/discovery.py
@@ -119,12 +119,12 @@ def _apply_window(df: pd.DataFrame, window_key: str) -> pd.DataFrame:
     return df[df["ts"] >= cutoff].reset_index(drop=True)
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_discovery.py -q`
 Expected: PASS (3 passed).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/discovery.py tests/test_discovery.py
@@ -139,7 +139,7 @@ git commit -m "feat(discovery): good_history + coverage-derived windows helpers"
 - Modify: `src/swingbot/discovery.py`
 - Test: `tests/test_discovery.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_discovery.py` (top, after imports add `from types import SimpleNamespace` and `import swingbot.discovery as ds` and `from swingbot.discovery import DiscoveryEngine`):
 
@@ -203,12 +203,12 @@ def test_sweep_respects_max_symbols(monkeypatch):
     assert {r["symbol"] for r in rows} == {"BTC/USD"}
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_discovery.py -q`
 Expected: FAIL — `ImportError: cannot import name 'DiscoveryEngine'`.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Append to `src/swingbot/discovery.py`:
 
@@ -275,12 +275,12 @@ class DiscoveryEngine:
         return rows
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_discovery.py -q`
 Expected: PASS (7 passed). If `test_sweep_eligibility...` is flaky on the down series, confirm the down generator trends below its `regime_ma_period` SMA — it does (mostly-down random walk over 300 bars).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/discovery.py tests/test_discovery.py
@@ -295,7 +295,7 @@ git commit -m "feat(discovery): DiscoveryEngine.sweep — ranked cross-universe 
 - Modify: `src/swingbot/discovery.py`
 - Test: `tests/test_discovery.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_discovery.py`:
 
@@ -311,12 +311,12 @@ def test_cache_roundtrip_and_missing(tmp_path):
     assert load_cache(str(tmp_path / "bad.json")) is None   # corrupt -> None, never raises
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_discovery.py::test_cache_roundtrip_and_missing -q`
 Expected: FAIL — `ImportError: cannot import name 'load_cache'`.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Append to `src/swingbot/discovery.py`:
 
@@ -336,12 +336,12 @@ def save_cache(path: str, data: dict) -> None:
     os.replace(tmp, path)                              # atomic on POSIX
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_discovery.py -q`
 Expected: PASS (8 passed).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/discovery.py tests/test_discovery.py
@@ -356,7 +356,7 @@ git commit -m "feat(discovery): atomic JSON cache load/save helpers"
 - Modify: `src/swingbot/web.py` (imports near top; `create_app` signature line 66; universe helper refactor ~line 160; new endpoints; startup cache load near the archive wiring ~line 322)
 - Test: `tests/test_web_discovery.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_web_discovery.py
@@ -413,12 +413,12 @@ def test_discovery_windows_from_coverage():
     assert [w["key"] for w in r.json()] == ["full", "last_1y", "last_90d", "last_30d"]
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_web_discovery.py -q`
 Expected: FAIL — `create_app()` got an unexpected keyword argument `discovery`.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 In `src/swingbot/web.py`, add the discovery import alongside the other `swingbot` imports near the top of the file:
 
@@ -493,12 +493,12 @@ Initialize discovery state + load the cache near the archive wiring (after `app.
             app.state.discovery = cached
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_web_discovery.py -q`
 Expected: PASS (2 passed).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/web.py tests/test_web_discovery.py
@@ -513,7 +513,7 @@ git commit -m "feat(web): GET /api/discovery + /windows, universe helper refacto
 - Modify: `src/swingbot/web.py` (request model near the other `BaseModel`s ~line 55; endpoint in the discovery section)
 - Test: `tests/test_web_discovery.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_web_discovery.py`:
 
@@ -539,12 +539,12 @@ def test_refresh_guards_against_concurrent_sweep():
 
 Note: `test_refresh_runs_sweep_and_caches` uses `scope: "watchlist"`; with `profiles=None` the resolver yields `[]`, so the sweep is a no-op that still flips status back to `idle` and writes the cache — exercising the thread path without needing a populated store.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_web_discovery.py -k refresh -q`
 Expected: FAIL — 404 (route not defined) / `started` missing.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Add the request model next to the other `BaseModel`s (after `BacktestBody`, ~line 64) in `src/swingbot/web.py`:
 
@@ -589,12 +589,12 @@ Add the endpoint in the discovery section (after `discovery_windows`):
         return {"started": True}
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_web_discovery.py -q`
 Expected: PASS (5 passed). (`threading` is already imported in `web.py` for the archive endpoint.)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/web.py tests/test_web_discovery.py
@@ -609,7 +609,7 @@ git commit -m "feat(web): POST /api/discovery/refresh — background sweep + cac
 - Modify: `src/swingbot/web.py` (request model + endpoint in the discovery section)
 - Test: `tests/test_web_discovery.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_web_discovery.py` (and at the top add `from swingbot.profile import StrategyProfile`):
 
@@ -652,12 +652,12 @@ def test_arm_rejects_unknown_archetype():
     assert r.status_code == 400
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_web_discovery.py -k arm -q`
 Expected: FAIL — 404 (route not defined).
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Add the request model next to `DiscoveryRefreshBody`:
 
@@ -689,12 +689,12 @@ Add the endpoint in the discovery section. `presets_mod` is already imported in 
         return {"ok": True, "name": name}
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_web_discovery.py -q`
 Expected: PASS (7 passed).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/web.py tests/test_web_discovery.py
@@ -708,7 +708,7 @@ git commit -m "feat(web): POST /api/discovery/arm — save + arm a discovered st
 **Files:**
 - Modify: `src/swingbot/webmain.py` (import; construct engine; pass to `create_app` at lines 50-51)
 
-- [ ] **Step 1: Add the import**
+- [x] **Step 1: Add the import**
 
 In `src/swingbot/webmain.py`, add to the `swingbot` imports:
 
@@ -716,7 +716,7 @@ In `src/swingbot/webmain.py`, add to the `swingbot` imports:
 from swingbot.discovery import DiscoveryEngine
 ```
 
-- [ ] **Step 2: Construct the engine and pass it through**
+- [x] **Step 2: Construct the engine and pass it through**
 
 Replace the `create_app(...)` call (lines 50-51) with:
 
@@ -728,12 +728,12 @@ Replace the `create_app(...)` call (lines 50-51) with:
                      discovery_cache_path=os.path.join(DATA_DIR, "discovery.json"))
 ```
 
-- [ ] **Step 3: Verify the module imports cleanly**
+- [x] **Step 3: Verify the module imports cleanly**
 
 Run: `.venv/bin/python -c "import swingbot.webmain"`
 Expected: no output, exit 0 (no ImportError / SyntaxError).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/swingbot/webmain.py
@@ -747,7 +747,7 @@ git commit -m "feat(web): wire DiscoveryEngine + discovery.json cache into webma
 **Files:**
 - Modify: `frontend/src/api.js` (append before the closing `}` of the `api` object, after the universe/watchlist block)
 
-- [ ] **Step 1: Add the client methods**
+- [x] **Step 1: Add the client methods**
 
 In `frontend/src/api.js`, after the `setWatchlist` line, add:
 
@@ -760,12 +760,12 @@ In `frontend/src/api.js`, after the `setWatchlist` line, add:
     req('POST', '/api/discovery/arm', { symbol, archetype, window }),
 ```
 
-- [ ] **Step 2: Verify the frontend still builds**
+- [x] **Step 2: Verify the frontend still builds**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds (no syntax error).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/api.js
@@ -781,7 +781,7 @@ git commit -m "feat(ui): api client methods for discovery endpoints"
 - Modify: `frontend/src/App.jsx` (import ~line 6; nav button ~line 45; render branch ~line 65)
 - Modify: `frontend/src/theme.css` (append the discovery styles)
 
-- [ ] **Step 1: Create the page component**
+- [x] **Step 1: Create the page component**
 
 ```jsx
 // frontend/src/pages/Discover.jsx
@@ -892,7 +892,7 @@ export default function Discover() {
 }
 ```
 
-- [ ] **Step 2: Add the nav tab and render branch in `App.jsx`**
+- [x] **Step 2: Add the nav tab and render branch in `App.jsx`**
 
 Add the import after the other page imports (~line 6):
 
@@ -912,7 +912,7 @@ Add the render branch after the Strategy branch (~line 64):
       {tab==='discover' && <Discover />}
 ```
 
-- [ ] **Step 3: Append styles to `theme.css`**
+- [x] **Step 3: Append styles to `theme.css`**
 
 Append to `frontend/src/theme.css`:
 
@@ -934,12 +934,12 @@ Append to `frontend/src/theme.css`:
 .arm-btn { padding: .15rem .6rem; }
 ```
 
-- [ ] **Step 4: Verify the frontend builds**
+- [x] **Step 4: Verify the frontend builds**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds with no errors; `dist/` updated.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/pages/Discover.jsx frontend/src/App.jsx frontend/src/theme.css
@@ -955,17 +955,17 @@ git commit -m "feat(ui): Discover page — ranked sweep results, eligible badges
 - Modify: `docs/ROADMAP_STATUS.md` (mark B2 done; set next action to Sub-project C)
 - Regenerate: `graphify-out/` via `python3 -m graphify update .`
 
-- [ ] **Step 1: Run the full backend test suite**
+- [x] **Step 1: Run the full backend test suite**
 
 Run: `.venv/bin/python -m pytest -q`
 Expected: PASS — previous `235 passed, 5 skipped` plus the new discovery tests (≈11 new), i.e. roughly `246 passed, 5 skipped`. Zero failures.
 
-- [ ] **Step 2: Confirm the frontend builds**
+- [x] **Step 2: Confirm the frontend builds**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 3: Append a DEVLOG entry**
+- [x] **Step 3: Append a DEVLOG entry**
 
 Append to `docs/DEVLOG.md`:
 
@@ -982,16 +982,16 @@ Append to `docs/DEVLOG.md`:
   real-money live gating.
 ```
 
-- [ ] **Step 4: Update the roadmap board**
+- [x] **Step 4: Update the roadmap board**
 
 In `docs/ROADMAP_STATUS.md`: set `Last updated` to 2026-06-03; change the B2 row Status to `✅ DONE` with Spec `specs/2026-06-03-subproject-b-phase2-discovery-design.md` and Plan `plans/2026-06-03-subproject-b-phase2-discovery.md`; rewrite the **NEXT ACTION** to point at **Sub-project C (Ollama decision brain)** — "write its spec via `superpowers:brainstorming`, output to `docs/superpowers/specs/2026-06-04-subproject-c-decision-brain-design.md`". Update the pytest expectation line to the new count from Step 1.
 
-- [ ] **Step 5: Regenerate the knowledge graph**
+- [x] **Step 5: Regenerate the knowledge graph**
 
 Run: `python3 -m graphify update .`
 Expected: graph updated (AST-only, no API cost).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add docs/DEVLOG.md docs/ROADMAP_STATUS.md graphify-out
