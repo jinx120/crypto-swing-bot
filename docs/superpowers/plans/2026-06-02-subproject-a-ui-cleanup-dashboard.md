@@ -33,14 +33,14 @@
 
 ---
 
-## Task 1: Backend — fallback universe + ProfileStore watchlist & default_symbol
+## Task 1: Backend — fallback universe + ProfileStore watchlist & default_symbol  ✅ DONE (commit, 3 tests pass)
 
 **Files:**
 - Create: `src/swingbot/universe.py`
 - Modify: `src/swingbot/profiles.py:112-137`
 - Test: `tests/test_universe.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_universe.py
@@ -69,12 +69,12 @@ def test_default_symbol_setting(tmp_path):
     assert s.get_portfolio_settings()["default_symbol"] == "ETH/USD"
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_universe.py -v`
 Expected: FAIL — `ModuleNotFoundError: swingbot.universe` / `AttributeError: get_watchlist`.
 
-- [ ] **Step 3: Create `src/swingbot/universe.py`**
+- [x] **Step 3: Create `src/swingbot/universe.py`**
 
 ```python
 """Curated fallback list of Alpaca-tradable crypto USD pairs.
@@ -94,7 +94,7 @@ def fallback_universe() -> list[str]:
     return sorted(_FALLBACK)
 ```
 
-- [ ] **Step 4: Add watchlist + default_symbol to `ProfileStore`**
+- [x] **Step 4: Add watchlist + default_symbol to `ProfileStore`**
 
 In `src/swingbot/profiles.py`, add `"default_symbol": ""` to `_PORTFOLIO_DEFAULTS` (so it becomes a settable, validated key):
 
@@ -123,12 +123,12 @@ Then append these two methods to the class (after `set_portfolio_settings`):
         self._conn.commit()
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_universe.py -v`
 Expected: PASS (3 tests).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/swingbot/universe.py src/swingbot/profiles.py tests/test_universe.py
