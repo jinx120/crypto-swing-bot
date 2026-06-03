@@ -71,6 +71,12 @@ class DiscoveryRefreshBody(BaseModel):
     max_symbols: int = 50
 
 
+class DiscoveryArmBody(BaseModel):
+    symbol: str
+    archetype: str
+    window: str | None = None
+
+
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
                backfiller=None, discovery=None, discovery_cache_path=None) -> FastAPI:
     app = FastAPI(title="swingbot")
@@ -348,6 +354,23 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
 
         threading.Thread(target=job, daemon=True).start()
         return {"started": True}
+
+    @app.post("/api/discovery/arm")
+    def discovery_arm(body: DiscoveryArmBody, _=Depends(require_token)):
+        arch = next((a for a in presets_mod.ARCHETYPES if a.key == body.archetype), None)
+        if arch is None:
+            raise HTTPException(status_code=400,
+                                detail=f"unknown archetype {body.archetype!r}")
+        profile = presets_mod.archetype_profile(arch, body.symbol, "swing")
+        name = f"disc-{body.symbol.replace('/', '').lower()}-{body.archetype}"
+        try:
+            profiles.save(name, profile)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        profiles.arm(name)
+        profiles.set_live_eligible(name, True)
+        controller.reload()
+        return {"ok": True, "name": name}
 
     # ---- archive (deep historical backfill) ----
     @app.get("/api/archive/status")

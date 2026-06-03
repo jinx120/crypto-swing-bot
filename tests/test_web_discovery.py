@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+from swingbot.profile import StrategyProfile
 from swingbot.web import create_app
 
 
@@ -68,3 +69,41 @@ def test_refresh_guards_against_concurrent_sweep():
     c.app.state.discovery = {**c.app.state.discovery, "status": "computing"}
     r = c.post("/api/discovery/refresh", json={}, headers={"X-Token": "t"})
     assert r.json() == {"started": False, "status": "computing"}
+
+
+class FakeProfiles:
+    def __init__(self):
+        self.saved, self.armed, self.eligible = {}, [], {}
+    def save(self, name, profile): self.saved[name] = profile
+    def arm(self, name): self.armed.append(name)
+    def set_live_eligible(self, name, eligible): self.eligible[name] = eligible
+    def get_watchlist(self): return []
+
+
+def test_arm_saves_and_arms_reconstructable_profile():
+    from swingbot.discovery import DiscoveryEngine
+    profs = FakeProfiles()
+    app = create_app(_Ctl(), profiles=profs, creds=None, token="t",
+                     store=FakeStore(), market=FakeMarket(),
+                     discovery=DiscoveryEngine(FakeMarket()))
+    c = TestClient(app)
+    r = c.post("/api/discovery/arm",
+               json={"symbol": "BTC/USD", "archetype": "aggressive"},
+               headers={"X-Token": "t"})
+    assert r.status_code == 200
+    name = r.json()["name"]
+    assert name == "disc-btcusd-aggressive"
+    assert name in profs.armed and profs.eligible[name] is True
+    StrategyProfile.from_dict(profs.saved[name])        # round-trips, valid profile
+    assert profs.saved[name]["symbol"] == "BTC/USD"
+
+
+def test_arm_rejects_unknown_archetype():
+    from swingbot.discovery import DiscoveryEngine
+    app = create_app(_Ctl(), profiles=FakeProfiles(), creds=None, token="t",
+                     store=FakeStore(), market=FakeMarket(),
+                     discovery=DiscoveryEngine(FakeMarket()))
+    r = TestClient(app).post("/api/discovery/arm",
+                             json={"symbol": "BTC/USD", "archetype": "nope"},
+                             headers={"X-Token": "t"})
+    assert r.status_code == 400
