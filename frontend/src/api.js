@@ -56,4 +56,10 @@ export const api = {
   universe: () => req('GET', '/api/universe'),
   watchlist: () => req('GET', '/api/watchlist'),
   setWatchlist: (symbols) => req('PUT', '/api/watchlist', { symbols }),
+  // --- discovery ---
+  getDiscovery: () => req('GET', '/api/discovery'),
+  discoveryWindows: () => req('GET', '/api/discovery/windows'),
+  refreshDiscovery: (body) => req('POST', '/api/discovery/refresh', body),
+  armDiscovery: (symbol, archetype, window) =>
+    req('POST', '/api/discovery/arm', { symbol, archetype, window }),
 }
