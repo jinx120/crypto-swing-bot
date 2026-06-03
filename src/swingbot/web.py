@@ -11,6 +11,8 @@ from pydantic import BaseModel
 from swingbot.data.market import timeframe_seconds
 from swingbot import presets as presets_mod
 from swingbot.strategy_search import backtest_profile, search as run_strategy_search
+from swingbot.universe import fallback_universe
+from swingbot.broker.alpaca import AlpacaBroker
 
 _DIST = str(pathlib.Path(__file__).parent.parent.parent / "frontend" / "dist")
 
@@ -43,6 +45,11 @@ class PortfolioSettingsBody(BaseModel):
     max_concurrent: int | None = None
     max_total_deployed_frac: float | None = None
     portfolio_daily_loss_limit_pct: float | None = None
+    default_symbol: str | None = None
+
+
+class WatchlistBody(BaseModel):
+    symbols: list[str]
 
 
 class BuildBody(BaseModel):
@@ -148,6 +155,35 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         # TODO(Phase3): serialize onto the loop thread or lock before reload() while the supervisor is running
         controller.reload()
         return profiles.get_portfolio_settings()
+
+    # ---- universe / watchlist ----
+    _universe_cache: dict = {}
+
+    @app.get("/api/universe")
+    def universe():
+        if _universe_cache.get("symbols"):
+            return {"symbols": _universe_cache["symbols"]}
+        symbols = fallback_universe()
+        try:
+            cr = creds.get() if creds is not None else None
+            if cr is not None:
+                broker = AlpacaBroker(cr.key_id, cr.secret_key, paper=True)
+                live = broker.list_usd_pairs()
+                if live:
+                    symbols = live
+                    _universe_cache["symbols"] = live
+        except Exception:
+            pass  # fall back to static list
+        return {"symbols": symbols}
+
+    @app.get("/api/watchlist")
+    def get_watchlist():
+        return {"symbols": profiles.get_watchlist()}
+
+    @app.put("/api/watchlist")
+    def put_watchlist(body: WatchlistBody, _=Depends(require_token)):
+        profiles.set_watchlist(body.symbols)
+        return {"symbols": profiles.get_watchlist()}
 
     # ---- profiles CRUD ----
     @app.get("/api/profiles")

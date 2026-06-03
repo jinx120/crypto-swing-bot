@@ -203,13 +203,13 @@ git commit -m "feat(broker): list_usd_pairs() — tradable Alpaca USD crypto pai
 
 ---
 
-## Task 3: Backend — `/api/universe` + `/api/watchlist` endpoints
+## Task 3: Backend — `/api/universe` + `/api/watchlist` endpoints  ✅ DONE (2 tests; fixed supervisor PortfolioSettings splat regression; corrected creds attr access)
 
 **Files:**
 - Modify: `src/swingbot/web.py` (models near line 41; routes near line 136)
 - Test: `tests/test_web_universe.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_web_universe.py
@@ -247,12 +247,12 @@ def test_watchlist_get_put_roundtrip_and_token(tmp_path):
     assert c.get("/api/watchlist").json()["symbols"] == ["ETH/USD", "BTC/USD"]
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_web_universe.py -v`
 Expected: FAIL — 404 on `/api/universe`.
 
-- [ ] **Step 3: Add the settings model field + routes**
+- [x] **Step 3: Add the settings model field + routes**
 
 In `src/swingbot/web.py`, add `default_symbol` to `PortfolioSettingsBody`:
 
@@ -313,17 +313,17 @@ Add these routes inside `create_app` (e.g. right after the portfolio-settings ro
 
 > NOTE: confirm `creds.get()` returns a dict with `key_id`/`secret_key`. If its shape differs, adapt the two lines that read `cr[...]`. The `except Exception` guarantees the endpoint still returns the fallback regardless.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_web_universe.py -v`
 Expected: PASS (2 tests).
 
-- [ ] **Step 5: Run full backend suite (no regressions)**
+- [x] **Step 5: Run full backend suite (no regressions)**
 
 Run: `.venv/bin/python -m pytest -q`
 Expected: previous count + 6 new, all green (no failures).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/swingbot/web.py tests/test_web_universe.py

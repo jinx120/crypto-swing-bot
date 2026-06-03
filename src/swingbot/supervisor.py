@@ -16,7 +16,7 @@ from swingbot.profile import StrategyProfile
 from swingbot.profiles import ProfileStore
 from swingbot.risk import RiskManager
 from swingbot.snapshot import signal_snapshot
-from dataclasses import asdict
+from dataclasses import asdict, fields
 
 from swingbot.graduation import can_go_live
 from swingbot.metrics import compute_metrics
@@ -102,7 +102,12 @@ class PortfolioSupervisor:
             self._broker = AlpacaBroker(c.key_id, c.secret_key, paper=(self.mode == "paper"))
 
         self._store = StateStore(self.state_db)
-        settings = PortfolioSettings(**self.profiles.get_portfolio_settings())
+        # Only the risk-relevant keys belong to PortfolioSettings; other portfolio
+        # settings (e.g. default_symbol, a UI concern) are filtered out here.
+        _risk_keys = {f.name for f in fields(PortfolioSettings)}
+        settings = PortfolioSettings(**{
+            k: v for k, v in self.profiles.get_portfolio_settings().items()
+            if k in _risk_keys})
         self._portfolio_risk = PortfolioRiskManager(
             settings, self._store.load_portfolio_risk_state())
 
