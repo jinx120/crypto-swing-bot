@@ -92,3 +92,14 @@ def test_sweep_respects_max_symbols(monkeypatch):
     rows = DiscoveryEngine(FakeMarket(_bars())).sweep(
         ["BTC/USD", "ETH/USD", "SOL/USD"], window_key="full", max_symbols=1)
     assert {r["symbol"] for r in rows} == {"BTC/USD"}
+
+
+def test_cache_roundtrip_and_missing(tmp_path):
+    from swingbot.discovery import load_cache, save_cache
+    p = str(tmp_path / "discovery.json")
+    assert load_cache(p) is None                       # missing -> None
+    data = {"status": "idle", "computed_at": 123, "window": "full", "rows": [{"symbol": "BTC/USD"}]}
+    save_cache(p, data)
+    assert load_cache(p) == data
+    (tmp_path / "bad.json").write_text("{not json")
+    assert load_cache(str(tmp_path / "bad.json")) is None   # corrupt -> None, never raises

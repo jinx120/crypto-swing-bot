@@ -110,3 +110,18 @@ class DiscoveryEngine:
                     rows.append(self._err_row(symbol, key, name, profile_dict, e))
         rows.sort(key=_rank_key, reverse=True)
         return rows
+
+
+def load_cache(path: str) -> dict | None:
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def save_cache(path: str, data: dict) -> None:
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(data, f)
+    os.replace(tmp, path)                              # atomic on POSIX
