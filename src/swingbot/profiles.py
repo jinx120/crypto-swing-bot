@@ -114,6 +114,7 @@ class ProfileStore:
         "max_concurrent": 5,
         "max_total_deployed_frac": 0.80,
         "portfolio_daily_loss_limit_pct": 0.08,
+        "default_symbol": "",
     }
 
     def get_portfolio_settings(self) -> dict:
@@ -134,4 +135,16 @@ class ProfileStore:
         self._conn.execute(
             "INSERT OR REPLACE INTO meta (key, value) VALUES ('portfolio_settings', ?)",
             (json.dumps(merged),))
+        self._conn.commit()
+
+    def get_watchlist(self) -> list[str]:
+        row = self._conn.execute(
+            "SELECT value FROM meta WHERE key='watchlist'").fetchone()
+        return json.loads(row[0]) if row else []
+
+    def set_watchlist(self, symbols: list[str]) -> None:
+        clean = [s for s in dict.fromkeys(symbols) if isinstance(s, str) and s]
+        self._conn.execute(
+            "INSERT OR REPLACE INTO meta (key, value) VALUES ('watchlist', ?)",
+            (json.dumps(clean),))
         self._conn.commit()
