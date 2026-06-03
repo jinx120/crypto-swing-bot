@@ -220,3 +220,7 @@ tr.rec td{font-weight:600}
   body::before,body::after{animation:none}
   *{transition:none !important}
 }
+
+.position-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.pg-tile { border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 6px; }
+.pg-head { font-weight: 600; padding: 2px 4px 6px; }

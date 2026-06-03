@@ -436,13 +436,13 @@ git commit -m "feat(ui): symbol-agnostic Strategy page (universe picker) + Advan
 
 ---
 
-## Task 6: Frontend — PositionGrid (open positions + watchlist) on the dashboard
+## Task 6: Frontend — PositionGrid (open positions + watchlist) on the dashboard  ✅ DONE (build OK)
 
 **Files:**
 - Create: `frontend/src/components/PositionGrid.jsx`
 - Modify: `frontend/src/pages/Dashboard.jsx`
 
-- [ ] **Step 1: Create `PositionGrid.jsx`**
+- [x] **Step 1: Create `PositionGrid.jsx`**
 
 ```javascript
 import { useEffect, useState } from 'react'
@@ -491,7 +491,7 @@ export default function PositionGrid({ strategies = [] }){
 }
 ```
 
-- [ ] **Step 2: Add minimal grid styles**
+- [x] **Step 2: Add minimal grid styles**
 
 Append to `frontend/src/theme.css`:
 ```css
@@ -500,7 +500,7 @@ Append to `frontend/src/theme.css`:
 .pg-head { font-weight: 600; padding: 2px 4px 6px; }
 ```
 
-- [ ] **Step 3: Render `PositionGrid` at the top of the dashboard**
+- [x] **Step 3: Render `PositionGrid` at the top of the dashboard**
 
 In `frontend/src/pages/Dashboard.jsx`, import it and render above the strategy cards:
 ```javascript
@@ -511,12 +511,12 @@ Inside the returned `<div className="wrap">`, add as the first child (before the
       <PositionGrid strategies={strategies} />
 ```
 
-- [ ] **Step 4: Verify the build**
+- [x] **Step 4: Verify the build**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/components/PositionGrid.jsx frontend/src/pages/Dashboard.jsx frontend/src/theme.css

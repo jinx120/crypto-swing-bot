@@ -1,12 +1,14 @@
 import StrategyCard from '../components/StrategyCard.jsx'
 import JournalTable from '../components/JournalTable.jsx'
 import MetricsPanel from '../components/MetricsPanel.jsx'
+import PositionGrid from '../components/PositionGrid.jsx'
 
 export default function Dashboard({ state, trades, metrics, onChange }){
   const strategies = state?.strategies || []
   const mode = state?.portfolio?.mode
   return (
     <div className="wrap">
+      <PositionGrid strategies={strategies} />
       {strategies.length === 0 && (
         <div className="panel full"><h3>No strategies armed</h3>
           <div>Arm one or more strategies on the <b>Strategy</b> tab to start trading them concurrently.</div>
