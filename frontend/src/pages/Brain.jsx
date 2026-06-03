@@ -36,6 +36,11 @@ export default function Brain() {
     catch (e) { setErr(e.message) }
   }
 
+  const saveConfig = async (patch) => {
+    try { setSettings(await api.setPortfolioSettings(patch)) }
+    catch (e) { setErr(e.message) }
+  }
+
   const saveWebhook = async () => {
     try {
       const r = await api.setBrainWebhook(webhook)
@@ -80,6 +85,28 @@ export default function Brain() {
             )}
           </div>
         ))}
+      </section>
+
+      <section className="brain-config">
+        <h3>Model &amp; connection</h3>
+        <label>Model
+          <input type="text" defaultValue={settings.brain_model || ''}
+            onBlur={(e) => saveConfig({ brain_model: e.target.value })} />
+        </label>
+        <label>Ollama URL
+          <input type="text" defaultValue={settings.brain_ollama_url || ''}
+            onBlur={(e) => saveConfig({ brain_ollama_url: e.target.value })} />
+        </label>
+        <label>Confidence threshold
+          <input type="number" step="0.05" min="0" max="1"
+            defaultValue={settings.brain_confidence_threshold ?? 0.7}
+            onBlur={(e) => saveConfig({ brain_confidence_threshold: parseFloat(e.target.value) })} />
+        </label>
+        <label>Timeout (s)
+          <input type="number" step="1" min="1"
+            defaultValue={settings.brain_timeout_s ?? 30}
+            onBlur={(e) => saveConfig({ brain_timeout_s: parseInt(e.target.value, 10) })} />
+        </label>
       </section>
 
       <section className="brain-webhook">
