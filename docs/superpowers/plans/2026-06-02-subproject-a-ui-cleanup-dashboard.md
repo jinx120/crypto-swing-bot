@@ -583,11 +583,11 @@ git commit -m "docs(readme): symbol-agnostic target-asset wording"
 
 ---
 
-## Task 9: Playwright verification + knowledge graph
+## Task 9: Playwright verification + knowledge graph  ✅ DONE (all 5 UI checks pass; only benign favicon 404; graph updated)
 
 This task runs the app and verifies the UI with the Playwright MCP. Do NOT mark Sub-project A complete until every check below passes (per superpowers:verification-before-completion).
 
-- [ ] **Step 1: Build the frontend and (re)start the app**
+- [x] **Step 1: Build the frontend and (re)start the app**
 
 ```bash
 cd frontend && npm run build && cd ..
@@ -596,7 +596,7 @@ docker compose logs swingbot | grep -i token   # grab the access token
 ```
 Expected: container healthy on http://localhost:8000; token printed.
 
-- [ ] **Step 2: Drive the UI with Playwright MCP**
+- [x] **Step 2: Drive the UI with Playwright MCP**
 
 Using the `mcp__plugin_playwright_playwright__*` tools:
 1. `browser_navigate` → `http://localhost:8000` (paste the token in TokenGate).
@@ -605,12 +605,12 @@ Using the `mcp__plugin_playwright_playwright__*` tools:
 4. Click the **Strategy** tab; `browser_snapshot` → confirm the **Symbol** control is a `<select>` whose options come from `/api/universe` (e.g. `BTC/USD`), and the hand-tune form is inside a collapsed **Advanced** `<details>`.
 5. `browser_network_requests` → confirm `GET /api/universe` and `GET /api/watchlist` return 200.
 
-- [ ] **Step 3: Record verification evidence**
+- [x] **Step 3: Record verification evidence**
 
 Capture `browser_take_screenshot` of the dashboard grid and the Strategy page. Note pass/fail of each Step-2 check in the PR / handoff.
 Expected: all five checks pass; zero console errors.
 
-- [ ] **Step 4: Update the knowledge graph + final commit**
+- [x] **Step 4: Update the knowledge graph + final commit**
 
 ```bash
 graphify update .
