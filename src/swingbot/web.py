@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import pathlib
 import threading
+import time
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -10,6 +11,7 @@ from pydantic import BaseModel
 
 from swingbot.data.market import timeframe_seconds
 from swingbot import presets as presets_mod
+import swingbot.discovery as discovery_mod
 from swingbot.strategy_search import backtest_profile, search as run_strategy_search
 from swingbot.universe import fallback_universe
 from swingbot.broker.alpaca import AlpacaBroker
@@ -63,7 +65,8 @@ class BacktestBody(BaseModel):
     profile: dict
 
 
-def create_app(controller, profiles, creds, token: str, store=None, market=None, backfiller=None) -> FastAPI:
+def create_app(controller, profiles, creds, token: str, store=None, market=None,
+               backfiller=None, discovery=None, discovery_cache_path=None) -> FastAPI:
     app = FastAPI(title="swingbot")
 
     def require_token(x_token: str | None = Header(default=None)):
@@ -159,10 +162,9 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     # ---- universe / watchlist ----
     _universe_cache: dict = {}
 
-    @app.get("/api/universe")
-    def universe():
+    def _resolve_universe():
         if _universe_cache.get("symbols"):
-            return {"symbols": _universe_cache["symbols"]}
+            return _universe_cache["symbols"]
         symbols = fallback_universe()
         try:
             cr = creds.get() if creds is not None else None
@@ -174,7 +176,11 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
                     _universe_cache["symbols"] = live
         except Exception:
             pass  # fall back to static list
-        return {"symbols": symbols}
+        return symbols
+
+    @app.get("/api/universe")
+    def universe():
+        return {"symbols": _resolve_universe()}
 
     @app.get("/api/watchlist")
     def get_watchlist():
@@ -291,6 +297,22 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     def control_flatten_one(name: str, _=Depends(require_token)):
         controller.flatten(name); return {"ok": True}
 
+    # ---- discovery (auto-strategy sweep) ----
+    @app.get("/api/discovery")
+    def get_discovery():
+        return app.state.discovery
+
+    @app.get("/api/discovery/windows")
+    def discovery_windows():
+        cov: dict = {}
+        if store is not None:
+            syms = store.symbols()
+            pick = next((s for s in syms if s["symbol"] == "BTC/USD"),
+                        syms[0] if syms else None)
+            if pick:
+                cov = store.coverage(pick["symbol"], pick["timeframe"])
+        return discovery_mod.windows_for(cov)
+
     # ---- archive (deep historical backfill) ----
     @app.get("/api/archive/status")
     def archive_status():
@@ -323,6 +345,13 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     if backfiller is not None:
         from swingbot.data.backfill import ArchiveConfig
         app.state.archive_config = ArchiveConfig()
+
+    app.state.discovery = {"status": "idle", "computed_at": None, "window": None,
+                           "scope": None, "error": None, "rows": []}
+    if discovery_cache_path:
+        cached = discovery_mod.load_cache(discovery_cache_path)
+        if cached:
+            app.state.discovery = cached
 
     app.state.controller = controller
     app.state.profiles = profiles
