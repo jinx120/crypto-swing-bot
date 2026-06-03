@@ -359,14 +359,14 @@ git commit -m "feat(ui): api client methods for universe + watchlist"
 
 ---
 
-## Task 5: Frontend — symbol-agnostic Strategy page + Advanced disclosure
+## Task 5: Frontend — symbol-agnostic Strategy page + Advanced disclosure  ✅ DONE (build OK; no TRX/USD literal remains)
 
 **Files:**
 - Modify: `frontend/src/pages/Strategy.jsx`
 - Modify: `frontend/src/components/PresetGallery.jsx:10`
 - Modify: `frontend/src/components/StrategyBuilder.jsx:11`
 
-- [ ] **Step 1: Drop the `TRX/USD` literals in the two components**
+- [x] **Step 1: Drop the `TRX/USD` literals in the two components**
 
 In `frontend/src/components/PresetGallery.jsx` line 10 and `frontend/src/components/StrategyBuilder.jsx` line 11, change:
 
@@ -378,7 +378,7 @@ to:
   const [coin, setCoin] = useState(symbol || '')
 ```
 
-- [ ] **Step 2: Make `Strategy.jsx` symbol-agnostic with a universe `<select>`**
+- [x] **Step 2: Make `Strategy.jsx` symbol-agnostic with a universe `<select>`**
 
 In `frontend/src/pages/Strategy.jsx`:
 
@@ -411,7 +411,7 @@ const BLANK = {
         </div>
 ```
 
-- [ ] **Step 3: Collapse the low-level form behind an Advanced disclosure**
+- [x] **Step 3: Collapse the low-level form behind an Advanced disclosure**
 
 Wrap the entire `<div className="panel"><h3>Strategy form</h3> … </div>` block (lines ~153-244) in a `<details>` so the default view leads with the preset/builder flow. Replace the opening `<div className="panel">` of that block with:
 ```javascript
@@ -420,14 +420,14 @@ Wrap the entire `<div className="panel"><h3>Strategy form</h3> … </div>` block
 ```
 and its matching closing `</div>` (the one immediately before the component's final `</div>`) with `</details>`. The symbol `<select>` and `name` field stay inside, so advanced users still edit them; the straightforward path is now: pick crypto in PresetGallery/Builder → Use → Save.
 
-- [ ] **Step 4: Verify the build + no remaining literal**
+- [x] **Step 4: Verify the build + no remaining literal**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds.
 Run: `grep -rn "TRX/USD" frontend/src`
 Expected: **no matches**.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/pages/Strategy.jsx frontend/src/components/PresetGallery.jsx frontend/src/components/StrategyBuilder.jsx

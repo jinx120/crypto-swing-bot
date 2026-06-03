@@ -7,7 +7,7 @@ const pct = (x) => (x == null ? '—' : `${(+x * 100).toFixed(0)}%`)
 
 export default function PresetGallery({ symbol, onUse }) {
   const [presets, setPresets] = useState([])
-  const [coin, setCoin] = useState(symbol || 'TRX/USD')
+  const [coin, setCoin] = useState(symbol || '')
   const [results, setResults] = useState({})
   const [busy, setBusy] = useState('')
   const [err, setErr] = useState('')

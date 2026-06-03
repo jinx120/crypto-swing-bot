@@ -6,7 +6,7 @@ import StrategyBuilder from '../components/StrategyBuilder.jsx'
 import StrategyManager from '../components/StrategyManager.jsx'
 
 const BLANK = {
-  name: 'trx', symbol: 'TRX/USD', timeframe: '15m', benchmark_symbol: 'BTC/USD',
+  name: 'new', symbol: '', timeframe: '15m', benchmark_symbol: 'BTC/USD',
   entry_threshold: '0.3', regime_ma_period: '50',
   atr_period: '14', stop_atr_mult: '1.5', take_profit_atr_mult: '2.0', max_hold_bars: '32',
   risk_per_trade: '0.01', max_position_frac: '0.25',
@@ -108,6 +108,14 @@ export default function Strategy(){
   const [err, setErr] = useState(''); const [msg, setMsg] = useState('')
   const set = (k) => (val) => setF(prev => ({ ...prev, [k]: val }))
 
+  const [universe, setUniverse] = useState([])
+  useEffect(() => {
+    api.universe().then(r => {
+      setUniverse(r.symbols)
+      setF(prev => prev.symbol ? prev : { ...prev, symbol: r.symbols[0] || '' })
+    }).catch(() => {})
+  }, [])
+
   const load = async () => { setNames(await api.listProfiles()); setRefreshKey(k => k + 1) }
   useEffect(() => { load().catch(e => setErr(e.message)) }, [])
 
@@ -150,14 +158,19 @@ export default function Strategy(){
         <button className="act" style={{ marginTop: 10 }} onClick={newProfile}>+ New blank</button>
       </div>
 
-      <div className="panel">
-        <h3>Strategy form</h3>
+      <details className="panel">
+        <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Advanced — hand-tune a profile</summary>
         {err && <div className="err">{err}</div>}{msg && <div className="pos">{msg}</div>}
 
         <Txt f={f} set={set} label="Profile name (save slot)" k="name"
           hint="A label for this saved configuration. Keep one per coin or per idea, then pick which is active." />
-        <Txt f={f} set={set} label="Symbol (e.g. TRX/USD)" k="symbol"
-          hint="The Alpaca crypto pair to trade. Must be a pair Alpaca supports for spot trading, written BASE/QUOTE." />
+        <div style={{ marginBottom: 8 }}>
+          <label>Symbol<Hint text="The Alpaca crypto pair to trade. Picked from pairs Alpaca supports for spot USD trading." /></label>
+          <select value={f.symbol} onChange={e => set('symbol')(e.target.value)}>
+            {!f.symbol && <option value="">— pick a crypto —</option>}
+            {universe.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
         <Txt f={f} set={set} label="Timeframe (e.g. 15m, 1h)" k="timeframe"
           hint="The candle size the bot works on. Each ‘bar’ is one candle, so 15m means it re-evaluates every 15 minutes and most settings below are counted in these bars." />
         <Num f={f} set={set} label="Entry threshold (enter when total score ≥ this)" k="entry_threshold"
@@ -241,7 +254,7 @@ export default function Strategy(){
           hint="After getting stopped out, the bot waits this long before considering a new entry — avoids instantly re-buying into the same drop." />
 
         <button className="act" style={{ marginTop: 14 }} onClick={save}>Save profile</button>
-      </div>
+      </details>
     </div>
   )
 }

@@ -8,7 +8,7 @@ const fmt = (x) => (x == null ? '—' : (+x).toFixed(2))
 const pct = (x) => (x == null ? '—' : `${(+x * 100).toFixed(0)}%`)
 
 export default function StrategyBuilder({ symbol, onUse }) {
-  const [coin, setCoin] = useState(symbol || 'TRX/USD')
+  const [coin, setCoin] = useState(symbol || '')
   const [risk, setRisk] = useState('balanced')
   const [style, setStyle] = useState('swing')
   const [ai, setAi] = useState(false)
