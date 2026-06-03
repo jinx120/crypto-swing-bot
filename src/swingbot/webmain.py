@@ -11,6 +11,7 @@ from swingbot.data.ccxt_provider import CcxtProvider
 from swingbot.data.market import MarketData
 from swingbot.data.poller import CandlePoller
 from swingbot.data.store import CandleStore
+from swingbot.discovery import DiscoveryEngine
 from swingbot.profiles import ProfileStore
 from swingbot.supervisor import PortfolioSupervisor
 from swingbot.web import create_app
@@ -47,8 +48,11 @@ def main() -> None:
         state_db=os.path.join(DATA_DIR, "swingbot.db"), market=market)
     poller = CandlePoller(market, profiles)        # keeps all armed symbols warm for charts
     poller.start()
+    discovery = DiscoveryEngine(market)
     app = create_app(controller=supervisor, profiles=profiles, creds=creds,
-                     token=token, store=store, market=market, backfiller=backfiller)
+                     token=token, store=store, market=market, backfiller=backfiller,
+                     discovery=discovery,
+                     discovery_cache_path=os.path.join(DATA_DIR, "discovery.json"))
     app.state.archive_config = archive_cfg
     print(f"[swingbot-web] token: {token}")
     print(f"[swingbot-web] http://{HOST}:8000")
