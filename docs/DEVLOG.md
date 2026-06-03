@@ -2,6 +2,28 @@
 
 Running log of platform improvements. Newest first.
 
+## Sub-project C — Ollama Decision Brain (2026-06-03)
+
+- New `decision/` package: `ollama.py` (schema-constrained JSON client that never raises),
+  `prompt.py` (prompt builder + strict parser), `guardrails.py` (pure per-action gate),
+  `proposals.py` (`Proposal` + JSON inbox + issue log), `brain.py` (`DecisionBrain` orchestrator),
+  plus `notify.py` (failure-tolerant Discord webhook).
+- Turns B2 discovery output + live portfolio context into guardrailed proposals
+  (arm / disarm / tune / portfolio_settings). **Recommend-only by default**; opt-in
+  `brain_autonomous_mode` auto-applies guardrail-approved proposals above a confidence threshold
+  (all action types, no carve-out). All brain work runs off the trading thread.
+- Config lives in portfolio settings (`brain_model`, `brain_ollama_url`, `brain_confidence_threshold`,
+  `brain_timeout_s`, `brain_autonomous_mode`, `brain_auto_recommend`); Discord webhook URL is a
+  write-only secret. Model is fully swappable — never hardcoded.
+- API: `POST /api/brain/recommend`, `GET /api/brain/proposals`, `POST .../apply`, `POST .../dismiss`,
+  `GET /api/brain/issues`, `POST /api/brain/summary`, `GET/PUT /api/brain/webhook`. Opt-in
+  `auto_recommend` kicks a run after each discovery sweep.
+- UI: new **Brain** page — proposals inbox (apply/dismiss, blocked greyed w/ reason), autonomous &
+  auto-recommend toggles, model/connection config, Discord webhook field, issues feed.
+- Verified live with real `qwen2.5` (Playwright + API). `288 passed, 5 skipped`; frontend builds.
+  See `docs/SUBPROJECT_C_FINDINGS.md` — notably the Docker→host Ollama URL must be the bridge
+  gateway (`http://172.17.0.1:11434`), not `localhost`.
+
 ## 2026-06-02 — Sub-project A: UI cleanup + multi-position dashboard
 - Removed the hardcoded `TRX/USD` default; symbol is now picked from a curated
   Alpaca USD list (`GET /api/universe`, live with static fallback).

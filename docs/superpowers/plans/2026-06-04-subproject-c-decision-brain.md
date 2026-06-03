@@ -48,7 +48,7 @@
 - Create: `src/swingbot/decision/ollama.py`
 - Test: `tests/test_decision_ollama.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_decision_ollama.py
@@ -80,12 +80,12 @@ def test_generate_json_bad_json_is_caught():
     assert res.ok is False and "json" in res.error.lower()
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_ollama.py -v`
 Expected: FAIL with `ModuleNotFoundError: swingbot.decision.ollama`
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```python
 # src/swingbot/decision/__init__.py
@@ -141,12 +141,12 @@ class OllamaClient:
         return OllamaResult(ok=True, data=data)
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_ollama.py -v`
 Expected: PASS (3 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/decision/__init__.py src/swingbot/decision/ollama.py tests/test_decision_ollama.py
@@ -161,7 +161,7 @@ git commit -m "feat(brain): Ollama JSON client that never raises"
 - Create: `src/swingbot/notify.py`
 - Test: `tests/test_notify.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_notify.py
@@ -189,12 +189,12 @@ def test_transport_failure_is_swallowed():
     assert n.send("blocked_or_error", {"error": "x"}) is False   # never raises
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_notify.py -v`
 Expected: FAIL with `ModuleNotFoundError: swingbot.notify`
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```python
 # src/swingbot/notify.py
@@ -232,12 +232,12 @@ class DiscordNotifier:
             return False
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_notify.py -v`
 Expected: PASS (3 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/notify.py tests/test_notify.py
@@ -252,7 +252,7 @@ git commit -m "feat(brain): failure-tolerant Discord notifier"
 - Create: `src/swingbot/decision/proposals.py`
 - Test: `tests/test_decision_proposals.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_decision_proposals.py
@@ -291,12 +291,12 @@ def test_issue_log_caps_and_persists(tmp_path):
     assert len(items) == 2 and items[-1]["detail"] == "c"   # oldest dropped
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_proposals.py -v`
 Expected: FAIL with `ModuleNotFoundError: swingbot.decision.proposals`
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```python
 # src/swingbot/decision/proposals.py
@@ -402,12 +402,12 @@ class IssueLog:
         _atomic_write(self.path, rows[-self.cap:])
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_proposals.py -v`
 Expected: PASS (4 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/decision/proposals.py tests/test_decision_proposals.py
@@ -422,7 +422,7 @@ git commit -m "feat(brain): Proposal model + JSON inbox + issue log"
 - Create: `src/swingbot/decision/prompt.py`
 - Test: `tests/test_decision_prompt.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_decision_prompt.py
@@ -460,12 +460,12 @@ def test_schema_is_object():
     assert PROPOSAL_SCHEMA["type"] == "object"
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_prompt.py -v`
 Expected: FAIL with `ModuleNotFoundError: swingbot.decision.prompt`
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```python
 # src/swingbot/decision/prompt.py
@@ -547,12 +547,12 @@ def parse_proposals(data: dict, now: int | None = None) -> tuple[list[Proposal],
     return good, dropped
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_prompt.py -v`
 Expected: PASS (4 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/decision/prompt.py tests/test_decision_prompt.py
@@ -571,7 +571,7 @@ Note: `evaluate` is pure. For `tune` it receives a `backtest_ok(symbol, archetyp
 callback so tests stay offline; the real callback (wired in Task 6) re-backtests and checks
 `good_history`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_decision_guardrails.py
@@ -632,12 +632,12 @@ def test_portfolio_settings_clamp():
     assert _ev(ok)[0] == "approved" and _ev(bad)[0] == "blocked"
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_guardrails.py -v`
 Expected: FAIL with `ModuleNotFoundError: swingbot.decision.guardrails`
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```python
 # src/swingbot/decision/guardrails.py
@@ -712,12 +712,12 @@ def evaluate(p: Proposal, ctx: dict, eligible_rows: list[dict], backtest_ok) -> 
     return _block(f"unknown action {p.action!r}")
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_guardrails.py -v`
 Expected: PASS (7 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/decision/guardrails.py tests/test_decision_guardrails.py
@@ -732,7 +732,7 @@ git commit -m "feat(brain): pure per-action guardrails"
 - Create: `src/swingbot/decision/brain.py`
 - Test: `tests/test_decision_brain.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_decision_brain.py
@@ -851,12 +851,12 @@ def test_daily_summary_counts_and_notifies(tmp_path):
     assert s["pending"] == 1 and "daily_summary" in events
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_brain.py -v`
 Expected: FAIL with `ModuleNotFoundError: swingbot.decision.brain`
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```python
 # src/swingbot/decision/brain.py
@@ -994,12 +994,12 @@ class DecisionBrain:
             raise ValueError(f"unknown action {p.action!r}")
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_brain.py -v`
 Expected: PASS (6 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/decision/brain.py tests/test_decision_brain.py
@@ -1014,7 +1014,7 @@ git commit -m "feat(brain): DecisionBrain orchestrator + apply paths + autonomy"
 - Modify: `src/swingbot/profiles.py` (extend `_PORTFOLIO_DEFAULTS`; add webhook getter/setter)
 - Test: `tests/test_brain_settings.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_brain_settings.py
@@ -1045,12 +1045,12 @@ def test_discord_webhook_roundtrip_write_only(tmp_path):
     assert p.get_discord_webhook() == "http://hook"
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_brain_settings.py -v`
 Expected: FAIL (`brain_model` KeyError)
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 In `src/swingbot/profiles.py`, replace the `_PORTFOLIO_DEFAULTS` dict (currently lines 113-118) with:
 
@@ -1085,17 +1085,17 @@ Then add these methods after `set_watchlist` (end of the class):
         self._conn.commit()
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_brain_settings.py -v`
 Expected: PASS (3 tests)
 
-- [ ] **Step 5: Run the full settings/profiles suite to confirm no regression**
+- [x] **Step 5: Run the full settings/profiles suite to confirm no regression**
 
 Run: `.venv/bin/python -m pytest tests/test_profiles.py tests/test_profiles_armed.py -q`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/swingbot/profiles.py tests/test_brain_settings.py
@@ -1110,7 +1110,7 @@ git commit -m "feat(brain): brain config in portfolio settings + webhook store"
 - Modify: `src/swingbot/web.py` (body models near line 74; `create_app` signature line 80; new routes after the discovery routes ~line 373; extend `PortfolioSettingsBody`; webhook in cred routes)
 - Test: `tests/test_web_brain.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_web_brain.py
@@ -1186,12 +1186,12 @@ def test_brain_endpoints_503_without_brain():
     assert c.post("/api/brain/recommend", headers={"x-token": "t"}).status_code == 503
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_web_brain.py -v`
 Expected: FAIL (`create_app` has no `brain` kwarg / routes missing)
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 In `src/swingbot/web.py`, extend `PortfolioSettingsBody` (after line 50, before its closing) to include the brain fields:
 
@@ -1278,17 +1278,17 @@ Add the brain routes immediately after the `discovery_arm` route (after current 
         return {"configured": configured}            # never returns the URL
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_web_brain.py -v`
 Expected: PASS (6 tests)
 
-- [ ] **Step 5: Confirm existing web tests still pass**
+- [x] **Step 5: Confirm existing web tests still pass**
 
 Run: `.venv/bin/python -m pytest tests/test_web_discovery.py -q`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/swingbot/web.py tests/test_web_brain.py
@@ -1304,7 +1304,7 @@ git commit -m "feat(brain): web endpoints (recommend/proposals/apply/dismiss/iss
 - Modify: `src/swingbot/web.py` (`auto_recommend` hook at end of the discovery refresh job)
 - Test: `tests/test_web_brain_autorecommend.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_web_brain_autorecommend.py
@@ -1363,12 +1363,12 @@ def test_auto_recommend_silent_when_disabled():
     assert brain.calls == []
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_web_brain_autorecommend.py -v`
 Expected: FAIL (no auto-recommend hook; brain never called)
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 In `src/swingbot/web.py`, inside the `discovery_refresh` route's `job()` function, after the
 successful-sweep block writes `app.state.discovery = result` and saves the cache (current line
@@ -1441,17 +1441,17 @@ through a holder; simplest correct form — assign `app` first, then set the att
 (Construct `brain` with a temporary `get_discovery=lambda: {}` placeholder, then overwrite it after
 `app` exists, as shown.)
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_web_brain_autorecommend.py -v`
 Expected: PASS (2 tests)
 
-- [ ] **Step 5: Smoke-import webmain to catch wiring errors**
+- [x] **Step 5: Smoke-import webmain to catch wiring errors**
 
 Run: `.venv/bin/python -c "import swingbot.webmain"`
 Expected: no output, exit 0
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/swingbot/webmain.py src/swingbot/web.py tests/test_web_brain_autorecommend.py
@@ -1475,7 +1475,7 @@ grep -n "Discover\|api\." frontend/src/App.jsx | head
 grep -n "discovery\|export" frontend/src/api.js | head
 ```
 
-- [ ] **Step 1: Add API client methods**
+- [x] **Step 1: Add API client methods**
 
 Append to `frontend/src/api.js` the brain methods, mirroring the existing fetch helper used by
 discovery (use the same base/token helper the file already defines — `api.get`/`api.post` or
@@ -1496,7 +1496,7 @@ export const brain = {
 (If `api.js` exports a single default object instead of named helpers, add these as keys on that
 object instead — match the existing structure rather than introducing a new one.)
 
-- [ ] **Step 2: Create the Brain page**
+- [x] **Step 2: Create the Brain page**
 
 ```jsx
 // frontend/src/pages/Brain.jsx
@@ -1572,7 +1572,7 @@ export default function Brain() {
 (Adjust the `getPortfolioSettings`/`setPortfolioSettings` import names to whatever `api.js` already
 exports for portfolio settings — discover them with the grep in Step 0.)
 
-- [ ] **Step 3: Register the route + nav**
+- [x] **Step 3: Register the route + nav**
 
 Mirror the `Discover` registration found in Step 0. In `frontend/src/App.jsx`, import the page and
 add it alongside `Discover` in both the route table and the nav list:
@@ -1586,12 +1586,12 @@ import Brain from "./pages/Brain";
 (Use the exact pattern the file already uses — array entry, `<Route>` element, or nav `<Link>` —
 matching `Discover`.)
 
-- [ ] **Step 4: Build the frontend**
+- [x] **Step 4: Build the frontend**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds with no errors.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/api.js frontend/src/pages/Brain.jsx frontend/src/App.jsx
@@ -1607,17 +1607,17 @@ git commit -m "feat(brain): Brain page — proposals inbox, toggles, issues feed
 - Modify: `docs/DEVLOG.md`, `docs/ROADMAP_STATUS.md`
 - Modify: `graphify-out/` (regenerated)
 
-- [ ] **Step 1: Run the full backend suite**
+- [x] **Step 1: Run the full backend suite**
 
 Run: `.venv/bin/python -m pytest -q`
 Expected: all green (prior `250 passed, 5 skipped` plus the new brain tests; record the exact count).
 
-- [ ] **Step 2: Build the frontend**
+- [x] **Step 2: Build the frontend**
 
 Run: `cd frontend && npm run build`
 Expected: success.
 
-- [ ] **Step 3: Playwright verification on the live container**
+- [x] **Step 3: Playwright verification on the live container**
 
 Ask the user for consent to rebuild/restart the container (it interrupts live paper trading):
 `docker compose build swingbot && docker compose up -d swingbot`. Then, using the Playwright MCP,
@@ -1632,24 +1632,24 @@ drive the site as the user would and record observations:
   - Confirm blocked proposals appear greyed with a reason; set `brain_model` to a bogus value and
     confirm an issue is logged rather than a crash.
 
-- [ ] **Step 4: Write the findings doc**
+- [x] **Step 4: Write the findings doc**
 
 Create `docs/SUBPROJECT_C_FINDINGS.md` capturing every UX gap, rough edge, and room-for-improvement
 observed in Step 3, grouped under: Works as intended / Bugs / UX gaps / Future improvements. This is
 the artifact the user reviews manually.
 
-- [ ] **Step 5: Update DEVLOG + ROADMAP_STATUS**
+- [x] **Step 5: Update DEVLOG + ROADMAP_STATUS**
 
 Add a Sub-project C entry to `docs/DEVLOG.md`. In `docs/ROADMAP_STATUS.md`: mark row **C** ✅ DONE
 with spec/plan paths, set **NEXT ACTION** to "write the Sub-project D spec (self-test gate + LLM
 proposals)", and bump the expected pytest count in the "How to resume" section.
 
-- [ ] **Step 6: Regenerate the knowledge graph**
+- [x] **Step 6: Regenerate the knowledge graph**
 
 Run: `python3 -m graphify update .`
 Expected: graph regenerated (node/edge counts increase).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add docs/SUBPROJECT_C_FINDINGS.md docs/DEVLOG.md docs/ROADMAP_STATUS.md graphify-out
