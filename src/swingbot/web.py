@@ -358,6 +358,9 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
                 app.state.discovery = result
                 if discovery_cache_path:
                     discovery_mod.save_cache(discovery_cache_path, result)
+                if (brain is not None and profiles is not None
+                        and profiles.get_portfolio_settings().get("brain_auto_recommend")):
+                    brain.recommend(source="auto-after-discovery")
             except Exception as e:   # a sweep failure must never touch live trading
                 app.state.discovery = {**app.state.discovery, "status": "idle",
                                        "error": str(e)}

@@ -49,10 +49,49 @@ def main() -> None:
     poller = CandlePoller(market, profiles)        # keeps all armed symbols warm for charts
     poller.start()
     discovery = DiscoveryEngine(market)
+
+    from swingbot.decision.brain import DecisionBrain
+    from swingbot.decision.ollama import OllamaClient
+    from swingbot.decision.proposals import IssueLog, ProposalStore
+    from swingbot.notify import DiscordNotifier
+    from swingbot.discovery import good_history
+    from swingbot.strategy_search import _df_from_market, metrics_dict
+    from swingbot.backtest import run_backtest
+    from swingbot.presets import STYLE, ARCHETYPES, archetype_profile
+    from swingbot.profile import StrategyProfile
+
+    def _ollama_factory(settings):
+        return OllamaClient(settings.get("brain_ollama_url", "http://localhost:11434"),
+                            settings.get("brain_model", "qwen2.5"),
+                            float(settings.get("brain_timeout_s", 30)))
+
+    def _backtest_ok(symbol, archetype_key, params):
+        try:
+            arch = next(a for a in ARCHETYPES if a.key == archetype_key)
+            timeframe = STYLE["swing"]["timeframe"]
+            profile_dict = archetype_profile(arch, symbol, "swing")
+            profile_dict.update(params or {})
+            df = _df_from_market(market, symbol, timeframe, 100_000)
+            _trades, m = run_backtest(df, StrategyProfile.from_dict(profile_dict))
+            return good_history(metrics_dict(m))
+        except Exception:
+            return False
+
+    notifier = DiscordNotifier(profiles.get_discord_webhook)
+    brain = DecisionBrain(
+        profiles=profiles, controller=supervisor, ollama_factory=_ollama_factory,
+        proposals=ProposalStore(os.path.join(DATA_DIR, "brain_proposals.json")),
+        issues=IssueLog(os.path.join(DATA_DIR, "brain_issues.json")),
+        notifier=notifier,
+        get_discovery=lambda: {},                    # rebound to app.state below
+        backtest_ok=_backtest_ok)
+
     app = create_app(controller=supervisor, profiles=profiles, creds=creds,
                      token=token, store=store, market=market, backfiller=backfiller,
                      discovery=discovery,
-                     discovery_cache_path=os.path.join(DATA_DIR, "discovery.json"))
+                     discovery_cache_path=os.path.join(DATA_DIR, "discovery.json"),
+                     brain=brain)
+    brain.get_discovery = lambda: app.state.discovery
     app.state.archive_config = archive_cfg
     print(f"[swingbot-web] token: {token}")
     print(f"[swingbot-web] http://{HOST}:8000")
