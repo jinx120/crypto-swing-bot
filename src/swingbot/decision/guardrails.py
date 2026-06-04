@@ -66,4 +66,7 @@ def evaluate(p: Proposal, ctx: dict, eligible_rows: list[dict], backtest_ok) -> 
                 return _block(f"{field}={val} out of bounds [{lo}, {hi}]")
         return _OPEN
 
+    if p.action == "ui_fix":
+        return _OPEN   # always recommend-only; selftest never auto-applies
+
     return _block(f"unknown action {p.action!r}")

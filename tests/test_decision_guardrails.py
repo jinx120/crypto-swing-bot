@@ -53,3 +53,8 @@ def test_portfolio_settings_clamp():
     ok = make_proposal("portfolio_settings", {"max_concurrent": 4}, "r", 0.5, now=1)
     bad = make_proposal("portfolio_settings", {"max_total_deployed_frac": 0.99}, "r", 0.5, now=1)
     assert _ev(ok)[0] == "approved" and _ev(bad)[0] == "blocked"
+
+
+def test_ui_fix_always_approved():
+    p = make_proposal("ui_fix", {"route": "/", "issue": "console error"}, "r", 0.8, now=1)
+    assert _ev(p) == ("approved", "")
