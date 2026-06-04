@@ -4,41 +4,23 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 
 ---
 
 ## ▶ NEXT ACTION
 
-**Write the Sub-project D plan from the approved spec.** Phase = PLAN.
+**Sub-project D is ✅ DONE.** All sub-projects (A → B1 → B2 → C → D) complete.
 
-- The D spec is ✅ DONE & committed: `docs/superpowers/specs/2026-06-03-subproject-d-self-test-gate-design.md`.
-  Load `superpowers:writing-plans`, read that spec, and write the plan to
-  `docs/superpowers/plans/2026-06-03-subproject-d-self-test-gate.md`. Do NOT re-brainstorm — design is final.
-- Spec summary (all forks locked with user): new `src/swingbot/selftest/` package with a CLI
-  `python -m swingbot.selftest`. Deterministic gate (`pytest -q` + `ruff check` + `npm run build`) +
-  a **real headless Python Playwright probe** of the running `:8000` app (captures console errors,
-  failed/5xx requests, page exceptions, screenshots → `UIFinding`s). Gate-first: red → write report,
-  Discord ping, **skip LLM**, exit 1. Green → LLM pass via `decision/ollama.py` (model
-  **`qwen3.5:9b` Q4_K_M**, configurable) turns health+findings+`git diff --stat` into structured
-  `Proposal`s in C's `ProposalStore` inbox (recommend-only; new `ui_fix` action). Report →
-  overwrite `docs/SELFTEST_REPORT.md` + one dated GREEN/RED line in `DEVLOG.md`. Scheduled via `/loop`/`/schedule`.
-- Modules to build: `checks.py`, `uiprobe.py`, `llm.py`, `report.py`, `runner.py`, `__main__.py`.
-  Reuse `decision/ollama.py`, `decision/proposals.py`, `decision/guardrails.py`, `notify.py`.
-  New dev dep: `pytest-playwright` + `playwright install chromium`.
-- Sub-project C (Ollama Decision Brain) is ✅ DONE — all 11 plan tasks executed, `288 passed, 5 skipped`,
-  frontend builds, live-verified with real qwen2.5. See `docs/DEVLOG.md` and `docs/SUBPROJECT_C_FINDINGS.md`.
+The platform roadmap is fully delivered. Next session can either:
+1. **Run the selftest CLI** against the live container: `python -m swingbot.selftest --no-llm` (smoke run)
+2. **Schedule the selftest** via `/schedule` for nightly execution
+3. **Start a new sub-project** — brainstorm the next improvement area
 
-**Active-dev rebuild policy (NEW):** during D implementation the user expects a Docker
-rebuild/restart of `swingbot` on **every change** — it is pre-authorized and routine. Do NOT
-announce or block on it; just `docker compose build swingbot && docker compose up -d swingbot`.
-(Recorded in `~/CLAUDE.md` standing-authorization section.)
-
-**Housekeeping:** Sub-projects A, B1, B2 are committed **and pushed to `origin/master`**. Sub-project C
-(spec, plan, Tasks 1–11) is committed **and pushed to `origin/master`** as of 2026-06-03. One open
-finding to action: the brain's default `brain_ollama_url` (`localhost:11434`) does
-not work inside Docker — use the bridge gateway `http://172.17.0.1:11434` (already set on the running
-instance). See `docs/SUBPROJECT_C_FINDINGS.md`.
+**Housekeeping:** Sub-projects A, B1, B2, C are committed **and pushed to `origin/master`**.
+Sub-project D is committed locally (master) — **push when ready** (`git push origin master`).
+The brain's default `brain_ollama_url` (`localhost:11434`) does not work inside Docker — use
+`http://172.17.0.1:11434` (already set on running instance). See `docs/SUBPROJECT_C_FINDINGS.md`.
 
 ---
 
@@ -50,7 +32,7 @@ instance). See `docs/SUBPROJECT_C_FINDINGS.md`.
 | B1 | Historical data archive | ✅ **DONE** | `specs/2026-06-02-subproject-b-data-archive-design.md` | `plans/2026-06-02-subproject-b-phase1-data-archive.md` (all boxes ✓) | **Pushed to origin.** Use Coinbase for deep history (Binance 451-blocked, Kraken caps 720) |
 | B2 | Auto-strategy discovery | ✅ **DONE** | `specs/2026-06-03-subproject-b-phase2-discovery-design.md` | `plans/2026-06-03-subproject-b-phase2-discovery.md` (10 tasks, all boxes ✓) | sweep→rank→"eligible now"→`/api/discovery`→Discover panel; committed locally (not pushed) |
 | C | Ollama decision brain | ✅ **DONE** (live-verified) | `specs/2026-06-04-subproject-c-decision-brain-design.md` | `plans/2026-06-04-subproject-c-decision-brain.md` (11 tasks, all boxes ✓) | `decision/` pkg → qwen2.5; recommend-only default + autonomous toggle; Brain page. **Pushed to origin** |
-| D | Self-test gate + LLM proposals | 🟡 **PLAN NEXT** ← write plan | `specs/2026-06-03-subproject-d-self-test-gate-design.md` (approved) | — ← write next | pytest+ruff+build gate + real Playwright probe → report+devlog; green→LLM (`qwen3.5:9b`) proposals into C's inbox |
+| D | Self-test gate + LLM proposals | ✅ **DONE** | `specs/2026-06-03-subproject-d-self-test-gate-design.md` | `plans/2026-06-03-subproject-d-self-test-gate.md` (8 tasks, all ✓) | `selftest/` pkg; `python -m swingbot.selftest`; pytest+ruff+npm gate + Playwright probe → SELFTEST_REPORT.md + DEVLOG; green→qwen3.5:9b proposals into C's inbox; 328 passed |
 
 Paths are under `docs/superpowers/`. Roadmap spec: `docs/superpowers/specs/2026-06-02-platform-improvement-roadmap-design.md`.
 
