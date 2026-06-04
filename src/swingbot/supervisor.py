@@ -218,20 +218,33 @@ class PortfolioSupervisor:
     # ---- status + control surface (consumed by Phase 2 web layer) ----
     def status(self) -> dict:
         strategies = []
-        for name in sorted(self._strategies):
-            s = self._strategies[name]
-            pos = s["view"].load_position()
-            rs = s["orch"].risk.state
-            strategies.append({
-                "name": name, "symbol": s["profile"].symbol,
-                "running": self._running,
-                "live_eligible": self.profiles.is_live_eligible(name),
-                "snapshot": s["snapshot"],
-                "position": _pos_dict(pos),
-                "risk": {"kill_switch": {"active": rs.kill_switch_active,
-                                         "reason": rs.kill_switch_reason},
-                         "consecutive_losses": rs.consecutive_losses},
-            })
+        if self._strategies:
+            for name in sorted(self._strategies):
+                s = self._strategies[name]
+                pos = s["view"].load_position()
+                rs = s["orch"].risk.state
+                strategies.append({
+                    "name": name, "symbol": s["profile"].symbol,
+                    "running": self._running,
+                    "live_eligible": self.profiles.is_live_eligible(name),
+                    "snapshot": s["snapshot"],
+                    "position": _pos_dict(pos),
+                    "risk": {"kill_switch": {"active": rs.kill_switch_active,
+                                             "reason": rs.kill_switch_reason},
+                             "consecutive_losses": rs.consecutive_losses},
+                })
+        else:
+            # Bot not running — populate from DB so dashboard shows armed strategies
+            for f in self.profiles.armed_with_flags():
+                name = f["name"]
+                pdict = self.profiles.get(name)
+                symbol = (pdict or {}).get("symbol", "")
+                strategies.append({
+                    "name": name, "symbol": symbol,
+                    "running": False,
+                    "live_eligible": f["live_eligible"],
+                    "snapshot": {}, "position": None, "risk": None,
+                })
         return {"portfolio": self._summary or {"mode": self.mode, "running": self._running},
                 "strategies": strategies}
 
