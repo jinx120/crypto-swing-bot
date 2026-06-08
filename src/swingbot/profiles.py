@@ -116,8 +116,8 @@ class ProfileStore:
         "portfolio_daily_loss_limit_pct": 0.08,
         "default_symbol": "",
         # --- decision brain config ---
-        "brain_model": "qwen2.5",
-        "brain_ollama_url": "http://localhost:11434",
+        "brain_model": "qwen3.5:9b",
+        "brain_ollama_url": "http://172.17.0.1:11434",
         "brain_confidence_threshold": 0.7,
         "brain_timeout_s": 30,
         "brain_autonomous_mode": False,
