@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta, timezone
 
 from swingbot.broker.simulated import SimulatedBroker
-from swingbot.types import ExitReason, Regime, Side
+from swingbot.types import ExitReason, Regime
 
 
-def _candle(ts, o, h, l, c):
-    return {"ts": ts, "open": o, "high": h, "low": l, "close": c, "volume": 1.0}
+def _candle(ts, o, h, lo, c):
+    return {"ts": ts, "open": o, "high": h, "low": lo, "close": c, "volume": 1.0}
 
 
 T0 = datetime(2026, 1, 1, tzinfo=timezone.utc)

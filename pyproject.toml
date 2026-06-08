@@ -31,3 +31,13 @@ where = ["src"]
 pythonpath = ["src"]
 testpaths = ["tests"]
 markers = ["integration: opt-in tests that require a live :8000 instance and real Ollama"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# E702/E701: semicolons used intentionally for compact one-liners throughout codebase
+# E731: lambda assignments used intentionally in some modules
+# T201: print() used in CLI entry points
+# E402: some top-level imports follow conditional setup code
+ignore = ["E702", "E701", "E731", "T201", "E402"]

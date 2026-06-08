@@ -70,4 +70,7 @@ def test_reload_is_noop_when_idle_and_unbuilt(tmp_path):
                               broker=None, mode="paper")
     sup.reload()                      # must NOT raise (no creds, never built)
     assert sup._store is None
-    assert sup.status()["strategies"] == []
+    # Armed strategies should appear in status even when bot hasn't started yet
+    strategies = sup.status()["strategies"]
+    assert len(strategies) == 1 and strategies[0]["name"] == "btc"
+    assert strategies[0].get("running") is False

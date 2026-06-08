@@ -8,9 +8,9 @@ from swingbot.profiles import ProfileStore
 from swingbot.selftest.runner import SelfTestConfig, run
 
 DATA_DIR = os.environ.get("SWINGBOT_DATA_DIR", os.path.expanduser("~/.swingbot"))
-# Walk up 4 dirs from src/swingbot/selftest/__main__.py to reach project root
+# Walk up 3 dirs from src/swingbot/selftest/__main__.py to reach project root
 _HERE = os.path.dirname(__file__)
-PROJECT_ROOT = os.path.abspath(os.path.join(_HERE, "..", "..", "..", ".."))
+PROJECT_ROOT = os.path.abspath(os.path.join(_HERE, "..", "..", ".."))
 
 
 def main() -> None:

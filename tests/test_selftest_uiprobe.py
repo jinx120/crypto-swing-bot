@@ -113,7 +113,6 @@ def test_screenshot_path_set_on_finding():
 def test_run_visits_all_routes():
     probe = _make_probe()
     visited = []
-    original = probe.probe_route
     probe.probe_route = lambda route, page: visited.append(route) or []
     probe.run(FakePage)
     assert set(visited) == set(ROUTES)
