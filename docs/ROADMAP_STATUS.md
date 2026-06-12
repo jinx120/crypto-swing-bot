@@ -10,18 +10,16 @@
 
 ## ▶ NEXT ACTION
 
-**Sub-project E (Usage Agent) is specced — awaiting user review of the spec, then write the plan.**
+**Execute the Sub-project E plan:** `docs/superpowers/plans/2026-06-12-subproject-e-usage-agent.md`
+(10 tasks, 64 checkbox steps, TDD per task — find the first `- [ ]` and go; load
+`superpowers:executing-plans`).
 
-Spec: `docs/superpowers/specs/2026-06-12-subproject-e-usage-agent-design.md` — scripted usage
-sessions (live read-only tier + ephemeral mutating tier on :8001), intent-vs-actual drift
-findings (`doc_fix`/`ui_fix` proposals, `source="usage-agent"`) into C's inbox, new **Health**
-tab, DEVLOG/ROADMAP auto-updates. Motivated by the 2026-06-12 audit (see spec §"Review-pass
-findings"): D's probe never rendered Discover/Brain (no URL routing → 404s), stale in-app
-Guide ("Set active" flow no longer exists), `ui_fix` Apply dead-end, selftest `tune`
-guardrail bypass, stale HANDOVER.md.
-
-Once the spec is approved: load `superpowers:writing-plans`, write
-`docs/superpowers/plans/2026-06-12-subproject-e-usage-agent.md`, then execute.
+Spec (final, do not re-derive): `docs/superpowers/specs/2026-06-12-subproject-e-usage-agent-design.md` —
+scripted usage sessions S1–S6 (live read-only tier + ephemeral mutating tier on :8001),
+intent-vs-actual drift findings (`doc_fix`/`ui_fix` proposals, `source="usage-agent"`) into C's
+inbox, new **Health** tab, DEVLOG/ROADMAP auto-updates. Plan task order: hash routing →
+types/store → expectations → ephemeral harness → S1/S6 → S2–S5 → drift+`doc_fix`+Apply-dead-end
+fixes → endpoints+Health tab → runner/report wiring → Guide rewrite + live full-loop verification.
 
 **Housekeeping:** Sub-projects A, B1, B2, C are committed **and pushed to `origin/master`**.
 Sub-project D is committed locally (master) — **push when ready** (`git push origin master`).
@@ -39,7 +37,7 @@ The brain's default `brain_ollama_url` (`localhost:11434`) does not work inside 
 | B2 | Auto-strategy discovery | ✅ **DONE** | `specs/2026-06-03-subproject-b-phase2-discovery-design.md` | `plans/2026-06-03-subproject-b-phase2-discovery.md` (10 tasks, all boxes ✓) | sweep→rank→"eligible now"→`/api/discovery`→Discover panel; committed locally (not pushed) |
 | C | Ollama decision brain | ✅ **DONE** (live-verified) | `specs/2026-06-04-subproject-c-decision-brain-design.md` | `plans/2026-06-04-subproject-c-decision-brain.md` (11 tasks, all boxes ✓) | `decision/` pkg → qwen2.5; recommend-only default + autonomous toggle; Brain page. **Pushed to origin** |
 | D | Self-test gate + LLM proposals | ✅ **DONE** | `specs/2026-06-03-subproject-d-self-test-gate-design.md` | `plans/2026-06-03-subproject-d-self-test-gate.md` (8 tasks, all ✓) | `selftest/` pkg; `python -m swingbot.selftest`; pytest+ruff+npm gate + Playwright probe → SELFTEST_REPORT.md + DEVLOG; green→qwen3.5:9b proposals into C's inbox; 328 passed |
-| E | Usage Agent (usage sessions + drift detection) | 📝 **SPECCED** (awaiting review) | `specs/2026-06-12-subproject-e-usage-agent-design.md` | — (next: write plan) | drives the app as a user would; reconciles vs Guide/specs; drift → `doc_fix`/`ui_fix` proposals in C's inbox; Health tab |
+| E | Usage Agent (usage sessions + drift detection) | 📋 **PLANNED** (next: execute) | `specs/2026-06-12-subproject-e-usage-agent-design.md` | `plans/2026-06-12-subproject-e-usage-agent.md` (10 tasks, 0/64 steps) | drives the app as a user would; reconciles vs Guide/specs; drift → `doc_fix`/`ui_fix` proposals in C's inbox; Health tab |
 
 Paths are under `docs/superpowers/`. Roadmap spec: `docs/superpowers/specs/2026-06-02-platform-improvement-roadmap-design.md`.
 
