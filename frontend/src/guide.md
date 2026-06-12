@@ -20,10 +20,11 @@ five are done.
 | 1 | Settings → Access token | Unlock write actions with your API token |
 | 2 | Settings → Alpaca credentials | Paste your Alpaca key/secret (Paper) and Save |
 | 3 | Strategy | Fill the form, enable ≥1 signal, **Save profile** |
-| 4 | Strategy | **Set active** on that profile |
+| 4 | Strategy | **Arm** the profile (Strategies panel). Arm several to trade them concurrently. |
 | 5 | Dashboard → Controls | Click **Start bot** |
 
-If you skip step 3 or 4, **Start bot** returns *"no active strategy profile set."*
+If you skip step 3 or 4, **Start bot** runs an idle loop with nothing to trade —
+the Dashboard shows *"No strategies armed."*
 If you skip step 2, it returns *"Alpaca credentials not set."*
 
 ---
@@ -95,7 +96,7 @@ Each enabled signal produces a reading from **0 to 1**, multiplied by its
 | **Oversold (RSI dip)** | `weight`, `oversold_level`, `period` | RSI drops below `oversold_level`. Score = `(level − RSI) / level`, clamped 0–1. |
 | **VWAP** | `weight`, `window`, `max_dist` | Price is below VWAP. Score = `(VWAP − price) / VWAP ÷ max_dist`, clamped 0–1. `max_dist` is how far below still counts. |
 | **Relative strength** | `benchmark_symbol`, `weight`, `band`, `lookback` | The coin is outperforming the benchmark (e.g. BTC) over `lookback` bars. |
-| **FVG** | `weight` | ⚠️ **Stub — always scores 0.** Not implemented. Leave off. |
+| **FVG** | `weight`, `lookback`, `min_gap_pct` | Price trades back into an unfilled bullish fair-value gap (ICT-style 3-candle imbalance) found within `lookback` bars; gaps smaller than `min_gap_pct` of price are ignored. |
 | **Kronos Forecast** | `weight`, `pred_len`, `threshold_pct` | The Kronos AI model forecasts a price rise. Score = `expected_gain ÷ threshold_pct`, clamped 0–1. Needs GPU (the Docker image has it). |
 
 **Kronos fields:**
@@ -137,11 +138,13 @@ Click **Save profile** when done.
 
 ---
 
-### Step 4 — Set the profile active
+### Step 4 — Arm the profile
 
-Saving a profile does **not** select it. On the Strategy page, find your profile
-in the list and click **Set active**. The bot only ever runs the *active*
-profile. The active one shows an `active` chip.
+Saving a profile does **not** start it trading. On the Strategy page, find your
+profile in the **Strategies** panel and click **Arm**. The bot runs **all armed
+profiles concurrently** (one per symbol); **Disarm** stops one (its open
+position is flattened first). The per-profile **live-eligible** flag decides
+whether that strategy may open trades once the portfolio is switched to LIVE.
 
 ---
 
@@ -249,6 +252,26 @@ to `0.45` because there are now three signals contributing.
 In the form, enable the **Kronos Forecast** toggle and set Weight `0.3`,
 Forecast bars `4`, Bullish threshold `0.02`. The model
 (`NeoQuasar/Kronos-small`) is already baked into the Docker image's cache.
+
+---
+
+## Discover, Brain & Health
+
+Three pages automate the manual loop above:
+
+- **Discover** sweeps the archived history of the whole universe (or your
+  watchlist) against the built-in strategy archetypes, ranks the results by
+  expectancy, and flags combos that are *eligible now* (good history + regime
+  OK). One click on **Arm** saves and arms that combo as a `disc-…` profile.
+- **Brain** is the local-LLM decision console. **Recommend now** asks the
+  model (configurable, e.g. `qwen3.5:9b` via Ollama) for proposals — arm /
+  disarm / tune / settings — each pre-screened by hard guardrails. Everything
+  is **recommend-only** unless you enable Autonomous mode; `ui_fix`/`doc_fix`
+  findings can never be auto-applied — review them, fix manually, dismiss.
+- **Health** shows what the usage agent (`python -m swingbot.selftest`) found
+  on its last run: per-session step traces, screenshots, and **drift
+  findings** — places where this Guide or the specs disagree with what the app
+  actually does.
 
 ---
 

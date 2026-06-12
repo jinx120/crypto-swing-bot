@@ -72,11 +72,10 @@ EXPECTATIONS: dict[str, Expectation] = {e.key: e for e in [
 
 
 # (visible text, hash route, guide section) — S6 checks each renders in the DOM.
-# Task 10 rewrites the Guide; keep this list in sync with it (that task updates
-# the entries marked stale below).
+# Keep this list in sync with frontend/src/guide.md.
 GUIDE_AFFORDANCES: list[tuple[str, str, str]] = [
     ("Save profile",     "/#/strategy",  '§"Step 3 — Build a strategy profile"'),
-    ("Set active",       "/#/strategy",  '§"Step 4 — Set the profile active"'),  # stale: removed in A — S6 must flag this until Task 10
+    ("Arm",              "/#/strategy",  '§"Step 4 — Arm the profile"'),
     ("Save credentials", "/#/settings",  '§"Step 2 — Connect your Alpaca account (paper)"'),
     ("Start bot",        "/#/dashboard", '§"Step 5 — Start the bot"'),
     ("HALT",             "/#/dashboard", '§"Controls reference"'),

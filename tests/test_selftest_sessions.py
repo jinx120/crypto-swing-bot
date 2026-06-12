@@ -71,14 +71,14 @@ def test_s1_goto_failure_is_failed_step_not_crash():
 
 
 def test_s6_flags_missing_affordance():
-    # Everything present except the stale "Set active" button.
+    # Everything present except the "Arm" button.
     present = ["text=Save profile", "text=Save credentials", "text=Start bot",
                "text=HALT", "text=Flatten"]
     trace = GuideReconciliationSession().run(FakePage(present), _ctx())
     assert trace.session == "s6-guide" and not trace.ok
     bad = [s for s in trace.steps if not s.ok]
     assert len(bad) == 1
-    assert "Set active" in bad[0].detail
+    assert "Arm" in bad[0].detail
     assert bad[0].expectation_key == "s6.affordance-exists"
 
 

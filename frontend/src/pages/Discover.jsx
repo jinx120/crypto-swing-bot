@@ -20,6 +20,7 @@ export default function Discover() {
   const [windows, setWindows] = useState([{ key: 'full', label: 'Full history' }])
   const [window, setWindow] = useState('full')
   const [scope, setScope] = useState('universe')
+  const [toast, setToast] = useState('')
 
   const load = useCallback(async () => {
     try { setData(await api.getDiscovery()) } catch { /* keep prior */ }
@@ -44,7 +45,8 @@ export default function Discover() {
 
   const arm = async (row) => {
     await api.armDiscovery(row.symbol, row.archetype, window)
-    alert(`Armed ${row.symbol} · ${row.label}`)
+    setToast(`Armed ${row.symbol} · ${row.label}`)
+    setTimeout(() => setToast(''), 4000)
   }
 
   // group rows by coin
@@ -67,6 +69,7 @@ export default function Discover() {
         <span className="discover-fresh">computed {ago(data.computed_at)}</span>
       </div>
 
+      {toast && <p className="pos" role="status">{toast}</p>}
       {data.error && <p className="discover-error">Last sweep error: {data.error}</p>}
       {data.rows.length === 0 && data.status !== 'computing' &&
         <p className="muted">No results yet — hit Refresh to sweep the universe.</p>}
