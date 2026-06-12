@@ -4,18 +4,24 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-12
 
 ---
 
 ## ▶ NEXT ACTION
 
-**Sub-project D is ✅ DONE.** All sub-projects (A → B1 → B2 → C → D) complete.
+**Sub-project E (Usage Agent) is specced — awaiting user review of the spec, then write the plan.**
 
-The platform roadmap is fully delivered. Next session can either:
-1. **Run the selftest CLI** against the live container: `python -m swingbot.selftest --no-llm` (smoke run)
-2. **Schedule the selftest** via `/schedule` for nightly execution
-3. **Start a new sub-project** — brainstorm the next improvement area
+Spec: `docs/superpowers/specs/2026-06-12-subproject-e-usage-agent-design.md` — scripted usage
+sessions (live read-only tier + ephemeral mutating tier on :8001), intent-vs-actual drift
+findings (`doc_fix`/`ui_fix` proposals, `source="usage-agent"`) into C's inbox, new **Health**
+tab, DEVLOG/ROADMAP auto-updates. Motivated by the 2026-06-12 audit (see spec §"Review-pass
+findings"): D's probe never rendered Discover/Brain (no URL routing → 404s), stale in-app
+Guide ("Set active" flow no longer exists), `ui_fix` Apply dead-end, selftest `tune`
+guardrail bypass, stale HANDOVER.md.
+
+Once the spec is approved: load `superpowers:writing-plans`, write
+`docs/superpowers/plans/2026-06-12-subproject-e-usage-agent.md`, then execute.
 
 **Housekeeping:** Sub-projects A, B1, B2, C are committed **and pushed to `origin/master`**.
 Sub-project D is committed locally (master) — **push when ready** (`git push origin master`).
@@ -33,6 +39,7 @@ The brain's default `brain_ollama_url` (`localhost:11434`) does not work inside 
 | B2 | Auto-strategy discovery | ✅ **DONE** | `specs/2026-06-03-subproject-b-phase2-discovery-design.md` | `plans/2026-06-03-subproject-b-phase2-discovery.md` (10 tasks, all boxes ✓) | sweep→rank→"eligible now"→`/api/discovery`→Discover panel; committed locally (not pushed) |
 | C | Ollama decision brain | ✅ **DONE** (live-verified) | `specs/2026-06-04-subproject-c-decision-brain-design.md` | `plans/2026-06-04-subproject-c-decision-brain.md` (11 tasks, all boxes ✓) | `decision/` pkg → qwen2.5; recommend-only default + autonomous toggle; Brain page. **Pushed to origin** |
 | D | Self-test gate + LLM proposals | ✅ **DONE** | `specs/2026-06-03-subproject-d-self-test-gate-design.md` | `plans/2026-06-03-subproject-d-self-test-gate.md` (8 tasks, all ✓) | `selftest/` pkg; `python -m swingbot.selftest`; pytest+ruff+npm gate + Playwright probe → SELFTEST_REPORT.md + DEVLOG; green→qwen3.5:9b proposals into C's inbox; 328 passed |
+| E | Usage Agent (usage sessions + drift detection) | 📝 **SPECCED** (awaiting review) | `specs/2026-06-12-subproject-e-usage-agent-design.md` | — (next: write plan) | drives the app as a user would; reconciles vs Guide/specs; drift → `doc_fix`/`ui_fix` proposals in C's inbox; Health tab |
 
 Paths are under `docs/superpowers/`. Roadmap spec: `docs/superpowers/specs/2026-06-02-platform-improvement-roadmap-design.md`.
 
