@@ -1,6 +1,6 @@
 import os
 import tempfile
-from swingbot.selftest import UIFinding
+from swingbot.selftest import SessionStep, SessionTrace, UIFinding
 from swingbot.selftest.runner import SelfTestConfig, run
 
 
@@ -17,6 +17,9 @@ def _cfg(tmp: str, skip_llm: bool = True) -> SelfTestConfig:
         proposal_store_path=os.path.join(tmp, "proposals.json"),
         discord_webhook_getter=lambda: None,
         skip_llm=skip_llm,
+        agent_dir=os.path.join(tmp, "agent"),
+        roadmap_path=os.path.join(tmp, "ROADMAP_STATUS.md"),
+        run_sessions=False,            # opt in per test; real default is True
     )
 
 
@@ -103,3 +106,58 @@ def test_crash_in_probe_returns_2():
             raise RuntimeError("playwright exploded")
         exit_code = run(_cfg(tmp), runner_fn=_OK_RUNNER, probe_fn=boom, llm_fn=_NO_LLM)
         assert exit_code == 2
+
+
+def _ok_trace(name="s1-tabs"):
+    return SessionTrace(session=name, ok=True,
+                        steps=[SessionStep(desc="x", action="goto", ok=True)])
+
+
+def _drift_trace():
+    return SessionTrace(session="s6-guide", ok=False, steps=[SessionStep(
+        desc="check", action="assert", ok=False,
+        detail="missing", expectation_key="s6.affordance-exists")])
+
+
+def test_session_infra_failure_is_red():
+    with tempfile.TemporaryDirectory() as tmp:
+        cfg = _cfg(tmp)
+        cfg.run_sessions = True
+        rc = run(cfg, runner_fn=_OK_RUNNER, probe_fn=_NO_FINDINGS,
+                 sessions_fn=lambda config: ([], False), llm_fn=_NO_LLM)
+        assert rc == 1
+
+
+def test_drift_only_stays_green_and_stores_proposals():
+    with tempfile.TemporaryDirectory() as tmp:
+        cfg = _cfg(tmp)
+        cfg.run_sessions = True
+        rc = run(cfg, runner_fn=_OK_RUNNER, probe_fn=_NO_FINDINGS,
+                 sessions_fn=lambda config: ([_drift_trace()], True), llm_fn=_NO_LLM)
+        assert rc == 0
+        from swingbot.decision.proposals import ProposalStore
+        rows = ProposalStore(cfg.proposal_store_path).all()
+        assert any(p.source == "usage-agent" and p.action == "doc_fix" for p in rows)
+
+
+def test_agent_run_persisted():
+    with tempfile.TemporaryDirectory() as tmp:
+        cfg = _cfg(tmp)
+        cfg.run_sessions = True
+        run(cfg, runner_fn=_OK_RUNNER, probe_fn=_NO_FINDINGS,
+            sessions_fn=lambda config: ([_ok_trace()], True), llm_fn=_NO_LLM)
+        from swingbot.selftest.agentstore import AgentRunStore
+        latest = AgentRunStore(cfg.agent_dir).latest()
+        assert latest["green"] is True
+        assert latest["traces"][0]["session"] == "s1-tabs"
+
+
+def test_no_sessions_flag_skips_stage():
+    with tempfile.TemporaryDirectory() as tmp:
+        cfg = _cfg(tmp)
+        cfg.run_sessions = False
+        called = []
+        rc = run(cfg, runner_fn=_OK_RUNNER, probe_fn=_NO_FINDINGS,
+                 sessions_fn=lambda config: called.append(1) or ([], True),
+                 llm_fn=_NO_LLM)
+        assert rc == 0 and called == []

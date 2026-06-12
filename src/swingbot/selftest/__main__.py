@@ -20,6 +20,8 @@ def main() -> None:
     parser.add_argument("--ollama-url",     default="http://172.17.0.1:11434")
     parser.add_argument("--ollama-model",   default="qwen3.5:9b")
     parser.add_argument("--ollama-timeout", type=float, default=120.0)
+    parser.add_argument("--no-sessions",    action="store_true")
+    parser.add_argument("--ephemeral-port", type=int, default=8001)
     args = parser.parse_args()
 
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -34,9 +36,15 @@ def main() -> None:
         ollama_url=args.ollama_url,
         ollama_model=args.ollama_model,
         ollama_timeout_s=args.ollama_timeout,
-        proposal_store_path=os.path.join(DATA_DIR, "proposals.json"),
+        # The web app's brain inbox reads brain_proposals.json — writing to
+        # proposals.json would hide selftest/usage-agent proposals from the UI.
+        proposal_store_path=os.path.join(DATA_DIR, "brain_proposals.json"),
         discord_webhook_getter=profiles.get_discord_webhook,
         skip_llm=args.no_llm,
+        agent_dir=os.path.join(DATA_DIR, "agent"),
+        roadmap_path=os.path.join(PROJECT_ROOT, "docs", "ROADMAP_STATUS.md"),
+        run_sessions=not args.no_sessions,
+        ephemeral_port=args.ephemeral_port,
     )
     sys.exit(run(config))
 
