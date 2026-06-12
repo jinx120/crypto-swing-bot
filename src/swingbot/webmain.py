@@ -18,6 +18,7 @@ from swingbot.web import create_app
 
 HOST = os.environ.get("SWINGBOT_HOST", "127.0.0.1")
 DATA_DIR = os.environ.get("SWINGBOT_DATA_DIR", os.path.expanduser("~/.swingbot"))
+PORT = int(os.environ.get("SWINGBOT_PORT", "8000"))
 
 
 def _ensure_token(path: str) -> str:
@@ -94,8 +95,8 @@ def main() -> None:
     brain.get_discovery = lambda: app.state.discovery
     app.state.archive_config = archive_cfg
     print(f"[swingbot-web] token: {token}")
-    print(f"[swingbot-web] http://{HOST}:8000")
-    uvicorn.run(app, host=HOST, port=8000)
+    print(f"[swingbot-web] http://{HOST}:{PORT}")
+    uvicorn.run(app, host=HOST, port=PORT)
 
 
 if __name__ == "__main__":
