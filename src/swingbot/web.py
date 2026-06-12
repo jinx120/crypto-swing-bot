@@ -6,6 +6,7 @@ import threading
 import time
 
 from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -89,7 +90,7 @@ class WebhookBody(BaseModel):
 
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
                backfiller=None, discovery=None, discovery_cache_path=None,
-               brain=None) -> FastAPI:
+               brain=None, agent_dir=None) -> FastAPI:
     app = FastAPI(title="swingbot")
 
     def require_token(x_token: str | None = Header(default=None)):
@@ -435,6 +436,39 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     def brain_get_webhook():
         configured = bool(profiles and profiles.get_discord_webhook())
         return {"configured": configured}            # never returns the URL
+
+    # ---- usage agent (read-only) ----
+    def _agent_store():
+        from swingbot.selftest.agentstore import AgentRunStore
+        return AgentRunStore(agent_dir) if agent_dir else None
+
+    @app.get("/api/agent/runs")
+    def agent_runs():
+        s = _agent_store()
+        if s is None:
+            return []
+        return [{"ts": r.get("ts"), "green": r.get("green"),
+                 "duration_s": r.get("duration_s"),
+                 "sessions": [{"session": t.get("session"), "ok": t.get("ok")}
+                              for t in r.get("traces", [])],
+                 "drift_count": len(r.get("drift", []))}
+                for r in s.all()]
+
+    @app.get("/api/agent/runs/latest")
+    def agent_latest():
+        s = _agent_store()
+        return (s.latest() if s else None) or {}
+
+    @app.get("/api/agent/artifacts/{name}")
+    def agent_artifact(name: str):
+        s = _agent_store()
+        if s is None:
+            raise HTTPException(status_code=404, detail="agent not configured")
+        shots = os.path.realpath(s.screenshot_dir)
+        path = os.path.realpath(os.path.join(shots, name))
+        if not path.startswith(shots + os.sep) or not os.path.isfile(path):
+            raise HTTPException(status_code=404, detail="no such artifact")
+        return FileResponse(path)
 
     # ---- archive (deep historical backfill) ----
     @app.get("/api/archive/status")

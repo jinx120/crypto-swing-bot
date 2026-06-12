@@ -104,6 +104,7 @@ _TAB_CHECKS = [
     ("/#/discover",  ".discover-controls"),
     ("/#/brain",     ".brain-title"),
     ("/#/settings",  "text=Alpaca credentials"),
+    ("/#/health",    "text=Last usage-agent run"),
     ("/#/guide",     ".guide"),
 ]
 

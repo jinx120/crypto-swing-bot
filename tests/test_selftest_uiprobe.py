@@ -120,7 +120,7 @@ def test_run_visits_all_routes():
 
 def test_routes_cover_all_tabs_via_hash():
     assert ROUTES == ["/#/dashboard", "/#/strategy", "/#/discover",
-                      "/#/brain", "/#/settings", "/#/guide"]
+                      "/#/brain", "/#/settings", "/#/health", "/#/guide"]
 
 
 def test_screenshot_name_strips_hash():

@@ -40,7 +40,8 @@ class FakePage:
 
 
 _ALL_S1 = ["text=Watchlist", "text=Save profile", ".discover-controls",
-           ".brain-title", "text=Alpaca credentials", ".guide"]
+           ".brain-title", "text=Alpaca credentials",
+           "text=Last usage-agent run", ".guide"]
 
 
 def _ctx():
@@ -50,7 +51,7 @@ def _ctx():
 def test_s1_all_tabs_render_ok():
     trace = TabNavigationSession().run(FakePage(_ALL_S1), _ctx())
     assert trace.session == "s1-tabs" and trace.ok
-    assert len(trace.steps) == 6
+    assert len(trace.steps) == 7
     assert all(s.ok for s in trace.steps)
 
 
@@ -66,7 +67,7 @@ def test_s1_missing_element_fails_step_with_expectation_key():
 
 def test_s1_goto_failure_is_failed_step_not_crash():
     trace = TabNavigationSession().run(FakePage(fail_goto=True), _ctx())
-    assert not trace.ok and len(trace.steps) == 6
+    assert not trace.ok and len(trace.steps) == 7
 
 
 def test_s6_flags_missing_affordance():

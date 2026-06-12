@@ -5,7 +5,7 @@ import os
 from swingbot.selftest import UIFinding
 
 ROUTES = ["/#/dashboard", "/#/strategy", "/#/discover",
-          "/#/brain", "/#/settings", "/#/guide"]
+          "/#/brain", "/#/settings", "/#/health", "/#/guide"]
 
 
 class UIProbe:

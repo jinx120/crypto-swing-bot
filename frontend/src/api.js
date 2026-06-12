@@ -70,4 +70,7 @@ export const api = {
   brainDismiss: (id) => req('POST', `/api/brain/proposals/${encodeURIComponent(id)}/dismiss`),
   brainWebhookStatus: () => req('GET', '/api/brain/webhook'),
   setBrainWebhook: (url) => req('PUT', '/api/brain/webhook', { url }),
+  // --- usage agent ---
+  agentRuns: () => req('GET', '/api/agent/runs'),
+  agentLatest: () => req('GET', '/api/agent/runs/latest'),
 }

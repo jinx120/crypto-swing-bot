@@ -91,7 +91,7 @@ def main() -> None:
                      token=token, store=store, market=market, backfiller=backfiller,
                      discovery=discovery,
                      discovery_cache_path=os.path.join(DATA_DIR, "discovery.json"),
-                     brain=brain)
+                     brain=brain, agent_dir=os.path.join(DATA_DIR, "agent"))
     brain.get_discovery = lambda: app.state.discovery
     app.state.archive_config = archive_cfg
     print(f"[swingbot-web] token: {token}")

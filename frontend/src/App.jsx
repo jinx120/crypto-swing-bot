@@ -5,12 +5,13 @@ import Strategy from './pages/Strategy.jsx'
 import Discover from './pages/Discover.jsx'
 import Brain from './pages/Brain.jsx'
 import Settings from './pages/Settings.jsx'
+import Health from './pages/Health.jsx'
 import Guide from './pages/Guide.jsx'
 import PortfolioBanner from './components/PortfolioBanner.jsx'
 import ControlBar from './components/ControlBar.jsx'
 import Hint from './components/Hint.jsx'
 
-const TABS = ['dashboard', 'strategy', 'discover', 'brain', 'settings', 'guide']
+const TABS = ['dashboard', 'strategy', 'discover', 'brain', 'settings', 'health', 'guide']
 const tabFromHash = () => {
   const h = window.location.hash.replace(/^#\/?/, '')
   return TABS.includes(h) ? h : 'dashboard'
@@ -59,6 +60,7 @@ export default function App(){
         <button className={tab==='discover'?'active':''} onClick={()=>setTab('discover')}>Discover</button>
         <button className={tab==='brain'?'active':''} onClick={()=>setTab('brain')}>Brain</button>
         <button className={tab==='settings'?'active':''} onClick={()=>setTab('settings')}>Settings</button>
+        <button className={tab==='health'?'active':''} onClick={()=>setTab('health')}>Health</button>
         <button className={`help ${tab==='guide'?'active':''}`} title="Trading guide" onClick={()=>setTab('guide')}>?</button>
         <span className={`mode ${live?'live':''}`}>{(state?.portfolio?.mode || 'paper').toUpperCase()}
           <Hint pos="below" text={live
@@ -81,6 +83,7 @@ export default function App(){
       {tab==='discover' && <Discover />}
       {tab==='brain' && <Brain />}
       {tab==='settings' && <Settings />}
+      {tab==='health' && <Health />}
       {tab==='guide' && <Guide />}
     </div>
   )
