@@ -152,5 +152,201 @@ class GuideReconciliationSession:
         return rec.finish()
 
 
+def _api_step(rec: SessionRecorder, ctx: SessionContext, desc: str, method: str,
+              path: str, body=None, ok_when=lambda st, js: st == 200,
+              expectation_key: str = "") -> tuple[bool, dict]:
+    try:
+        st, js = ctx.api(method, path, body)
+    except Exception as e:
+        return rec.step(desc, "api", False, detail=f"{method} {path}: {e}",
+                        expectation_key=expectation_key), {}
+    ok = bool(ok_when(st, js))
+    return rec.step(desc, "api", ok,
+                    detail="" if ok else f"{method} {path} -> {st} {str(js)[:200]}",
+                    expectation_key="" if ok else expectation_key), js
+
+
+# ---- S2: Guide's "5 steps" — build, (gated) backtest, arm, see it trading ----
+
+class GuidedStrategyFlowSession:
+    name = "s2-strategy-flow"
+    tier = "ephemeral"
+    PROFILE_NAME = "agent-s2-btc"
+
+    def run(self, page, ctx: SessionContext) -> SessionTrace:
+        rec = SessionRecorder(self.name)
+        ok, presets = _api_step(rec, ctx, "list presets", "GET", "/api/presets")
+        if not ok or not presets:
+            return rec.finish()
+        profile = dict(presets[0]["profile"])
+        profile["symbol"] = "BTC/USD"
+
+        # Ephemeral app has no Alpaca creds: the Guide documents the exact
+        # error this must produce (Guide §Step 2).
+        _api_step(rec, ctx, "backtest without creds gives documented error",
+                  "POST", "/api/strategy/backtest", {"profile": profile},
+                  ok_when=lambda st, js: st == 400 and
+                  "credentials" in str(js.get("detail", "")).lower(),
+                  expectation_key="s2.backtest-needs-creds")
+
+        _api_step(rec, ctx, "save preset-based profile", "POST", "/api/profiles",
+                  {"name": self.PROFILE_NAME, "profile": profile},
+                  expectation_key="s2.save-profile")
+        _api_step(rec, ctx, "arm the profile", "POST", "/api/strategies/arm",
+                  {"name": self.PROFILE_NAME},
+                  expectation_key="s2.arm-strategy")
+        _api_step(rec, ctx, "strategy lists as armed", "GET", "/api/strategies",
+                  ok_when=lambda st, js: st == 200 and any(
+                      r.get("name") == self.PROFILE_NAME and r.get("armed")
+                      for r in js),
+                  expectation_key="s2.arm-strategy")
+
+        if _goto(page, rec, ctx, "/#/dashboard", "s2.dashboard-shows-armed"):
+            _wait(page, rec, ctx, "/#/dashboard", "text=BTC/USD",
+                  "s2.dashboard-shows-armed", "s2-dashboard")
+        return rec.finish()
+
+
+# ---- S3: watchlist round-trip ----
+
+class WatchlistRoundTripSession:
+    name = "s3-watchlist"
+    tier = "ephemeral"
+
+    def run(self, page, ctx: SessionContext) -> SessionTrace:
+        rec = SessionRecorder(self.name)
+        ok, before = _api_step(rec, ctx, "read watchlist", "GET", "/api/watchlist",
+                               expectation_key="s3.watchlist-roundtrip")
+        if not ok:
+            return rec.finish()
+        base = list(before.get("symbols") or [])
+        _api_step(rec, ctx, "add ETH/USD", "PUT", "/api/watchlist",
+                  {"symbols": base + ["ETH/USD"]},
+                  ok_when=lambda st, js: st == 200 and "ETH/USD" in js.get("symbols", []),
+                  expectation_key="s3.watchlist-roundtrip")
+        if _goto(page, rec, ctx, "/#/dashboard", "s3.watchlist-roundtrip"):
+            _wait(page, rec, ctx, "/#/dashboard", "text=ETH/USD",
+                  "s3.watchlist-roundtrip", "s3-watchlist")
+        _api_step(rec, ctx, "restore watchlist", "PUT", "/api/watchlist",
+                  {"symbols": base},
+                  ok_when=lambda st, js: st == 200 and js.get("symbols") == base,
+                  expectation_key="s3.watchlist-roundtrip")
+        return rec.finish()
+
+
+# ---- S4: portfolio settings persistence ----
+
+class SettingsPersistenceSession:
+    name = "s4-settings"
+    tier = "ephemeral"
+
+    def run(self, page, ctx: SessionContext) -> SessionTrace:
+        rec = SessionRecorder(self.name)
+        ok, before = _api_step(rec, ctx, "read settings", "GET",
+                               "/api/portfolio/settings",
+                               expectation_key="s4.settings-persist")
+        if not ok:
+            return rec.finish()
+        old = before.get("max_concurrent", 5)
+        new = old + 2
+        _api_step(rec, ctx, f"set max_concurrent={new}", "PUT",
+                  "/api/portfolio/settings", {"max_concurrent": new},
+                  ok_when=lambda st, js: st == 200 and js.get("max_concurrent") == new,
+                  expectation_key="s4.settings-persist")
+        _api_step(rec, ctx, "re-read shows persisted value", "GET",
+                  "/api/portfolio/settings",
+                  ok_when=lambda st, js: st == 200 and js.get("max_concurrent") == new,
+                  expectation_key="s4.settings-persist")
+        _api_step(rec, ctx, "restore", "PUT", "/api/portfolio/settings",
+                  {"max_concurrent": old},
+                  ok_when=lambda st, js: st == 200 and js.get("max_concurrent") == old,
+                  expectation_key="s4.settings-persist")
+        return rec.finish()
+
+
+# ---- S5: brain inbox flow ----
+
+def _seed_rows(archetype_key: str) -> list[dict]:
+    base = {"created_at": 1, "rationale": "agent seed", "confidence": 0.9,
+            "status": "pending", "applied_at": None, "source": "usage-agent"}
+    return [
+        {**base, "id": "agent-s5-arm", "action": "arm",
+         "target": {"symbol": "BTC/USD", "archetype": archetype_key},
+         "guardrail_status": "approved", "guardrail_reason": ""},
+        {**base, "id": "agent-s5-tune", "action": "tune",
+         "target": {"symbol": "BTC/USD", "archetype": archetype_key,
+                    "params": {"entry_threshold": 0.5}},
+         "guardrail_status": "blocked",
+         "guardrail_reason": "guardrail-test-reason"},
+        {**base, "id": "agent-s5-uifix", "action": "ui_fix",
+         "target": {"route": "/#/dashboard", "issue": "agent seed"},
+         "guardrail_status": "approved", "guardrail_reason": ""},
+    ]
+
+
+class BrainInboxSession:
+    name = "s5-brain-inbox"
+    tier = "ephemeral"
+
+    def run(self, page, ctx: SessionContext) -> SessionTrace:
+        rec = SessionRecorder(self.name)
+        ok, presets = _api_step(rec, ctx, "list presets", "GET", "/api/presets")
+        if not ok or not presets:
+            return rec.finish()
+        arch = presets[0]["key"]
+
+        if ctx.seed_proposals is None:
+            rec.step("seed proposals", "api", False,
+                     detail="no seed_proposals hook on context")
+            return rec.finish()
+        ctx.seed_proposals(_seed_rows(arch))
+        rec.step("seed 3 proposals into inbox", "api", True)
+
+        _api_step(rec, ctx, "inbox shows seeded proposals", "GET",
+                  "/api/brain/proposals",
+                  ok_when=lambda st, js: st == 200 and
+                  {"agent-s5-arm", "agent-s5-tune", "agent-s5-uifix"} <=
+                  {p.get("id") for p in js},
+                  expectation_key="s5.apply-approved-arm")
+        _api_step(rec, ctx, "apply approved arm", "POST",
+                  "/api/brain/proposals/agent-s5-arm/apply",
+                  ok_when=lambda st, js: st == 200 and js.get("ok"),
+                  expectation_key="s5.apply-approved-arm")
+        _api_step(rec, ctx, "applied arm armed the strategy", "GET",
+                  "/api/strategies",
+                  ok_when=lambda st, js: st == 200 and any(
+                      r.get("name", "").startswith("disc-btcusd") and r.get("armed")
+                      for r in js),
+                  expectation_key="s5.apply-approved-arm")
+        _api_step(rec, ctx, "dismiss blocked tune", "POST",
+                  "/api/brain/proposals/agent-s5-tune/dismiss",
+                  ok_when=lambda st, js: st == 200 and js.get("ok"),
+                  expectation_key="s5.dismiss-leaves-others")
+        _api_step(rec, ctx, "ui_fix still pending after dismiss", "GET",
+                  "/api/brain/proposals",
+                  ok_when=lambda st, js: st == 200 and any(
+                      p.get("id") == "agent-s5-uifix" and p.get("status") == "pending"
+                      for p in js),
+                  expectation_key="s5.dismiss-leaves-others")
+
+        if _goto(page, rec, ctx, "/#/brain", "s5.blocked-shows-reason"):
+            _wait(page, rec, ctx, "/#/brain", "text=guardrail-test-reason",
+                  "s5.blocked-shows-reason", "s5-brain")
+            apply_buttons = 0
+            try:
+                apply_buttons = page.locator('button:has-text("Apply")').count()
+            except Exception:
+                pass
+            rec.step("no Apply button for non-executable proposals", "assert",
+                     apply_buttons == 0,
+                     detail="" if apply_buttons == 0 else
+                     f"{apply_buttons} Apply button(s) rendered for "
+                     f"ui_fix/blocked proposals",
+                     expectation_key="" if apply_buttons == 0 else "s5.ui-fix-no-apply",
+                     screenshot_path="" if apply_buttons == 0 else _shoot(page, ctx, "s5-apply-dead-end"))
+        return rec.finish()
+
+
 LIVE_SESSIONS = [TabNavigationSession(), GuideReconciliationSession()]
-EPHEMERAL_SESSIONS: list = []   # filled in Task 6
+EPHEMERAL_SESSIONS = [GuidedStrategyFlowSession(), WatchlistRoundTripSession(),
+                      SettingsPersistenceSession(), BrainInboxSession()]
