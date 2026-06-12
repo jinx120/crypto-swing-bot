@@ -58,14 +58,33 @@ def test_arm_action_filtered_out():
     assert proposals == []
 
 
-def test_tune_proposal_runs_through_guardrails():
+def test_tune_proposal_deferred_to_live_brain():
     data = {"proposals": [{"action": "tune",
                            "target": {"symbol": "BTC/USD", "archetype": "balanced",
                                       "params": {"entry_threshold": 0.6}},
                            "rationale": "tighten entry", "confidence": 0.7}]}
     proposals = propose_from_health(_summary(), _client(data), _store(), _notifier())
     assert len(proposals) == 1
-    assert proposals[0].guardrail_status in ("approved", "blocked")
+    assert proposals[0].guardrail_status == "pending"
+    assert "deferred" in proposals[0].guardrail_reason
+
+
+def test_doc_fix_allowed_and_executable_actions_deferred():
+    data = {"proposals": [
+        {"action": "doc_fix",
+         "target": {"doc": "frontend/src/guide.md", "section": "§x",
+                    "expected": "e", "observed": "o", "suggestion": "s"},
+         "rationale": "stale doc", "confidence": 0.8},
+        {"action": "tune",
+         "target": {"symbol": "BTC/USD", "archetype": "balanced",
+                    "params": {"entry_threshold": 0.5}},
+         "rationale": "tighten", "confidence": 0.7},
+    ]}
+    proposals = propose_from_health(_summary(), _client(data), _store(), _notifier())
+    by_action = {p.action: p for p in proposals}
+    assert by_action["doc_fix"].guardrail_status == "approved"
+    assert by_action["tune"].guardrail_status == "pending"
+    assert "deferred" in by_action["tune"].guardrail_reason
 
 
 def test_empty_proposals_list_from_llm_returns_empty():

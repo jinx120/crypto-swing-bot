@@ -63,7 +63,7 @@ class DecisionBrain:
             if status == "blocked":
                 self.issues.add("blocked", f"{p.action} {p.target}: {reason}")
 
-        self.proposals.supersede_pending()
+        self.proposals.supersede_pending(keep_actions=frozenset(gr.NON_EXECUTABLE_ACTIONS))
         self.proposals.add_many(parsed)
         if parsed:
             self.notifier.send("proposals_ready", {"count": len(parsed), "source": source})
@@ -128,5 +128,9 @@ class DecisionBrain:
         elif p.action == "portfolio_settings":
             self.profiles.set_portfolio_settings(dict(p.target))
             self.controller.reload()
+        elif p.action in gr.NON_EXECUTABLE_ACTIONS:
+            raise ValueError(
+                f"{p.action} proposals are recommend-only: make the change "
+                f"manually, then dismiss the proposal")
         else:
             raise ValueError(f"unknown action {p.action!r}")

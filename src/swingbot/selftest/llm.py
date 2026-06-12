@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import datetime
 
-from swingbot.decision.guardrails import evaluate
+from swingbot.decision.guardrails import NON_EXECUTABLE_ACTIONS
 from swingbot.decision.ollama import OllamaClient
 from swingbot.decision.proposals import Proposal, ProposalStore, make_proposal
 from swingbot.notify import DiscordNotifier
 from swingbot.selftest import HealthSummary
 
-_ALLOWED_ACTIONS = {"tune", "ui_fix", "portfolio_settings"}
+_ALLOWED_ACTIONS = {"tune", "ui_fix", "doc_fix", "portfolio_settings"}
 
 _SCHEMA = {
     "type": "object",
@@ -81,12 +81,14 @@ def propose_from_health(
             confidence=float(item.get("confidence", 0.5)),
         )
         p.source = "selftest"
-        if action == "ui_fix":
+        if action in NON_EXECUTABLE_ACTIONS:
             p.guardrail_status, p.guardrail_reason = "approved", ""
         else:
-            p.guardrail_status, p.guardrail_reason = evaluate(
-                p, {}, [], backtest_ok=lambda *_: True
-            )
+            # No live portfolio/backtest context here — an "approved" stamp
+            # would be a lie (audit finding #4). The live brain re-evaluates.
+            p.guardrail_status = "pending"
+            p.guardrail_reason = ("deferred: needs live portfolio context — "
+                                  "run Recommend on the Brain page to evaluate")
         proposals.append(p)
 
     if proposals:

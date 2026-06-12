@@ -15,6 +15,7 @@ function ConfBar({ value }) {
 }
 
 const STATUS_COLOR = { approved: 'var(--green)', blocked: 'var(--red)', pending: 'var(--amber)' }
+const NON_EXECUTABLE = ['ui_fix', 'doc_fix']
 
 export default function Brain() {
   const [proposals, setProposals] = useState([])
@@ -135,7 +136,7 @@ export default function Brain() {
             <div className="bp-rationale">{p.rationale}</div>
             {p.status === 'pending' && (
               <div className="bp-actions">
-                {p.guardrail_status === 'approved' && (
+                {p.guardrail_status === 'approved' && !NON_EXECUTABLE.includes(p.action) && (
                   <button className="act" onClick={async () => { await api.brainApply(p.id); refresh() }}>Apply</button>
                 )}
                 <button className="act danger" onClick={async () => { await api.brainDismiss(p.id); refresh() }}>Dismiss</button>

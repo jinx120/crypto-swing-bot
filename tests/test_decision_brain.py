@@ -1,6 +1,6 @@
 from swingbot.decision.brain import DecisionBrain
 from swingbot.decision.ollama import OllamaResult
-from swingbot.decision.proposals import IssueLog, ProposalStore
+from swingbot.decision.proposals import IssueLog, ProposalStore, make_proposal
 
 
 class FakeOllama:
@@ -111,3 +111,29 @@ def test_daily_summary_counts_and_notifies(tmp_path):
     brain.recommend()
     s = brain.daily_summary()
     assert s["pending"] == 1 and "daily_summary" in events
+
+
+def test_apply_non_executable_action_returns_clear_error(tmp_path):
+    brain = _brain(tmp_path, FakeOllama(OllamaResult(ok=True, data={})))
+    p = make_proposal("ui_fix", {"route": "/#/x", "issue": "y"}, "r", 0.9)
+    p.guardrail_status = "approved"
+    brain.proposals.add_many([p])
+    res = brain.apply(p.id)
+    assert res["ok"] is False
+    assert "recommend-only" in res["error"]
+    assert brain.proposals.get(p.id).status == "pending"   # not marked applied
+
+
+def test_recommend_supersede_keeps_usage_agent_findings_pending(tmp_path):
+    data = {"proposals": [{"action": "arm",
+            "target": {"symbol": "BTC/USD", "archetype": "balanced"},
+            "rationale": "good", "confidence": 0.9}]}
+    brain = _brain(tmp_path, FakeOllama(OllamaResult(ok=True, data=data)))
+    finding = make_proposal("ui_fix", {"route": "/#/x", "issue": "y"}, "drift", 0.9)
+    finding.source = "usage-agent"
+    finding.guardrail_status = "approved"
+    brain.proposals.add_many([finding])
+    brain.recommend()
+    by_action = {p.action: p for p in brain.proposals.all()}
+    assert by_action["ui_fix"].status == "pending"   # finding survives recommend
+    assert by_action["arm"].status == "pending"      # fresh batch stored

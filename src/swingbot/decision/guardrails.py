@@ -14,6 +14,8 @@ SETTINGS_BOUNDS = {
     "max_total_deployed_frac": (0.0, 0.90),
     "portfolio_daily_loss_limit_pct": (0.0, 0.20),
 }
+# Findings-style proposals: always recommend-only, never auto-applied.
+NON_EXECUTABLE_ACTIONS = {"ui_fix", "doc_fix"}
 _OPEN = "approved", ""
 
 
@@ -66,7 +68,7 @@ def evaluate(p: Proposal, ctx: dict, eligible_rows: list[dict], backtest_ok) -> 
                 return _block(f"{field}={val} out of bounds [{lo}, {hi}]")
         return _OPEN
 
-    if p.action == "ui_fix":
-        return _OPEN   # always recommend-only; selftest never auto-applies
+    if p.action in NON_EXECUTABLE_ACTIONS:
+        return _OPEN   # recommend-only; apply is rejected at dispatch
 
     return _block(f"unknown action {p.action!r}")

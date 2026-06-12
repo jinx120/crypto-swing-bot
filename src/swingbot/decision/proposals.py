@@ -63,10 +63,10 @@ class ProposalStore:
             existing[p.id] = p                       # newest wins on id collision
         _atomic_write(self.path, [asdict(p) for p in existing.values()])
 
-    def supersede_pending(self) -> None:
+    def supersede_pending(self, keep_actions: frozenset[str] = frozenset()) -> None:
         rows = self.all()
         for p in rows:
-            if p.status == "pending":
+            if p.status == "pending" and p.action not in keep_actions:
                 p.status = "superseded"
         _atomic_write(self.path, [asdict(p) for p in rows])
 

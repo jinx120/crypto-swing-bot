@@ -1,3 +1,4 @@
+from swingbot.decision.guardrails import NON_EXECUTABLE_ACTIONS
 from swingbot.decision.guardrails import evaluate
 from swingbot.decision.proposals import make_proposal
 
@@ -58,3 +59,10 @@ def test_portfolio_settings_clamp():
 def test_ui_fix_always_approved():
     p = make_proposal("ui_fix", {"route": "/", "issue": "console error"}, "r", 0.8, now=1)
     assert _ev(p) == ("approved", "")
+
+
+def test_doc_fix_and_ui_fix_are_non_executable_and_approved():
+    assert NON_EXECUTABLE_ACTIONS == {"ui_fix", "doc_fix"}
+    for action in NON_EXECUTABLE_ACTIONS:
+        p = make_proposal(action, {"doc": "x"}, "r", 0.9)
+        assert evaluate(p, {}, [], backtest_ok=lambda *a: True) == ("approved", "")
