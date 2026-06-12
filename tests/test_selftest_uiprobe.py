@@ -118,5 +118,14 @@ def test_run_visits_all_routes():
     assert set(visited) == set(ROUTES)
 
 
-def test_routes_are_dashboard_discover_brain():
-    assert ROUTES == ["/", "/discover", "/brain"]
+def test_routes_cover_all_tabs_via_hash():
+    assert ROUTES == ["/#/dashboard", "/#/strategy", "/#/discover",
+                      "/#/brain", "/#/settings", "/#/guide"]
+
+
+def test_screenshot_name_strips_hash():
+    probe = _make_probe()
+    page = FakePage()
+    _fire_during_goto(page, "pageerror", Exception("oops"))
+    result = probe.probe_route("/#/discover", page)
+    assert all("discover.png" in f.screenshot_path for f in result)

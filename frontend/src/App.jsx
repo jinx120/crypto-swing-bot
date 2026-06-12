@@ -10,8 +10,20 @@ import PortfolioBanner from './components/PortfolioBanner.jsx'
 import ControlBar from './components/ControlBar.jsx'
 import Hint from './components/Hint.jsx'
 
+const TABS = ['dashboard', 'strategy', 'discover', 'brain', 'settings', 'guide']
+const tabFromHash = () => {
+  const h = window.location.hash.replace(/^#\/?/, '')
+  return TABS.includes(h) ? h : 'dashboard'
+}
+
 export default function App(){
-  const [tab, setTab] = useState('dashboard')
+  const [tab, setTabState] = useState(tabFromHash)
+  const setTab = (t) => { window.location.hash = `#/${t}` }
+  useEffect(() => {
+    const onHash = () => setTabState(tabFromHash())
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
   const [state, setState] = useState(null)
   const [trades, setTrades] = useState([])
   const [metrics, setMetrics] = useState(null)

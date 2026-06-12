@@ -4,7 +4,8 @@ import os
 
 from swingbot.selftest import UIFinding
 
-ROUTES = ["/", "/discover", "/brain"]
+ROUTES = ["/#/dashboard", "/#/strategy", "/#/discover",
+          "/#/brain", "/#/settings", "/#/guide"]
 
 
 class UIProbe:
@@ -14,7 +15,7 @@ class UIProbe:
 
     def probe_route(self, route: str, page) -> list[UIFinding]:
         findings: list[UIFinding] = []
-        shot_name = route.strip("/") or "index"
+        shot_name = route.replace("#", "").strip("/").replace("/", "-") or "index"
         shot_path = os.path.join(self.screenshot_dir, f"{shot_name}.png")
 
         def on_console(msg):
