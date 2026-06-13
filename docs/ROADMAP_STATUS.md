@@ -10,6 +10,23 @@
 
 ## ▶ NEXT ACTION
 
+**Visible Autonomous Entry — Phase 0/1 (safety hardening) is DONE (2026-06-13).** Plan
+`plans/2026-06-13-visible-autonomous-entry-phase-0-1.md` executed end-to-end; all 6 tasks
+committed on `master` (broker-truth fix `1f47b94`, supervisor lifecycle `f02228f`, FastAPI
+lifespan `db0a6c4`, plus this roadmap commit). Full suite **394 passed, 6 skipped**; frontend
+builds; container rebuilt + restarted with clean lifespan startup **and** clean shutdown (no
+leaked-thread / duplicate-loop / poller errors). This phase deliberately does **not** auto-start
+the supervisor — it only makes the loop safe to run autonomously later: state mutations serialized
+by `_state_lock`, lifecycle transitions serialized by `_lifecycle_lock`, interruptible/idempotent
+stop, race-safe `set_mode`, confirmed-404-only broker position truth, and FastAPI lifespan as sole
+owner of poller start/stop + supervisor shutdown.
+
+**NEXT: write the Phase 2 plan** — persisted desired-running state + paper-mode auto-resume on
+boot (so the bot actually starts trading after a container rebuild), building on the Phase 0/1
+safety primitives. Spec basis: `specs/2026-06-13-visible-autonomous-entry-design-reviewed.md`.
+
+---
+
 **Sub-project E is DONE and live-verified** (full gate green, 6/6 usage sessions pass, 0 drift;
 Health tab confirmed live). The platform roadmap A→E is complete. Suggested next steps:
 
