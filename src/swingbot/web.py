@@ -317,11 +317,22 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
             controller.start()
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
+        if hasattr(controller, "mark_desired"):
+            controller.mark_desired(True)   # persist desire only after a successful start
         return {"ok": True}
 
     @app.post("/api/control/stop")
     def control_stop(_=Depends(require_token)):
-        controller.stop(); return {"ok": True}
+        if hasattr(controller, "mark_desired"):
+            controller.mark_desired(False)  # clear desire first, then stop
+        controller.stop()
+        return {"ok": True}
+
+    @app.get("/api/control/lifecycle")
+    def control_lifecycle():
+        if hasattr(controller, "lifecycle_state"):
+            return controller.lifecycle_state()
+        return {}
 
     @app.post("/api/control/flatten")
     def control_flatten(_=Depends(require_token)):
