@@ -4,6 +4,7 @@ import threading
 import time
 import traceback
 from datetime import datetime, timezone
+from functools import wraps
 
 import pandas as pd
 
@@ -62,6 +63,14 @@ class CachedProvider:
         raise RuntimeError(f"no price available for {symbol}")
 
 
+def _state_locked(method):
+    @wraps(method)
+    def wrapped(self, *args, **kwargs):
+        with self._state_lock:
+            return method(self, *args, **kwargs)
+    return wrapped
+
+
 class PortfolioSupervisor:
     """Runs one Orchestrator per armed strategy in a single loop under a shared
     PortfolioRiskManager. The only component that talks to the broker/data upstream.
@@ -90,8 +99,14 @@ class PortfolioSupervisor:
         self._portfolio_risk: PortfolioRiskManager | None = None
         self._store: StateStore | None = None
         self._summary: dict = {}
+        # Lock order: lifecycle -> state. Never acquire lifecycle while holding state.
+        self._lifecycle_lock = threading.RLock()
+        self._state_lock = threading.RLock()
+        self._stop_event = threading.Event()
+        self._join_timeout = 2.0
 
     # ---- construction ----
+    @_state_locked
     def build(self) -> None:
         if self.market is None:
             raise RuntimeError("market must be provided (webmain wires MarketData)")
@@ -151,6 +166,7 @@ class PortfolioSupervisor:
         return on_close
 
     # ---- the loop ----
+    @_state_locked
     def tick_all(self, now: datetime | None = None) -> None:
         now = now or datetime.now(timezone.utc)
         self._warm(now)
@@ -216,6 +232,7 @@ class PortfolioSupervisor:
         }
 
     # ---- status + control surface (consumed by Phase 2 web layer) ----
+    @_state_locked
     def status(self) -> dict:
         strategies = []
         if self._strategies:
@@ -248,6 +265,23 @@ class PortfolioSupervisor:
         return {"portfolio": self._summary or {"mode": self.mode, "running": self._running},
                 "strategies": strategies}
 
+    def lifecycle_state(self) -> dict:
+        with self._lifecycle_lock:
+            thread_alive = bool(self._thread is not None and self._thread.is_alive())
+            running_flag = bool(self._running)
+            with self._state_lock:
+                halted = bool(
+                    self._portfolio_risk
+                    and self._portfolio_risk.state.kill_switch_active)
+                return {
+                    "mode": self.mode,
+                    "running_flag": running_flag,
+                    "thread_alive": thread_alive,
+                    "running_actual": running_flag and thread_alive,
+                    "paused": bool(self.paused),
+                    "halted": halted,
+                }
+
     # ---- aggregate journal + metrics ----
     def _trades(self, strategy: str | None = None) -> list:
         out = []
@@ -257,13 +291,16 @@ class PortfolioSupervisor:
             out.extend(s["orch"].journal.trades)
         return out
 
+    @_state_locked
     def journal(self, strategy: str | None = None) -> list[dict]:
         return [_trade_dict(t) for t in self._trades(strategy)]
 
+    @_state_locked
     def metrics(self, strategy: str | None = None) -> dict:
         return asdict(compute_metrics(self._trades(strategy)))
 
     # ---- controls ----
+    @_state_locked
     def halt(self) -> None:
         if not self._portfolio_risk or not self._store:
             return
@@ -274,6 +311,7 @@ class PortfolioSupervisor:
             self._summary["kill_switch"]["active"] = True
             self._summary["kill_switch"]["reason"] = "manual halt"
 
+    @_state_locked
     def reset(self) -> None:
         if not self._portfolio_risk or not self._store:
             return
@@ -284,6 +322,7 @@ class PortfolioSupervisor:
             self._summary["kill_switch"]["active"] = False
             self._summary["kill_switch"]["reason"] = ""
 
+    @_state_locked
     def flatten(self, name: str | None = None) -> None:
         targets = [name] if name else list(self._strategies)
         for n in targets:
@@ -292,28 +331,32 @@ class PortfolioSupervisor:
                 s["orch"].flatten()
 
     def set_mode(self, mode: str) -> tuple[bool, str]:
-        if mode not in ("paper", "live"):
-            return (False, "mode must be 'paper' or 'live'")
-        if mode == "live":
-            ok, reason = can_go_live(compute_metrics(self._trades()))
-            if not ok:
-                return (False, f"go-live blocked: {reason}")
-        was_running = self._running
-        prev_thread = self._thread  # capture before stop() clears it
-        self.stop()
-        self.mode = mode
-        self._broker = None
-        if was_running:
-            # Only restart if the previous loop thread has actually exited; a
-            # timed-out join leaves stop() with _running=False but the thread
-            # still alive, and start()'s `if self._running` guard won't fire.
-            if prev_thread is not None and prev_thread.is_alive():
-                return (False, "previous loop thread still alive; mode updated but not restarted")
-            self.start()
-        else:
-            self.build()
-        return (True, f"mode set to {mode}")
+        with self._lifecycle_lock:
+            if mode not in ("paper", "live"):
+                return (False, "mode must be 'paper' or 'live'")
 
+            with self._state_lock:
+                if mode == "live":
+                    ok, reason = can_go_live(compute_metrics(self._trades()))
+                    if not ok:
+                        return (False, f"go-live blocked: {reason}")
+                was_running = self._running
+
+            self.stop()
+            if self._thread is not None and self._thread.is_alive():
+                return (False, "previous loop thread still alive; mode unchanged")
+
+            with self._state_lock:
+                self.mode = mode
+                self._broker = None
+
+            if was_running:
+                self.start()
+            else:
+                self.build()
+            return (True, f"mode set to {mode}")
+
+    @_state_locked
     def reload(self) -> None:
         """Rebuild the live strategy set after arming/disarming or settings changes.
 
@@ -326,34 +369,63 @@ class PortfolioSupervisor:
 
     # ---- lifecycle ----
     def start(self) -> None:
-        if self._running:
-            return
-        self.build()
-        for s in self._strategies.values():
-            s["orch"].reconcile(datetime.now(timezone.utc))
-        self._running = True
+        with self._lifecycle_lock:
+            if self._running:
+                return
+            if self._thread is not None and self._thread.is_alive():
+                raise RuntimeError(
+                    "previous loop thread still alive; refusing to start a second loop")
 
-        def loop():
-            while self._running:
-                try:
-                    self.tick_all()
-                except Exception as e:
-                    print(f"[supervisor] cycle error: {e}")
-                    traceback.print_exc()
-                time.sleep(self._poll_seconds())
+            with self._state_lock:
+                self.build()
+                for s in self._strategies.values():
+                    s["orch"].reconcile(datetime.now(timezone.utc))
 
-        self._thread = threading.Thread(target=loop, daemon=True)
-        self._thread.start()
+            self._stop_event.clear()
+            self._running = True
+            self._thread = threading.Thread(
+                target=self._run_loop, name="swingbot-supervisor", daemon=True)
+            try:
+                self._thread.start()
+            except Exception:
+                self._running = False
+                self._stop_event.set()
+                self._thread = None
+                raise
+
+    def _run_loop(self) -> None:
+        while not self._stop_event.is_set():
+            try:
+                self.tick_all()
+            except Exception as e:
+                print(f"[supervisor] cycle error: {e}")
+                traceback.print_exc()
+            with self._state_lock:
+                delay = self._poll_seconds()
+            if self._stop_event.wait(delay):
+                break
 
     def stop(self) -> None:
-        self._running = False
-        if self._thread:
-            self._thread.join(timeout=2)
-            self._thread = None
+        # Lifecycle lock remains held across join so concurrent start/set_mode
+        # cannot race this transition. Do not take the state lock here: a hung
+        # tick may hold it, and stop must still signal and time out.
+        with self._lifecycle_lock:
+            self._running = False
+            self._stop_event.set()
+            thread = self._thread
+            if thread is None:
+                return
+            if thread is threading.current_thread():
+                return
+            thread.join(timeout=self._join_timeout)
+            if not thread.is_alive() and self._thread is thread:
+                self._thread = None
 
+    @_state_locked
     def pause(self) -> None:
         self.paused = True
 
+    @_state_locked
     def resume(self) -> None:
         self.paused = False
         for s in self._strategies.values():
