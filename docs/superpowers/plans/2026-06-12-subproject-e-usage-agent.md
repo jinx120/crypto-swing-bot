@@ -55,7 +55,7 @@
 - Modify: `src/swingbot/selftest/uiprobe.py:7`
 - Test: `tests/test_selftest_uiprobe.py`
 
-- [ ] **Step 1: Update the ROUTES test to expect hash routes (failing test)**
+- [x] **Step 1: Update the ROUTES test to expect hash routes (failing test)**
 
 In `tests/test_selftest_uiprobe.py`, replace `test_routes_are_dashboard_discover_brain`:
 
@@ -73,12 +73,12 @@ def test_screenshot_name_strips_hash():
     assert all("discover.png" in f.screenshot_path for f in result)
 ```
 
-- [ ] **Step 2: Run to verify both fail**
+- [x] **Step 2: Run to verify both fail**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_uiprobe.py -q`
 Expected: 2 FAIL (`ROUTES == ["/", "/discover", "/brain"]`; screenshot name contains `#`).
 
-- [ ] **Step 3: Update uiprobe**
+- [x] **Step 3: Update uiprobe**
 
 In `src/swingbot/selftest/uiprobe.py` replace the `ROUTES` line and the `shot_name` line:
 
@@ -91,12 +91,12 @@ ROUTES = ["/#/dashboard", "/#/strategy", "/#/discover",
         shot_name = route.replace("#", "").strip("/").replace("/", "-") or "index"
 ```
 
-- [ ] **Step 4: Run uiprobe tests**
+- [x] **Step 4: Run uiprobe tests**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_uiprobe.py -q`
 Expected: all PASS.
 
-- [ ] **Step 5: Add hash routing to App.jsx**
+- [x] **Step 5: Add hash routing to App.jsx**
 
 In `frontend/src/App.jsx`, replace the `const [tab, setTab] = useState('dashboard')` line with:
 
@@ -122,12 +122,12 @@ const tabFromHash = () => {
 
 The existing nav buttons already call `setTab('…')` — unchanged. Initial load of `/` (no hash) renders dashboard as before.
 
-- [ ] **Step 6: Build frontend**
+- [x] **Step 6: Build frontend**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add frontend/src/App.jsx src/swingbot/selftest/uiprobe.py tests/test_selftest_uiprobe.py
@@ -143,7 +143,7 @@ git commit -m "feat(e): hash routing for all tabs; selftest probe now renders ev
 - Create: `src/swingbot/selftest/agentstore.py`
 - Test: `tests/test_selftest_agentstore.py`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Create `tests/test_selftest_agentstore.py`:
 
@@ -203,12 +203,12 @@ def test_creates_dirs_and_screenshot_dir(tmp_path):
     assert json.load(open(store.path))[0]["green"] is True
 ```
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_agentstore.py -q`
 Expected: FAIL — `ImportError` (no `agentstore`, no new dataclasses).
 
-- [ ] **Step 3: Add dataclasses to `src/swingbot/selftest/__init__.py`**
+- [x] **Step 3: Add dataclasses to `src/swingbot/selftest/__init__.py`**
 
 Append (note `field` import — change line 3 to `from dataclasses import dataclass, field`):
 
@@ -246,7 +246,7 @@ class DriftFinding:
     screenshot_path: str = ""
 ```
 
-- [ ] **Step 4: Create `src/swingbot/selftest/agentstore.py`**
+- [x] **Step 4: Create `src/swingbot/selftest/agentstore.py`**
 
 ```python
 from __future__ import annotations
@@ -292,12 +292,12 @@ class AgentRunStore:
         os.replace(tmp, self.path)
 ```
 
-- [ ] **Step 5: Run tests**
+- [x] **Step 5: Run tests**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_agentstore.py -q`
 Expected: 5 PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/swingbot/selftest/__init__.py src/swingbot/selftest/agentstore.py tests/test_selftest_agentstore.py
@@ -312,7 +312,7 @@ git commit -m "feat(e): session/drift dataclasses + AgentRunStore runs.json ring
 - Create: `src/swingbot/selftest/expectations.py`
 - Test: `tests/test_selftest_expectations.py`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Create `tests/test_selftest_expectations.py`:
 
@@ -345,12 +345,12 @@ def test_guide_affordances_shape():
         assert text and route.startswith("/#/") and section.startswith("§")
 ```
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_expectations.py -q`
 Expected: FAIL — `ModuleNotFoundError`.
 
-- [ ] **Step 3: Create `src/swingbot/selftest/expectations.py`**
+- [x] **Step 3: Create `src/swingbot/selftest/expectations.py`**
 
 ```python
 from __future__ import annotations
@@ -439,12 +439,12 @@ GUIDE_AFFORDANCES: list[tuple[str, str, str]] = [
 ]
 ```
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_expectations.py -q`
 Expected: 3 PASS. (If a spec filename assert fails, fix the path constant to the actual file under `docs/superpowers/specs/` — verify with `ls docs/superpowers/specs/`.)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/selftest/expectations.py tests/test_selftest_expectations.py
@@ -460,7 +460,7 @@ git commit -m "feat(e): expectations catalog with doc refs + guide affordance li
 - Create: `src/swingbot/selftest/ephemeral.py`
 - Test: `tests/test_selftest_ephemeral.py`
 
-- [ ] **Step 1: Make webmain's port configurable**
+- [x] **Step 1: Make webmain's port configurable**
 
 In `src/swingbot/webmain.py`, under the `DATA_DIR` line add:
 
@@ -475,7 +475,7 @@ and change the last two lines of `main()`:
     uvicorn.run(app, host=HOST, port=PORT)
 ```
 
-- [ ] **Step 2: Write failing tests**
+- [x] **Step 2: Write failing tests**
 
 Create `tests/test_selftest_ephemeral.py`:
 
@@ -603,12 +603,12 @@ def test_context_manager(tmp_path):
     assert not os.path.exists(os.path.join(str(tmp_path / "agent"), "ephemeral.pid"))
 ```
 
-- [ ] **Step 3: Run to verify failure**
+- [x] **Step 3: Run to verify failure**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_ephemeral.py -q`
 Expected: FAIL — `ModuleNotFoundError`.
 
-- [ ] **Step 4: Create `src/swingbot/selftest/ephemeral.py`**
+- [x] **Step 4: Create `src/swingbot/selftest/ephemeral.py`**
 
 ```python
 from __future__ import annotations
@@ -749,17 +749,17 @@ class EphemeralApp:
         return False
 ```
 
-- [ ] **Step 5: Run tests**
+- [x] **Step 5: Run tests**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_ephemeral.py -q`
 Expected: 7 PASS.
 
-- [ ] **Step 6: Sanity-run the full suite (webmain change)**
+- [x] **Step 6: Sanity-run the full suite (webmain change)**
 
 Run: `.venv/bin/python -m pytest -q`
 Expected: green (baseline + new tests, no regressions).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/swingbot/webmain.py src/swingbot/selftest/ephemeral.py tests/test_selftest_ephemeral.py
@@ -780,7 +780,7 @@ pages; unit tests pass fakes. The page surface used is only:
 `page.wait_for_selector(sel, timeout=...)` (raises when absent),
 `page.locator(sel).count()`, `page.screenshot(path=...)`.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Create `tests/test_selftest_sessions.py`:
 
@@ -874,12 +874,12 @@ def test_registries_partition_by_tier():
     assert all(s.tier == "ephemeral" for s in EPHEMERAL_SESSIONS)
 ```
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_sessions.py -q`
 Expected: FAIL — `ModuleNotFoundError`.
 
-- [ ] **Step 3: Create `src/swingbot/selftest/sessions.py` (framework + S1 + S6)**
+- [x] **Step 3: Create `src/swingbot/selftest/sessions.py` (framework + S1 + S6)**
 
 ```python
 from __future__ import annotations
@@ -1039,12 +1039,12 @@ LIVE_SESSIONS = [TabNavigationSession(), GuideReconciliationSession()]
 EPHEMERAL_SESSIONS: list = []   # filled in Task 6
 ```
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_sessions.py -q`
 Expected: 6 PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/selftest/sessions.py tests/test_selftest_sessions.py
@@ -1059,7 +1059,7 @@ git commit -m "feat(e): session framework + S1 tab navigation + S6 guide reconci
 - Modify: `src/swingbot/selftest/sessions.py`
 - Test: `tests/test_selftest_sessions.py` (extend)
 
-- [ ] **Step 1: Write failing tests (fake API + fake page)**
+- [x] **Step 1: Write failing tests (fake API + fake page)**
 
 Append to `tests/test_selftest_sessions.py`:
 
@@ -1220,12 +1220,12 @@ def test_ephemeral_registry_complete():
         "s2-strategy-flow", "s3-watchlist", "s4-settings", "s5-brain-inbox"]
 ```
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_sessions.py -q`
 Expected: new tests FAIL with `ImportError` (S2–S5 classes missing); Task 5 tests still PASS.
 
-- [ ] **Step 3: Implement S2–S5 in `src/swingbot/selftest/sessions.py`**
+- [x] **Step 3: Implement S2–S5 in `src/swingbot/selftest/sessions.py`**
 
 Add above the `LIVE_SESSIONS` line; then change `EPHEMERAL_SESSIONS`:
 
@@ -1432,12 +1432,12 @@ EPHEMERAL_SESSIONS = [GuidedStrategyFlowSession(), WatchlistRoundTripSession(),
                       SettingsPersistenceSession(), BrainInboxSession()]
 ```
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_sessions.py -q`
 Expected: all PASS (14 tests).
 
-- [ ] **Step 5: Ruff + commit**
+- [x] **Step 5: Ruff + commit**
 
 Run: `.venv/bin/python -m ruff check src/swingbot/selftest/sessions.py tests/test_selftest_sessions.py` — fix anything it flags.
 
@@ -1459,7 +1459,7 @@ git commit -m "feat(e): mutating sessions S2-S5 against the ephemeral instance"
 - Modify: `frontend/src/pages/Brain.jsx:136-143`
 - Test: `tests/test_decision_guardrails.py`, `tests/test_decision_brain.py`, `tests/test_selftest_llm.py` (extend), `tests/test_selftest_drift.py` (create)
 
-- [ ] **Step 1: Failing tests — guardrails + brain**
+- [x] **Step 1: Failing tests — guardrails + brain**
 
 Append to `tests/test_decision_guardrails.py`:
 
@@ -1515,12 +1515,12 @@ brain can never *produce* `ui_fix`/`doc_fix` itself (`prompt.py` `VALID_ACTIONS`
 drops them at parse), so autonomous mode cannot auto-apply findings — the
 `_dispatch` rejection below is defense-in-depth for manual/API apply calls.
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_guardrails.py tests/test_decision_brain.py -q`
 Expected: new tests FAIL (`ImportError: NON_EXECUTABLE_ACTIONS`; `_dispatch` raises generic `unknown action 'ui_fix'`).
 
-- [ ] **Step 3: Implement guardrails + brain changes**
+- [x] **Step 3: Implement guardrails + brain changes**
 
 `src/swingbot/decision/guardrails.py` — add near the top (after `SETTINGS_BOUNDS`):
 
@@ -1562,12 +1562,12 @@ and in `_dispatch`, before the final `else`:
                 f"manually, then dismiss the proposal")
 ```
 
-- [ ] **Step 4: Run brain/guardrail tests**
+- [x] **Step 4: Run brain/guardrail tests**
 
 Run: `.venv/bin/python -m pytest tests/test_decision_guardrails.py tests/test_decision_brain.py -q`
 Expected: PASS.
 
-- [ ] **Step 5: Failing tests — drift reconciliation**
+- [x] **Step 5: Failing tests — drift reconciliation**
 
 Create `tests/test_selftest_drift.py`:
 
@@ -1636,7 +1636,7 @@ def test_same_finding_twice_dedupes_by_id():
 Run: `.venv/bin/python -m pytest tests/test_selftest_drift.py -q`
 Expected: FAIL — `ModuleNotFoundError`.
 
-- [ ] **Step 6: Create `src/swingbot/selftest/drift.py`**
+- [x] **Step 6: Create `src/swingbot/selftest/drift.py`**
 
 ```python
 from __future__ import annotations
@@ -1702,7 +1702,7 @@ def findings_to_proposals(findings: list[DriftFinding]) -> list[Proposal]:
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_drift.py -q` → PASS.
 
-- [ ] **Step 7: Honest guardrail stamping in `selftest/llm.py` (+ tests)**
+- [x] **Step 7: Honest guardrail stamping in `selftest/llm.py` (+ tests)**
 
 In `tests/test_selftest_llm.py`, if any existing test asserts `tune` or
 `portfolio_settings` proposals get `guardrail_status == "approved"`, change
@@ -1751,7 +1751,7 @@ _ALLOWED_ACTIONS = {"tune", "ui_fix", "doc_fix", "portfolio_settings"}
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_llm.py -q` → PASS.
 
-- [ ] **Step 8: Hide Apply for non-executable actions in Brain.jsx**
+- [x] **Step 8: Hide Apply for non-executable actions in Brain.jsx**
 
 In `frontend/src/pages/Brain.jsx`, add at module level (under `STATUS_COLOR`):
 
@@ -1769,7 +1769,7 @@ and change the Apply-button condition inside the proposal card:
 
 Run: `cd frontend && npm run build` → succeeds.
 
-- [ ] **Step 9: Full suite + commit**
+- [x] **Step 9: Full suite + commit**
 
 Run: `.venv/bin/python -m pytest -q` and `.venv/bin/python -m ruff check .`
 Expected: green.
@@ -1796,7 +1796,7 @@ git commit -m "feat(e): doc_fix action + drift reconciliation; fix ui_fix Apply 
 - Modify: `src/swingbot/selftest/uiprobe.py` (`/#/health` route)
 - Test: `tests/test_web_agent.py` (create), `tests/test_selftest_uiprobe.py` (route list)
 
-- [ ] **Step 1: Write failing endpoint tests**
+- [x] **Step 1: Write failing endpoint tests**
 
 Create `tests/test_web_agent.py` (FakeController copied from `tests/test_web_read.py`):
 
@@ -1879,7 +1879,7 @@ def test_endpoints_404_or_empty_without_agent_dir(tmp_path):
 Run: `.venv/bin/python -m pytest tests/test_web_agent.py -q`
 Expected: FAIL — `create_app() got an unexpected keyword argument 'agent_dir'`.
 
-- [ ] **Step 2: Implement the endpoints**
+- [x] **Step 2: Implement the endpoints**
 
 In `src/swingbot/web.py`:
 - change the signature: `def create_app(controller, profiles, creds, token: str, store=None, market=None, backfiller=None, discovery=None, discovery_cache_path=None, brain=None, agent_dir=None) -> FastAPI:`
@@ -1926,7 +1926,7 @@ the `create_app(...)` call.
 
 Run: `.venv/bin/python -m pytest tests/test_web_agent.py -q` → 6 PASS.
 
-- [ ] **Step 3: Frontend — api client + Health page + tab + probe route**
+- [x] **Step 3: Frontend — api client + Health page + tab + probe route**
 
 `frontend/src/api.js` — append inside `api`:
 
@@ -2050,12 +2050,12 @@ check in `src/swingbot/selftest/sessions.py` `_TAB_CHECKS`: add
 `len(trace.steps) == 6` asserts in `tests/test_selftest_sessions.py` to 7,
 adding `"text=Last usage-agent run"` to `_ALL_S1`).
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 Run: `.venv/bin/python -m pytest tests/test_web_agent.py tests/test_selftest_uiprobe.py tests/test_selftest_sessions.py -q` → PASS
 Run: `cd frontend && npm run build` → succeeds.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/web.py src/swingbot/webmain.py frontend/src/api.js \
@@ -2075,7 +2075,7 @@ git commit -m "feat(e): /api/agent endpoints + Health tab"
 - Modify: `src/swingbot/selftest/__main__.py`
 - Test: `tests/test_selftest_runner.py`, `tests/test_selftest_report.py` (extend)
 
-- [ ] **Step 1: Failing runner tests (gate table extension)**
+- [x] **Step 1: Failing runner tests (gate table extension)**
 
 Append to `tests/test_selftest_runner.py` (reuse that file's existing fakes for
 `runner_fn`/`probe_fn`/config; the pattern below shows the new injectables —
@@ -2142,7 +2142,7 @@ construction.
 Run: `.venv/bin/python -m pytest tests/test_selftest_runner.py -q`
 Expected: new tests FAIL (`SelfTestConfig` has no `agent_dir`; `run()` has no `sessions_fn`).
 
-- [ ] **Step 2: Extend `SelfTestConfig` and `run()` in `runner.py`**
+- [x] **Step 2: Extend `SelfTestConfig` and `run()` in `runner.py`**
 
 Add fields to `SelfTestConfig`:
 
@@ -2267,7 +2267,7 @@ Run: `.venv/bin/python -m pytest tests/test_selftest_runner.py -q` → PASS
 `run_sessions=False` or an injected stub — update any existing test configs to
 set `run_sessions=False` if they don't inject `sessions_fn`).
 
-- [ ] **Step 3: Failing report tests**
+- [x] **Step 3: Failing report tests**
 
 Append to `tests/test_selftest_report.py`:
 
@@ -2317,7 +2317,7 @@ def test_roadmap_writer_inserts_and_replaces_pointer(tmp_path):
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_report.py -q` → new tests FAIL.
 
-- [ ] **Step 4: Implement report changes**
+- [x] **Step 4: Implement report changes**
 
 In `src/swingbot/selftest/report.py`:
 
@@ -2418,7 +2418,7 @@ def update_roadmap_next_action(roadmap_path: str, drift_count: int) -> None:
 
 Run: `.venv/bin/python -m pytest tests/test_selftest_report.py -q` → PASS.
 
-- [ ] **Step 5: CLI flags + store-path fix in `__main__.py`**
+- [x] **Step 5: CLI flags + store-path fix in `__main__.py`**
 
 In `src/swingbot/selftest/__main__.py`:
 - add args:
@@ -2444,7 +2444,7 @@ Note the `proposal_store_path` change from `proposals.json` to
 never reads. This makes selftest/usage-agent proposals actually appear on the
 Brain/Health pages.
 
-- [ ] **Step 6: Full suite + commit**
+- [x] **Step 6: Full suite + commit**
 
 Run: `.venv/bin/python -m pytest -q` and `.venv/bin/python -m ruff check .` → green.
 
@@ -2465,7 +2465,7 @@ git commit -m "feat(e): wire sessions+drift into the selftest pipeline; DEVLOG n
 - Modify: `frontend/src/pages/Discover.jsx` (alert → toast)
 - Modify: `docs/ROADMAP_STATUS.md`, `docs/DEVLOG.md`
 
-- [ ] **Step 1: Rewrite the stale Guide sections**
+- [x] **Step 1: Rewrite the stale Guide sections**
 
 All edits to `frontend/src/guide.md`:
 
@@ -2526,7 +2526,7 @@ Three pages automate the manual loop above:
   actually does.
 ```
 
-- [ ] **Step 2: Sync the affordance list to the rewritten Guide**
+- [x] **Step 2: Sync the affordance list to the rewritten Guide**
 
 In `src/swingbot/selftest/expectations.py`, replace the stale entry:
 
@@ -2544,7 +2544,7 @@ Expected: PASS — but `test_s6_flags_missing_affordance` references "Set active
 update that test so the missing affordance is `"Arm"` (present list omits
 `"text=Arm"` instead).
 
-- [ ] **Step 3: Replace Discover's blocking `alert()` with a toast**
+- [x] **Step 3: Replace Discover's blocking `alert()` with a toast**
 
 In `frontend/src/pages/Discover.jsx`:
 
@@ -2566,7 +2566,7 @@ and render it just under the controls div:
 
 Run: `cd frontend && npm run build` → succeeds.
 
-- [ ] **Step 4: Commit the code**
+- [x] **Step 4: Commit the code**
 
 ```bash
 git add frontend/src/guide.md frontend/src/pages/Discover.jsx \
@@ -2574,13 +2574,13 @@ git add frontend/src/guide.md frontend/src/pages/Discover.jsx \
 git commit -m "docs(e): rewrite stale Guide (arm model, real FVG, Discover/Brain/Health); toast instead of alert"
 ```
 
-- [ ] **Step 5: Housekeeping check — D plan tracked**
+- [x] **Step 5: Housekeeping check — D plan tracked**
 
 Run: `git ls-files docs/superpowers/plans/2026-06-03-subproject-d-self-test-gate.md`
 If empty, `git add` + commit that file (audit fix #7). (It was committed with
 the E spec on 2026-06-12 — this is just verification.)
 
-- [ ] **Step 6: Rebuild + restart the container (standing rule)**
+- [x] **Step 6: Rebuild + restart the container (standing rule)**
 
 ```bash
 docker compose build swingbot && docker compose up -d swingbot
@@ -2588,7 +2588,7 @@ docker compose build swingbot && docker compose up -d swingbot
 
 Wait for healthy: `curl -s http://localhost:8000/api/state | head -c 200`.
 
-- [ ] **Step 7: Full-loop live verification**
+- [x] **Step 7: Full-loop live verification**
 
 ```bash
 .venv/bin/python -m pytest -q                       # green (baseline + ~40 new)
@@ -2609,11 +2609,11 @@ Expected: exit 0. Then verify each loop output:
   flags something, that's the loop working — file it, don't fight it), confirm
   the ROADMAP pointer line appears in `docs/ROADMAP_STATUS.md` §NEXT ACTION.
 
-- [ ] **Step 8: Update the knowledge graph**
+- [x] **Step 8: Update the knowledge graph**
 
 Run: `python3 -m graphify update .`
 
-- [ ] **Step 9: Close out docs + final commit**
+- [x] **Step 9: Close out docs + final commit**
 
 - `docs/DEVLOG.md`: add a dated **Sub-project E** entry at the top (sessions
   S1–S6, two-tier safety, doc_fix, Health tab, audit fixes folded in).

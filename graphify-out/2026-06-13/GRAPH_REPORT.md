@@ -1,16 +1,16 @@
-# Graph Report - crypto-swing-bot  (2026-06-13)
+# Graph Report - crypto-swing-bot  (2026-06-03)
 
 ## Corpus Check
-- 216 files · ~254,206 words
+- 185 files · ~120,937 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2361 nodes · 4647 edges · 153 communities (142 shown, 11 thin omitted)
-- Extraction: 70% EXTRACTED · 30% INFERRED · 0% AMBIGUOUS · INFERRED: 1409 edges (avg confidence: 0.58)
+- 1985 nodes · 3860 edges · 128 communities (121 shown, 7 thin omitted)
+- Extraction: 69% EXTRACTED · 31% INFERRED · 0% AMBIGUOUS · INFERRED: 1206 edges (avg confidence: 0.57)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fc749ff1`
+- Built from commit: `d3a694d3`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -132,27 +132,6 @@
 - [[_COMMUNITY_Community 123|Community 123]]
 - [[_COMMUNITY_Community 124|Community 124]]
 - [[_COMMUNITY_Community 126|Community 126]]
-- [[_COMMUNITY_Community 128|Community 128]]
-- [[_COMMUNITY_Community 129|Community 129]]
-- [[_COMMUNITY_Community 130|Community 130]]
-- [[_COMMUNITY_Community 131|Community 131]]
-- [[_COMMUNITY_Community 132|Community 132]]
-- [[_COMMUNITY_Community 133|Community 133]]
-- [[_COMMUNITY_Community 134|Community 134]]
-- [[_COMMUNITY_Community 135|Community 135]]
-- [[_COMMUNITY_Community 136|Community 136]]
-- [[_COMMUNITY_Community 137|Community 137]]
-- [[_COMMUNITY_Community 138|Community 138]]
-- [[_COMMUNITY_Community 139|Community 139]]
-- [[_COMMUNITY_Community 140|Community 140]]
-- [[_COMMUNITY_Community 141|Community 141]]
-- [[_COMMUNITY_Community 142|Community 142]]
-- [[_COMMUNITY_Community 143|Community 143]]
-- [[_COMMUNITY_Community 144|Community 144]]
-- [[_COMMUNITY_Community 145|Community 145]]
-- [[_COMMUNITY_Community 147|Community 147]]
-- [[_COMMUNITY_Community 150|Community 150]]
-- [[_COMMUNITY_Community 151|Community 151]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `StrategyProfile` - 108 edges
@@ -169,13 +148,13 @@
 ## Surprising Connections (you probably didn't know these)
 - `test_apply_window_slices_trailing_days()` --calls--> `_apply_window()`  [INFERRED]
   tests/test_discovery.py → src/swingbot/discovery.py
-- `test_types_have_expected_fields()` --calls--> `SessionStep`  [INFERRED]
-  tests/test_selftest_agentstore.py → src/swingbot/selftest/__init__.py
 - `test_live_get_candles_smoke()` --calls--> `AlpacaData`  [INFERRED]
   tests/test_alpaca_data.py → src/swingbot/data/alpaca.py
 - `test_issue_log_caps_and_persists()` --calls--> `IssueLog`  [INFERRED]
   tests/test_decision_proposals.py → src/swingbot/decision/proposals.py
 - `test_candles_endpoint_serves_store()` --calls--> `create_app()`  [INFERRED]
+  tests/test_candle_store.py → src/swingbot/web.py
+- `test_candles_endpoint_without_store_returns_empty()` --calls--> `create_app()`  [INFERRED]
   tests/test_candle_store.py → src/swingbot/web.py
 
 ## Import Cycles
@@ -188,23 +167,23 @@
 - 1-file cycle: `src/swingbot/broker/simulated.py -> src/swingbot/broker/simulated.py`
 - 1-file cycle: `src/swingbot/broker/base.py -> src/swingbot/broker/base.py`
 
-## Communities (153 total, 11 thin omitted)
+## Communities (128 total, 7 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.07
-Nodes (31): MarketData, Serves candles from the CandleStore, fetching + caching from Alpaca on a     cac, ProfileStore, datetime, float, int, bool, DataFrame (+23 more)
+Cohesion: 0.09
+Nodes (16): bool, DataFrame, datetime, str, StrategyProfile, PortfolioSettings, _bars_to_df(), CachedProvider (+8 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.11
-Nodes (20): KronosAdapter, Populate the precomputed forecast cache (used by run_backtest)., Wraps a PredictorProtocol: column mapping, single-entry cache, timeout., Wraps a PredictorProtocol: column extraction, Series timestamps, cache, timeout., Populate the precomputed forecast cache (used by run_backtest)., float, int, MarketContext (+12 more)
+Cohesion: 0.08
+Nodes (23): MarketContext, SignalResult, float, int, MarketContext, SignalResult, bool, float (+15 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.16
 Nodes (15): bars_to_df(), fetch_window_days(), parse_timeframe(), Days to fetch so `lookback` bars at `timeframe` are comfortably covered     (~3x, One batched bars request for many symbols. Returns {symbol: DataFrame}., DataFrame, float, int (+7 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.32
-Nodes (5): Broker, Protocol, datetime, float, Regime
+Cohesion: 0.15
+Nodes (10): Broker, MarketDataProvider, Protocol, datetime, float, Regime, DataFrame, float (+2 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.06
@@ -215,20 +194,20 @@ Cohesion: 0.08
 Nodes (26): CcxtProvider, Market data via CCXT's unified API. Implements MarketDataProvider and     adds g, Fetch all bars in [start_ms, end_ms], paginating fetch_ohlcv forward.         CC, MarketDataProvider impl: most-recent `lookback` bars., Bar interval in seconds for a timeframe like '15m', '4h', '1d'., timeframe_seconds(), DataFrame, float (+18 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.09
-Nodes (22): AlpacaBroker, normalize_symbol(), Live/paper Alpaca crypto broker. Long-only, market orders (no brackets).      Ex, Tradable crypto */USD pairs, sorted. Network call — cache at call site., Alpaca crypto trading expects 'BTC/USD' form, uppercased., bool, float, str (+14 more)
+Cohesion: 0.16
+Nodes (10): AlpacaBroker, normalize_symbol(), Live/paper Alpaca crypto broker. Long-only, market orders (no brackets).      Ex, Tradable crypto */USD pairs, sorted. Network call — cache at call site., Alpaca crypto trading expects 'BTC/USD' form, uppercased., bool, float, str (+2 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.28
-Nodes (6): JournalTable(), MetricsPanel(), PositionPanel(), RiskPanel(), SignalPanel(), Dashboard()
+Cohesion: 0.05
+Nodes (28): DEFAULT_CFG, TIMEFRAMES, TOGGLES, ControlBar(), JournalTable(), MetricsPanel(), PositionPanel(), RiskPanel() (+20 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.12
 Nodes (5): BotController, BotService, _pos_dict(), Runs the Orchestrator in a background thread; exposes control + status., _trade_dict()
 
 ### Community 10 - "Community 10"
-Cohesion: 0.06
-Nodes (27): _bars(), _sup(), test_flatten_one_and_all(), test_halt_and_reset_portfolio_kill_switch(), test_journal_and_metrics_aggregate(), test_reload_is_noop_when_idle_and_unbuilt(), test_reload_picks_up_newly_armed(), test_set_mode_live_blocked_without_graduation() (+19 more)
+Cohesion: 0.07
+Nodes (26): _bars(), _sup(), test_flatten_one_and_all(), test_halt_and_reset_portfolio_kill_switch(), test_journal_and_metrics_aggregate(), test_reload_is_noop_when_idle_and_unbuilt(), test_reload_picks_up_newly_armed(), test_set_mode_live_blocked_without_graduation() (+18 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.21
@@ -247,28 +226,28 @@ Cohesion: 0.17
 Nodes (8): _dip(), FakeBroker, FakeData, _orch(), _profile(), _series(), test_flatten_closes_open_position(), test_paused_blocks_new_entries()
 
 ### Community 15 - "Community 15"
-Cohesion: 0.11
-Nodes (39): RegimeResult, KronosForecastSignal, Kronos-based forecast signal. Satisfies the Signal protocol.      In tests, inje, DataFrame, float, int, Metrics, StrategyProfile (+31 more)
+Cohesion: 0.16
+Nodes (25): DataFrame, float, int, Metrics, StrategyProfile, Trade, bool, DataFrame (+17 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.12
 Nodes (16): dependencies, lightweight-charts, marked, react, react-dom, devDependencies, vite, @vitejs/plugin-react (+8 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.10
-Nodes (37): _api_step(), BrainInboxSession, _default_api(), _goto(), GuidedStrategyFlowSession, GuideReconciliationSession, Tiny JSON client for session API steps. Returns (status, payload)., _seed_rows() (+29 more)
+Cohesion: 0.20
+Nodes (7): PortfolioRiskState, datetime, float, int, PortfolioRiskManager, PortfolioRiskState, Single-writer portfolio-level risk gate across all strategies. No IO.
 
 ### Community 18 - "Community 18"
 Cohesion: 0.08
-Nodes (35): bool, int, str, bool, DataFrame, int, str, Archetype (+27 more)
+Nodes (35): Exception, bool, int, str, bool, DataFrame, int, str (+27 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.12
-Nodes (24): CredentialStore, AlpacaData, Alpaca crypto market data. Implements the MarketDataProvider protocol., One batched latest-trade request for many symbols. Returns {symbol: price}., ProfileStore, datetime, float, int (+16 more)
+Cohesion: 0.16
+Nodes (21): CredentialStore, ProfileStore, Orchestrator, str, bool, CredentialStore, Orchestrator, ProfileStore (+13 more)
 
 ### Community 20 - "Community 20"
-Cohesion: 0.23
-Nodes (8): AlpacaData, Force a live fetch from Alpaca and upsert into the store., Batched fetch for many symbols at one timeframe; upsert each into the store., Return up to `limit` bars (oldest-first). If the store is empty or the         n, Return up to `limit` bars (oldest-first). If the store is empty or the         n, bool, int, str
+Cohesion: 0.27
+Nodes (6): AlpacaData, Force a live fetch from Alpaca and upsert into the store., Batched fetch for many symbols at one timeframe; upsert each into the store., Return up to `limit` bars (oldest-first). If the store is empty or the         n, Return up to `limit` bars (oldest-first). If the store is empty or the         n, str
 
 ### Community 21 - "Community 21"
 Cohesion: 0.13
@@ -307,20 +286,20 @@ Cohesion: 0.08
 Nodes (25): 1. nvidia-container-toolkit, 2. Kronos model pre-download, Backend Changes, Data and credentials, docker-compose.yml, Docker GPU Deployment — Design Spec, Dockerfile (multi-stage), .dockerignore (+17 more)
 
 ### Community 41 - "Community 41"
-Cohesion: 0.19
-Nodes (13): ConfluenceResult, Signal, Signal, VwapSignal, float, MarketContext, str, StrategyProfile (+5 more)
+Cohesion: 0.27
+Nodes (11): ConfluenceResult, Signal, Signal, OversoldSignal, RelativeStrengthSignal, VwapSignal, float, MarketContext (+3 more)
 
 ### Community 42 - "Community 42"
-Cohesion: 0.32
-Nodes (8): _df(), _FakeProfiles, test_candles_endpoint_serves_store(), test_candles_endpoint_without_store_returns_empty(), test_coverage_reports_min_max_count(), test_get_limit_returns_most_recent(), test_upsert_and_get_roundtrip(), test_upsert_is_idempotent()
+Cohesion: 0.12
+Nodes (9): _df(), _FakeController, _FakeProfiles, test_candles_endpoint_serves_store(), test_candles_endpoint_without_store_returns_empty(), test_coverage_reports_min_max_count(), test_get_limit_returns_most_recent(), test_upsert_and_get_roundtrip() (+1 more)
 
 ### Community 43 - "Community 43"
 Cohesion: 0.10
 Nodes (19): File Structure, Final verification, Phase 1 — Strategy Engine + Backtest Mode Implementation Plan, Task 0: Project scaffolding, Task 10: Metrics, Task 11: Broker protocol + SimulatedBroker, Task 12: Market data provider (interface + CSV historical), Task 13: Backtester orchestrator + end-to-end integration test (+11 more)
 
 ### Community 44 - "Community 44"
-Cohesion: 0.10
-Nodes (20): A. Simple starter (no GPU needed), B. Kronos-assisted (uses the GPU), Controls reference, Core, Discover, Brain & Health, Entry signals (enable at least one), Example profiles (JSON), Exits (always active) (+12 more)
+Cohesion: 0.11
+Nodes (18): A. Simple starter (no GPU needed), B. Kronos-assisted (uses the GPU), Controls reference, Core, Entry signals (enable at least one), Example profiles (JSON), Exits (always active), Going live (+10 more)
 
 ### Community 45 - "Community 45"
 Cohesion: 0.12
@@ -343,12 +322,8 @@ Cohesion: 0.13
 Nodes (14): File Map, Kronos Forecast Signal Implementation Plan, Phase 1 — Adapter, Signal, Tests, Registration, Phase 2 — Backtest Precompute Cache, Phase 3 — Dashboard Profile Fields, Phase 4 — Real-Model Smoke Test, Self-Review Checklist, Task 1: Add `[kronos]` optional dependency group (+6 more)
 
 ### Community 50 - "Community 50"
-Cohesion: 0.11
-Nodes (35): OllamaClient, Calls Ollama /api/generate with a JSON schema. Never raises: all failures     (c, Proposal, ProposalStore, Persistent proposal inbox backed by a JSON file., DiscordNotifier, OllamaClient, ProposalStore (+27 more)
-
-### Community 51 - "Community 51"
-Cohesion: 0.09
-Nodes (17): _client(), FakeController, create_app() mounts StaticFiles at / when frontend/dist exists., create_app() mounts StaticFiles at / when frontend/dist exists., create_app() does NOT mount StaticFiles when frontend/dist is absent., create_app() does NOT mount StaticFiles when frontend/dist is absent., SWINGBOT_HOST env var overrides the default 127.0.0.1 bind address., SWINGBOT_HOST env var overrides the default 127.0.0.1 bind address. (+9 more)
+Cohesion: 0.14
+Nodes (9): _atomic_write(), IssueLog, Proposal, ProposalStore, Persistent proposal inbox backed by a JSON file., Append-only ring of brain limitations/errors, JSON-backed., int, str (+1 more)
 
 ### Community 52 - "Community 52"
 Cohesion: 0.18
@@ -359,8 +334,8 @@ Cohesion: 0.22
 Nodes (8): File Structure, Phase 3B — React Valhalla Dashboard Implementation Plan, Task 1: Scaffold Vite app + Valhalla theme + API client, Task 2: Dashboard monitoring panels, Task 3: Control bar, Task 4: Strategy editor + Settings (credentials + token) + App shell, Task 5: End-to-end render verification + run docs, What Phase 3B delivers
 
 ### Community 54 - "Community 54"
-Cohesion: 0.11
-Nodes (31): CheckResult, DriftFinding, HealthSummary, SessionStep, SessionTrace, UIFinding, _fail(), test_failed_step_with_doc_biased_expectation_is_drift() (+23 more)
+Cohesion: 0.13
+Nodes (18): CandleStore, AlpacaData, Alpaca crypto market data. Implements the MarketDataProvider protocol., One batched latest-trade request for many symbols. Returns {symbol: price}., MarketData, Serves candles from the CandleStore, fetching + caching from Alpaca on a     cac, CandlePoller, Periodically refreshes candles for all armed symbols via MarketData     (Alpaca (+10 more)
 
 ### Community 55 - "Community 55"
 Cohesion: 0.20
@@ -371,12 +346,12 @@ Cohesion: 0.12
 Nodes (15): 1. `DiscoveryEngine` (`src/swingbot/discovery.py`), 2. Eligibility & "now" state, 3. Scenario windows (`windows_for`), 4. Caching & cost control, 5. API (token-guarded, mirrors the Phase 1 archive endpoints in `web.py`), 6. UI — `Discover` panel (`frontend/src/components/Discover.jsx` + nav tab), 7. Error handling, 8. Testing (no network, mirrors existing style) (+7 more)
 
 ### Community 57 - "Community 57"
-Cohesion: 0.19
-Nodes (21): BaseModel, ArchiveConfig, Which markets to archive and how far back. CLI args / env override these., Which markets to archive and how far back. CLI args / env override these., FastAPI, AgentRunStore, Ring of recent usage-agent runs, JSON-backed under DATA_DIR/agent/.      Runs ar, str (+13 more)
+Cohesion: 0.27
+Nodes (17): BaseModel, ArchiveConfig, Which markets to archive and how far back. CLI args / env override these., FastAPI, ActiveBody, BacktestBody, BuildBody, CredBody (+9 more)
 
 ### Community 58 - "Community 58"
-Cohesion: 0.14
-Nodes (22): _df(), _profile_with_kronos(), DataFrame, float, int, KronosAdapter, StrategyProfile, precompute_forecasts produces no entry for bars before warmup. (+14 more)
+Cohesion: 0.18
+Nodes (20): KronosForecastSignal, Kronos-based forecast signal. Satisfies the Signal protocol.      In tests, inje, _warmup_bars(), _df(), _profile_with_kronos(), DataFrame, float, int (+12 more)
 
 ### Community 59 - "Community 59"
 Cohesion: 0.13
@@ -387,36 +362,36 @@ Cohesion: 0.33
 Nodes (5): Build, First-time setup (all in the browser), Run it, Security, SwingBot Dashboard (frontend)
 
 ### Community 61 - "Community 61"
-Cohesion: 0.06
-Nodes (19): CandlePoller, Periodically refreshes candles for all armed symbols via MarketData     (Alpaca, Periodically fetches OHLC bars for the active profile's symbol/timeframe     fro, Fetch + persist the active symbol's bars. Returns rows written., MarketData, CredentialStore, int, MarketData (+11 more)
+Cohesion: 0.16
+Nodes (4): bool, str, ProfileStore, SQLite-backed strategy profiles + an 'active' pointer.
 
 ### Community 63 - "Community 63"
-Cohesion: 0.15
-Nodes (20): Exception, UIProbe, str, UIFinding, _ConsoleMsgError, _ConsoleMsgWarning, FakePage, _fire_during_goto() (+12 more)
+Cohesion: 0.28
+Nodes (3): FakeMarket, FakeProfiles, test_poll_once_warms_all_armed_grouped_by_timeframe()
 
 ### Community 64 - "Community 64"
 Cohesion: 0.10
 Nodes (19): 10. Testing, 11. Future directions (out of scope here), 1. Summary, 2. Goals / Non-Goals, 3. Constraints & Key Facts, 4.1 Approach (chosen: single supervisor loop), 4.2 `PortfolioSupervisor` (new — replaces single-strategy `BotService`), 4.3 `PortfolioRiskManager` (new — the heart of the rearchitecture) (+11 more)
 
 ### Community 65 - "Community 65"
-Cohesion: 0.16
-Nodes (12): PredictorProtocol, Execute predictor.predict() in a thread; return None on timeout or error., Return forecast DataFrame, or None if inference fails/times out., Execute predictor.predict() in a thread; return None on timeout or error., Matches the real KronosPredictor.predict() signature., Return forecast DataFrame, or None if inference fails/times out., bool, DataFrame (+4 more)
+Cohesion: 0.09
+Nodes (23): KronosAdapter, _load_kronos(), PredictorProtocol, Execute predictor.predict() in a thread; return None on timeout or error., Populate the precomputed forecast cache (used by run_backtest)., Return forecast DataFrame, or None if inference fails/times out., Execute predictor.predict() in a thread; return None on timeout or error., Matches the real KronosPredictor.predict() signature. (+15 more)
 
 ### Community 66 - "Community 66"
-Cohesion: 0.19
-Nodes (25): Position, Process one bar after entry. Returns a Trade if the position exited., Enum, RiskManager, datetime, ExitReason, float, Regime (+17 more)
+Cohesion: 0.20
+Nodes (20): Enum, RegimeResult, RiskManager, float, StrategyProfile, bool, MarketContext, Regime (+12 more)
 
 ### Community 67 - "Community 67"
-Cohesion: 0.16
-Nodes (11): CandleStore, Connection, CandleStore, SQLite-backed OHLC candle store. One row per (symbol, timeframe, bar).      `ts`, Insert/replace bars from a DataFrame with columns         ts, open, high, low, c, Return up to `limit` most recent bars, oldest-first., Min/max bar timestamp (epoch seconds) and count for a series.         Powers bac, CandleStore (+3 more)
+Cohesion: 0.15
+Nodes (12): Connection, CandleStore, SQLite-backed OHLC candle store. One row per (symbol, timeframe, bar).      `ts`, Insert/replace bars from a DataFrame with columns         ts, open, high, low, c, Return up to `limit` most recent bars, oldest-first., Min/max bar timestamp (epoch seconds) and count for a series.         Powers bac, bool, CandleStore (+4 more)
 
 ### Community 68 - "Community 68"
-Cohesion: 0.19
-Nodes (19): _insert_devlog_line(), Insert directly under the header so the log stays newest-first., Prepend a pointer line inside the NEXT ACTION block (idempotent: any     previou, update_roadmap_next_action(), write_report(), HealthSummary, int, Proposal (+11 more)
+Cohesion: 0.25
+Nodes (13): Position, ExitReason, Regime, datetime, float, int, str, StrategyProfile (+5 more)
 
 ### Community 69 - "Community 69"
-Cohesion: 0.30
-Nodes (13): FvgSignal, ICT bullish Fair Value Gap signal (long-only discount entry).      A bullish FVG, _df(), _fvg_df(), test_fvg_deeper_retrace_scores_higher(), test_fvg_min_gap_pct_filters_tiny_gaps(), test_fvg_name(), test_fvg_no_gap_returns_zero() (+5 more)
+Cohesion: 0.20
+Nodes (19): FvgSignal, ICT bullish Fair Value Gap signal (long-only discount entry).      A bullish FVG, _df(), _fvg_df(), test_fvg_deeper_retrace_scores_higher(), test_fvg_min_gap_pct_filters_tiny_gaps(), test_fvg_name(), test_fvg_no_gap_returns_zero() (+11 more)
 
 ### Community 70 - "Community 70"
 Cohesion: 0.22
@@ -435,8 +410,8 @@ Cohesion: 0.50
 Nodes (6): build_signals(), _df(), _profile(), test_build_signals_returns_configured_signals(), test_confluence_fails_in_clean_uptrend(), test_confluence_passes_when_score_meets_threshold()
 
 ### Community 74 - "Community 74"
-Cohesion: 0.14
-Nodes (10): PortfolioRiskState, RiskState, OpenPosition, str, PortfolioRiskState, RiskState, SQLite persistence for the open position and risk state.      Single-row tables, SQLite persistence for per-strategy open positions and risk state, plus a     si (+2 more)
+Cohesion: 0.15
+Nodes (6): RiskState, OpenPosition, str, RiskState, Binds a StateStore to one strategy key, exposing the no-arg position/risk     in, StrategyStateView
 
 ### Community 75 - "Community 75"
 Cohesion: 0.57
@@ -479,24 +454,24 @@ Cohesion: 0.13
 Nodes (14): Conventions (read once before starting), File Structure, Self-Review (completed during planning), Sub-project B Phase 1 — Historical Market-Data Archive Implementation Plan, Task 10: Manual end-to-end verification (success criteria), Task 1: `CandleStore.coverage`, Task 2: Add `ccxt` dependency, Task 3: `CcxtProvider` — symbol & timeframe mapping (+6 more)
 
 ### Community 85 - "Community 85"
-Cohesion: 0.15
-Nodes (13): _bars(), _client(), _Ctl, FakeMarket, FakeProfiles, FakeStore, test_arm_rejects_unknown_archetype(), test_arm_saves_and_arms_reconstructable_profile() (+5 more)
+Cohesion: 0.07
+Nodes (32): DiscoveryEngine, good_history(), load_cache(), Ranked-well predicate: enough trades, positive expectancy, profit factor > 1., Selectable windows derived from store coverage, so each always has data., Sweeps symbols across the non-AI archetypes over the deep archive,     ranking b, save_cache(), windows_for() (+24 more)
 
 ### Community 86 - "Community 86"
 Cohesion: 0.14
 Nodes (13): File Structure, Self-Review (author check — completed), Sub-project A — UI Cleanup + Multi-Position Dashboard — Implementation Plan, Task 1: Backend — fallback universe + ProfileStore watchlist & default_symbol  ✅ DONE (commit, 3 tests pass), Task 2: Backend — broker `list_usd_pairs()`  ✅ DONE (4 tests pass), Task 3: Backend — `/api/universe` + `/api/watchlist` endpoints  ✅ DONE (2 tests; fixed supervisor PortfolioSettings splat regression; corrected creds attr access), Task 4: Frontend — API client methods  ✅ DONE (build OK), Task 5: Frontend — symbol-agnostic Strategy page + Advanced disclosure  ✅ DONE (build OK; no TRX/USD literal remains) (+5 more)
 
 ### Community 87 - "Community 87"
-Cohesion: 0.15
-Nodes (10): _default_http_get(), _default_kill(), _default_popen(), EphemeralApp, Write proposal dicts straight into the ephemeral brain inbox.         ProposalSt, Throwaway swingbot web instance: own port, own SWINGBOT_DATA_DIR,     torn down, bool, float (+2 more)
+Cohesion: 0.18
+Nodes (12): datetime, ExitReason, float, bracket_levels(), exit_decision(), Return (stop_price, take_profit_price) for a long position., Decide whether a long position exits, and a reference exit price.      Priority:, test_live_spot_price_stop() (+4 more)
 
 ### Community 88 - "Community 88"
 Cohesion: 0.31
 Nodes (13): _profile(), test_daily_counters_reset_on_new_day(), test_entry_allowed_after_cooldown_expires(), test_entry_approved_when_clean(), test_entry_blocked_during_cooldown(), test_entry_blocked_when_killswitch_active(), test_entry_blocked_when_max_concurrent_reached(), test_killswitch_trips_on_consecutive_losses() (+5 more)
 
 ### Community 89 - "Community 89"
-Cohesion: 0.15
-Nodes (10): float, datetime, OpenPosition, bracket_levels(), Return (stop_price, take_profit_price) for a long position., Broker is source of truth. If broker holds a position we don't have         reco, Broker is source of truth. If broker holds a position we don't have         reco, Force-close any open position at the latest price (manual control). (+2 more)
+Cohesion: 0.23
+Nodes (7): datetime, int, OpenPosition, str, Broker is source of truth. If broker holds a position we don't have         reco, Broker is source of truth. If broker holds a position we don't have         reco, _timeframe_minutes()
 
 ### Community 90 - "Community 90"
 Cohesion: 0.22
@@ -515,20 +490,20 @@ Cohesion: 0.15
 Nodes (12): Auto-Strategy Discovery (Sub-project B Phase 2) Implementation Plan, Self-Review, Task 10: Full verification + graph/roadmap update, Task 1: Pure helpers — `good_history`, `windows_for`, `_apply_window`, Task 2: `DiscoveryEngine.sweep` — the ranked cross-universe sweep, Task 3: Cache load/save helpers (atomic JSON), Task 4: Web — `GET /api/discovery` + `GET /api/discovery/windows` + wiring, Task 5: Web — `POST /api/discovery/refresh` (background sweep) (+4 more)
 
 ### Community 94 - "Community 94"
-Cohesion: 0.22
-Nodes (11): bool, float, int, Metrics, str, can_go_live(), Server-side gate: paper results must clear these bars before LIVE., _m() (+3 more)
+Cohesion: 0.14
+Nodes (20): bool, float, int, Metrics, str, Trade, can_go_live(), Server-side gate: paper results must clear these bars before LIVE. (+12 more)
 
 ### Community 95 - "Community 95"
-Cohesion: 0.17
-Nodes (18): Backtest broker: models long-only bracket fills with fees + slippage.      Exit, SimulatedBroker, datetime, ExitReason, exit_decision(), Decide whether a long position exits, and a reference exit price.      Priority:, test_live_spot_price_stop(), test_no_exit() (+10 more)
+Cohesion: 0.21
+Nodes (14): Backtest broker: models long-only bracket fills with fees + slippage.      Exit, Process one bar after entry. Returns a Trade if the position exited., SimulatedBroker, datetime, float, Trade, test_time_cap_fills_at_close(), _candle() (+6 more)
 
 ### Community 96 - "Community 96"
-Cohesion: 0.18
-Nodes (8): _load_kronos(), Lazy import gate — only called from KronosAdapter.from_profile().      Kronos is, Load real Kronos model. Only call this when torch is installed.          Verify, Load real Kronos model from HuggingFace Hub.          Recommended models for RTX, Load the real Kronos model and verify predict() output shape.      Before runnin, ImportError message includes the pip install command., test_missing_kronos_import_gives_helpful_error(), test_real_predictor_returns_correct_shape()
+Cohesion: 0.40
+Nodes (4): Load the real Kronos model and verify predict() output shape.      Before runnin, ImportError message includes the pip install command., test_missing_kronos_import_gives_helpful_error(), test_real_predictor_returns_correct_shape()
 
 ### Community 97 - "Community 97"
-Cohesion: 0.15
-Nodes (13): OllamaResult, _brain(), FakeController, FakeOllama, FakeProfiles, test_apply_disarm_path(), test_apply_non_executable_action_returns_clear_error(), test_autonomous_applies_approved_above_threshold() (+5 more)
+Cohesion: 0.20
+Nodes (10): OllamaResult, _brain(), FakeOllama, FakeProfiles, test_apply_disarm_path(), test_autonomous_applies_approved_above_threshold(), test_autonomous_skips_below_threshold(), test_daily_summary_counts_and_notifies() (+2 more)
 
 ### Community 98 - "Community 98"
 Cohesion: 0.10
@@ -539,8 +514,8 @@ Cohesion: 0.17
 Nodes (8): _client(), _Ctl, FakeBrain, FakeDiscovery, FakeProfiles, test_auto_recommend_fires_after_sweep_when_enabled(), test_auto_recommend_silent_when_disabled(), _wait()
 
 ### Community 100 - "Community 100"
-Cohesion: 0.23
-Nodes (16): make_proposal(), float, _ev(), test_arm_approved_for_eligible_candidate(), test_arm_blocked_at_max_concurrent(), test_arm_blocked_when_kill_switch(), test_arm_blocked_when_not_eligible(), test_disarm_requires_armed() (+8 more)
+Cohesion: 0.25
+Nodes (14): make_proposal(), float, _ev(), test_arm_approved_for_eligible_candidate(), test_arm_blocked_at_max_concurrent(), test_arm_blocked_when_kill_switch(), test_arm_blocked_when_not_eligible(), test_disarm_requires_armed() (+6 more)
 
 ### Community 101 - "Community 101"
 Cohesion: 0.12
@@ -555,163 +530,99 @@ Cohesion: 0.22
 Nodes (7): _Ctl, _df(), _FakeBackfiller, _Profiles, test_backfill_503_when_unconfigured(), test_backfill_requires_token(), test_status_reports_coverage()
 
 ### Community 104 - "Community 104"
-Cohesion: 0.22
-Nodes (10): Backfiller, Populate CandleStore with deep history. Coverage-driven and idempotent:     on e, Populate CandleStore with deep history. Coverage-driven and idempotent:     on e, CandleStore, _bars(), _FakeProvider, Serves canonical bars for a symbol/timeframe within [start_ms, end_ms]., test_backfill_fills_only_the_missing_older_range() (+2 more)
+Cohesion: 0.24
+Nodes (9): Backfiller, Populate CandleStore with deep history. Coverage-driven and idempotent:     on e, CandleStore, _bars(), _FakeProvider, Serves canonical bars for a symbol/timeframe within [start_ms, end_ms]., test_backfill_fills_only_the_missing_older_range(), test_backfill_is_idempotent_on_rerun() (+1 more)
 
 ### Community 105 - "Community 105"
 Cohesion: 0.16
 Nodes (10): load_csv(), float, str, DataFrame, str, main(), run_from_files(), test_run_from_files_outputs_metrics() (+2 more)
 
 ### Community 106 - "Community 106"
-Cohesion: 0.29
-Nodes (4): bool, float, str, _urllib_post()
+Cohesion: 0.21
+Nodes (9): bool, float, str, DiscordNotifier, Posts compact messages to a Discord webhook. Failure-tolerant: a missing     web, _urllib_post(), test_noop_when_no_webhook(), test_sends_when_webhook_configured() (+1 more)
 
 ### Community 107 - "Community 107"
 Cohesion: 0.24
 Nodes (8): CsvImporter, Ingest bulk OHLCV CSV dumps (binance.vision, cryptodatadownload) into the     Ca, CandleStore, str, test_imports_binance_layout_no_header(), test_imports_cryptodatadownload_layout(), test_skips_malformed_rows(), _write()
 
 ### Community 108 - "Community 108"
-Cohesion: 0.40
-Nodes (3): _urllib_transport(), float, str
+Cohesion: 0.24
+Nodes (8): OllamaClient, Calls Ollama /api/generate with a JSON schema. Never raises: all failures     (c, _urllib_transport(), float, str, test_generate_json_bad_json_is_caught(), test_generate_json_ok_parses_response(), test_generate_json_transport_error_is_caught()
 
 ### Community 109 - "Community 109"
-Cohesion: 0.13
-Nodes (13): IssueLog, Append-only ring of brain limitations/errors, JSON-backed., _ensure_token(), main(), _client(), _Ctl, FakeBrain, test_apply_and_dismiss() (+5 more)
+Cohesion: 0.27
+Nodes (8): _client(), _Ctl, test_apply_and_dismiss(), test_brain_endpoints_503_without_brain(), test_issues_endpoint(), test_recommend_and_list_proposals(), test_recommend_requires_token(), test_summary_endpoint()
 
 ### Community 110 - "Community 110"
 Cohesion: 0.23
-Nodes (11): DiscoveryEngine, Sweeps symbols across the non-AI archetypes over the deep archive,     ranking b, Sweeps symbols across the non-AI archetypes over the deep archive,     ranking b, _bars(), _fake_metrics(), FakeMarket, test_apply_window_slices_trailing_days(), test_sweep_eligibility_needs_good_history_and_regime() (+3 more)
+Nodes (10): _client(), SWINGBOT_HOST env var overrides the default 127.0.0.1 bind address., SWINGBOT_HOST env var overrides the default 127.0.0.1 bind address., SWINGBOT_DATA_DIR env var overrides the default ~/.swingbot path., SWINGBOT_DATA_DIR env var overrides the default ~/.swingbot path., test_journal_and_metrics(), test_state_ok(), test_webmain_respects_swingbot_data_dir_env() (+2 more)
 
 ### Community 111 - "Community 111"
-Cohesion: 0.13
-Nodes (11): DecisionBrain, Orchestrates a recommend run and applies proposals. All public methods are     s, build_prompt(), parse_proposals(), str, int, Proposal, str (+3 more)
+Cohesion: 0.24
+Nodes (8): build_prompt(), parse_proposals(), int, Proposal, str, test_build_prompt_includes_context(), test_parse_proposals_handles_garbage(), test_parse_proposals_keeps_valid_drops_invalid()
 
 ### Community 112 - "Community 112"
-Cohesion: 0.13
-Nodes (4): html, fmtTs(), Health(), TABS
+Cohesion: 0.25
+Nodes (9): str, AlpacaCredentials, load_alpaca_credentials(), load_dotenv(), Minimal .env loader: sets KEY=VALUE lines into os.environ.     Does NOT override, test_load_credentials_missing_raises(), test_load_credentials_reads_env(), test_load_dotenv_does_not_override_existing() (+1 more)
 
 ### Community 113 - "Community 113"
 Cohesion: 0.36
 Nodes (8): ArchiveConfig, ArgumentParser, build_parser(), config_from_args(), main(), test_csv_args_are_parsed(), test_parser_defaults_match_archive_config(), test_parser_reads_ccxt_args()
 
 ### Community 114 - "Community 114"
-Cohesion: 0.12
-Nodes (15): Architecture, Data shapes, Decisions, Endpoints (`web.py`), Error handling, Goal, Out of scope (YAGNI), Pipeline (extended `runner.run()`) (+7 more)
+Cohesion: 0.29
+Nodes (3): DecisionBrain, Orchestrates a recommend run and applies proposals. All public methods are     s, str
 
 ### Community 115 - "Community 115"
 Cohesion: 0.36
 Nodes (5): _default_symbols(), _default_timeframes(), _now_ms(), int, str
 
 ### Community 116 - "Community 116"
-Cohesion: 0.32
+Cohesion: 0.28
 Nodes (6): float, position_size(), Fixed-fractional-risk sizing, clamped by a max position fraction.      stop_dist, test_position_cap_clamps_size(), test_risk_based_size(), test_zero_stop_distance_returns_zero()
 
 ### Community 117 - "Community 117"
-Cohesion: 0.20
-Nodes (10): _app(), FakeProc, http_results: list of bools consumed per readiness poll., test_context_manager(), test_early_process_death_raises(), test_seed_proposals_writes_store_file(), test_stale_pidfile_is_killed_on_start(), test_start_sets_env_writes_token_and_pidfile() (+2 more)
+Cohesion: 0.22
+Nodes (9): str, create_app(), test_start_surfaces_error_as_400(), create_app() mounts StaticFiles at / when frontend/dist exists., create_app() mounts StaticFiles at / when frontend/dist exists., create_app() does NOT mount StaticFiles when frontend/dist is absent., create_app() does NOT mount StaticFiles when frontend/dist is absent., test_create_app_mounts_static_when_dist_exists() (+1 more)
 
 ### Community 118 - "Community 118"
 Cohesion: 0.57
 Nodes (7): _dip_and_recover(), _make_series(), _profile(), test_backtest_is_lookahead_safe_entry_at_next_open(), test_backtest_no_trades_in_pure_downtrend(), test_backtest_produces_trades_and_metrics(), test_backtest_rejects_too_short_input()
 
 ### Community 119 - "Community 119"
-Cohesion: 0.39
-Nodes (8): create_app(), _client(), test_control_actions_invoke_controller(), test_control_requires_token(), test_mode_switch_returns_gate_result(), test_start_requires_token(), test_start_stop_invoke_controller(), test_start_surfaces_error_as_400()
+Cohesion: 0.52
+Nodes (6): _client(), test_control_actions_invoke_controller(), test_control_requires_token(), test_mode_switch_returns_gate_result(), test_start_requires_token(), test_start_stop_invoke_controller()
 
 ### Community 120 - "Community 120"
-Cohesion: 0.24
-Nodes (6): ControlBar(), TokenGate(), api, getToken(), req(), setToken()
+Cohesion: 0.43
+Nodes (4): _client(), FakeController, test_universe_falls_back_without_creds(), test_watchlist_get_put_roundtrip_and_token()
 
 ### Community 121 - "Community 121"
-Cohesion: 0.38
-Nodes (6): _block(), evaluate(), Pure pre-apply gate. Returns (status, reason). backtest_ok(symbol, archetype, pa, Pure pre-apply gate. Returns (status, reason). backtest_ok(symbol, archetype, pa, Proposal, str
+Cohesion: 0.47
+Nodes (5): _block(), evaluate(), Pure pre-apply gate. Returns (status, reason). backtest_ok(symbol, archetype, pa, Proposal, str
 
 ### Community 122 - "Community 122"
 Cohesion: 0.33
 Nodes (5): Bugs found & fixed during the build, Future improvements (room for later), Known gaps / environment notes (need your attention), Sub-project C — Decision Brain: Verification Findings, Works as intended
 
 ### Community 123 - "Community 123"
-Cohesion: 0.14
-Nodes (13): File structure, Self-review notes (spec coverage), Sub-project E — Usage Agent Implementation Plan, Task 10: Guide rewrite, toast, live full-loop verification, docs, Task 1: Hash routing + probe routes (unblocks everything), Task 2: Agent data types + runs.json ring store, Task 3: Expectations catalog, Task 4: Ephemeral app harness (+5 more)
-
-### Community 124 - "Community 124"
-Cohesion: 0.46
-Nodes (12): _build_prompt(), propose_from_health(), _client(), _notifier(), _store(), _summary(), test_arm_action_filtered_out(), test_doc_fix_allowed_and_executable_actions_deferred() (+4 more)
-
-### Community 126 - "Community 126"
-Cohesion: 0.15
-Nodes (12): Architecture, Current state (grounded in code), Data shapes, Decisions (locked with user), Error handling, Goal, New action type, Out of scope (YAGNI) (+4 more)
-
-### Community 128 - "Community 128"
-Cohesion: 0.17
-Nodes (11): good_history(), load_cache(), Ranked-well predicate: enough trades, positive expectancy, profit factor > 1., Ranked-well predicate: enough trades, positive expectancy, profit factor > 1., Selectable windows derived from store coverage, so each always has data., Selectable windows derived from store coverage, so each always has data., save_cache(), windows_for() (+3 more)
-
-### Community 130 - "Community 130"
-Cohesion: 0.27
-Nodes (8): _client(), FakeController, test_artifact_served(), test_artifact_traversal_rejected(), test_endpoints_404_or_empty_without_agent_dir(), test_latest_empty_when_no_runs(), test_latest_returns_full_run(), test_runs_returns_summaries_newest_last()
-
-### Community 131 - "Community 131"
-Cohesion: 0.27
-Nodes (9): CheckResult, run_checks(), str, test_all_pass_when_rc_zero(), test_nonzero_rc_yields_not_ok(), test_npm_build_runs_in_frontend_subdir(), test_output_truncated_to_500_chars(), test_result_names_are_pytest_ruff_npm() (+1 more)
-
-### Community 132 - "Community 132"
-Cohesion: 0.18
-Nodes (10): File Map, Sub-project D — Self-test Gate + LLM Proposals Implementation Plan, Task 1: Package skeleton + shared dataclasses + ui_fix in guardrails, Task 2: checks.py — deterministic gate wrappers, Task 3: uiprobe.py — headless Playwright route probe, Task 4: report.py — SELFTEST_REPORT.md + DEVLOG one-liner, Task 5: llm.py — LLM proposal pass (green-only), Task 6: runner.py — gate orchestrator (+2 more)
-
-### Community 133 - "Community 133"
-Cohesion: 0.20
-Nodes (3): DEFAULT_CFG, TIMEFRAMES, TOGGLES
-
-### Community 134 - "Community 134"
-Cohesion: 0.20
-Nodes (7): OversoldSignal, float, int, MarketContext, SignalResult, test_oversold_high_when_falling(), test_oversold_zero_when_rising()
-
-### Community 135 - "Community 135"
-Cohesion: 0.20
-Nodes (7): RelativeStrengthSignal, float, int, MarketContext, SignalResult, test_relative_strength_high_when_outperforming(), test_relative_strength_neutral_without_benchmark()
-
-### Community 136 - "Community 136"
-Cohesion: 0.36
-Nodes (8): Trade, compute_metrics(), test_journal_records_and_lists(), test_metrics_empty(), test_metrics_on_known_trades(), test_profit_factor_infinite_when_all_wins(), test_profit_factor_zero_when_all_losses(), _trade()
-
-### Community 137 - "Community 137"
-Cohesion: 0.31
-Nodes (8): DriftFinding, _bias(), findings_to_proposals(), Failed steps with an expectation become drift findings (doc claim vs     observe, reconcile(), Proposal, SessionTrace, str
-
-### Community 138 - "Community 138"
-Cohesion: 0.44
-Nodes (8): assembleProfile(), BLANK, g(), Num(), parseProfile(), Strategy(), Toggle(), Txt()
-
-### Community 139 - "Community 139"
-Cohesion: 0.29
-Nodes (5): MarketDataProvider, DataFrame, float, int, str
-
-### Community 140 - "Community 140"
-Cohesion: 0.39
-Nodes (3): _atomic_write(), int, str
-
-### Community 141 - "Community 141"
-Cohesion: 0.29
-Nodes (6): Deterministic Checks, Drift Findings, Git Diff Stat, Self-test Report, UI Probe Findings, Usage Sessions
-
-### Community 142 - "Community 142"
-Cohesion: 0.48
-Nodes (6): _run(), test_corrupt_file_tolerated(), test_creates_dirs_and_screenshot_dir(), test_ring_caps_at_20(), test_round_trip_and_latest(), test_types_have_expected_fields()
+Cohesion: 0.50
+Nodes (3): build_orchestrator(), main(), test_build_orchestrator_wires_components()
 
 ## Knowledge Gaps
-- **472 isolated node(s):** `str`, `EntrySignal`, `float`, `float`, `int` (+467 more)
+- **409 isolated node(s):** `str`, `EntrySignal`, `float`, `float`, `int` (+404 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `StrategyProfile` connect `Community 19` to `Community 0`, `Community 5`, `Community 9`, `Community 11`, `Community 14`, `Community 15`, `Community 18`, `Community 41`, `Community 50`, `Community 55`, `Community 58`, `Community 61`, `Community 66`, `Community 74`, `Community 85`, `Community 89`, `Community 95`, `Community 105`, `Community 110`?**
-  _High betweenness centrality (0.152) - this node is a cross-community bridge._
-- **Why does `str` connect `Community 50` to `Community 0`, `Community 67`, `Community 6`, `Community 104`, `Community 9`, `Community 109`, `Community 110`, `Community 111`, `Community 19`, `Community 57`, `Community 61`?**
-  _High betweenness centrality (0.133) - this node is a cross-community bridge._
-- **Why does `create_app()` connect `Community 119` to `Community 130`, `Community 99`, `Community 103`, `Community 42`, `Community 10`, `Community 109`, `Community 51`, `Community 85`, `Community 21`, `Community 57`, `Community 59`, `Community 61`?**
-  _High betweenness centrality (0.072) - this node is a cross-community bridge._
+- **Why does `StrategyProfile` connect `Community 15` to `Community 0`, `Community 5`, `Community 9`, `Community 11`, `Community 14`, `Community 18`, `Community 19`, `Community 41`, `Community 54`, `Community 55`, `Community 58`, `Community 61`, `Community 66`, `Community 68`, `Community 74`, `Community 85`, `Community 89`, `Community 95`, `Community 105`?**
+  _High betweenness centrality (0.142) - this node is a cross-community bridge._
+- **Why does `str` connect `Community 54` to `Community 0`, `Community 67`, `Community 6`, `Community 104`, `Community 9`, `Community 106`, `Community 108`, `Community 15`, `Community 114`, `Community 50`, `Community 85`, `Community 57`, `Community 61`?**
+  _High betweenness centrality (0.087) - this node is a cross-community bridge._
+- **Why does `MarketContext` connect `Community 66` to `Community 0`, `Community 1`, `Community 65`, `Community 69`, `Community 5`, `Community 41`, `Community 9`, `Community 15`, `Community 19`, `Community 85`, `Community 89`, `Community 58`, `Community 95`?**
+  _High betweenness centrality (0.076) - this node is a cross-community bridge._
 - **Are the 106 inferred relationships involving `StrategyProfile` (e.g. with `ConfluenceResult` and `CredentialStore`) actually correct?**
   _`StrategyProfile` has 106 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 93 inferred relationships involving `MarketContext` (e.g. with `ConfluenceResult` and `CredentialStore`) actually correct?**

@@ -5,13 +5,13 @@
     "semantic_hash": "073ea14ed4fd4499cec92ece207ae360"
   },
   "/home/redji/crypto-swing-bot/src/swingbot/web.py": {
-    "mtime": 1781297024.9696732,
-    "ast_hash": "b63a19340f782f6b0d9b1becebcbd829",
+    "mtime": 1780507365.2985046,
+    "ast_hash": "6759bf7bbdf2ba3cdd29cb76ab59142f",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/webmain.py": {
-    "mtime": 1781297025.9876926,
-    "ast_hash": "ce2435a351be659ac1b8d444dc622402",
+    "mtime": 1780507377.6977425,
+    "ast_hash": "f9b02a63b51cc3c9349b076cb14b17a6",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/regime.py": {
@@ -65,9 +65,9 @@
     "semantic_hash": "598ff9127756e72b2b4d9fa00e075567"
   },
   "/home/redji/crypto-swing-bot/src/swingbot/backtest.py": {
-    "mtime": 1780959476.91135,
-    "ast_hash": "dddcfbee6a60d0ebe675945e4a96ec1b",
-    "semantic_hash": ""
+    "mtime": 1780167092.3119204,
+    "ast_hash": "51bccff69b43c9f1a848b3f3b0818778",
+    "semantic_hash": "51bccff69b43c9f1a848b3f3b0818778"
   },
   "/home/redji/crypto-swing-bot/src/swingbot/confluence.py": {
     "mtime": 1780166962.879345,
@@ -95,8 +95,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/profiles.py": {
-    "mtime": 1780958888.2334878,
-    "ast_hash": "c3457dc094d59e588e93d0aa32d33ff2",
+    "mtime": 1780507281.8489025,
+    "ast_hash": "8bf254fb5b12f425a1f06ccbb35b9e81",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/cli.py": {
@@ -205,8 +205,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/App.jsx": {
-    "mtime": 1781297083.8728034,
-    "ast_hash": "c57a70f2beb3d5b9483be6959460e0ac",
+    "mtime": 1780507486.576828,
+    "ast_hash": "d2a94001ca16f10093c48083f8b94615",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/main.jsx": {
@@ -215,8 +215,8 @@
     "semantic_hash": "de511e8b18858691dcbb784d06dd8321"
   },
   "/home/redji/crypto-swing-bot/frontend/src/api.js": {
-    "mtime": 1781297056.539278,
-    "ast_hash": "c772a8dda420d59edcdb8a0705decf3d",
+    "mtime": 1780507446.242056,
+    "ast_hash": "3b1f6eee9b40d3d281f0dde87e8197e3",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/components/SignalPanel.jsx": {
@@ -290,8 +290,8 @@
     "semantic_hash": "11909f6a8da75d0c6c93dbd3463f11e8"
   },
   "/home/redji/crypto-swing-bot/tests/test_kronos_backtest.py": {
-    "mtime": 1780959476.9133499,
-    "ast_hash": "611e4f7d0dd0f3846d7a35fa5b649c61",
+    "mtime": 1780197712.1863518,
+    "ast_hash": "0808aaa98be5643fce531bb260836e87",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_journal_metrics.py": {
@@ -300,9 +300,9 @@
     "semantic_hash": "75ac91f6564756bc19325052410cc3e8"
   },
   "/home/redji/crypto-swing-bot/tests/test_data.py": {
-    "mtime": 1780959476.91235,
-    "ast_hash": "e42ed3a242df1b1838d1a69a0a2ed43e",
-    "semantic_hash": ""
+    "mtime": 1780027706.9716556,
+    "ast_hash": "b2ab46178eb774684eb492eb2a7b5c6c",
+    "semantic_hash": "b2ab46178eb774684eb492eb2a7b5c6c"
   },
   "/home/redji/crypto-swing-bot/tests/test_sizing.py": {
     "mtime": 1780027706.9746559,
@@ -325,8 +325,8 @@
     "semantic_hash": "9773cf472946a8d57063631c8b61f5ab"
   },
   "/home/redji/crypto-swing-bot/tests/test_web_read.py": {
-    "mtime": 1780959476.9133499,
-    "ast_hash": "d2a7ffc44522763ea9688c24a8167f1a",
+    "mtime": 1780325450.950273,
+    "ast_hash": "2cfdeb7e9aee285d5ef320c4847e14de",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_exits.py": {
@@ -340,9 +340,9 @@
     "semantic_hash": "da2b6ae203d53916bc7265163f380cba"
   },
   "/home/redji/crypto-swing-bot/tests/test_cli.py": {
-    "mtime": 1780959476.90935,
-    "ast_hash": "e77a99eacc55f4ac275a7e695e3d7068",
-    "semantic_hash": ""
+    "mtime": 1780027706.9706557,
+    "ast_hash": "cff0c7e4304c29ce65a00acb86303a45",
+    "semantic_hash": "cff0c7e4304c29ce65a00acb86303a45"
   },
   "/home/redji/crypto-swing-bot/tests/test_state.py": {
     "mtime": 1780048007.2263794,
@@ -395,9 +395,9 @@
     "semantic_hash": "0300bef8b3d263a657d515330786ebe3"
   },
   "/home/redji/crypto-swing-bot/tests/test_orchestrator_control.py": {
-    "mtime": 1780959476.91135,
-    "ast_hash": "0eec05617e271b6b5e8fe3508dc7d1d5",
-    "semantic_hash": ""
+    "mtime": 1780064810.1333869,
+    "ast_hash": "455528e4fce80d9c9c6bc35bf8a41dd5",
+    "semantic_hash": "455528e4fce80d9c9c6bc35bf8a41dd5"
   },
   "/home/redji/crypto-swing-bot/tests/test_backtest_integration.py": {
     "mtime": 1780027706.9706557,
@@ -435,9 +435,9 @@
     "semantic_hash": "7e831aad5c627b1d7bc858925917e5af"
   },
   "/home/redji/crypto-swing-bot/tests/test_simulated_broker.py": {
-    "mtime": 1780959557.161005,
-    "ast_hash": "2beb9e84eb2a3ba35663cffc67e0251c",
-    "semantic_hash": ""
+    "mtime": 1780027706.9736557,
+    "ast_hash": "901ce46e599c54db83795e91c9b5a235",
+    "semantic_hash": "901ce46e599c54db83795e91c9b5a235"
   },
   "/home/redji/crypto-swing-bot/tests/test_graduation.py": {
     "mtime": 1780064810.1333869,
@@ -540,8 +540,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/guide.md": {
-    "mtime": 1781297393.6848512,
-    "ast_hash": "7b57a2e193553bb76191fe5110dfc139",
+    "mtime": 1780201339.7304597,
+    "ast_hash": "e012657fed4a165e05df48f213cbd72c",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/data/market.py": {
@@ -555,8 +555,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/presets.py": {
-    "mtime": 1780959476.91135,
-    "ast_hash": "cb8222723724f5260600358e70889b4b",
+    "mtime": 1780362327.553731,
+    "ast_hash": "dceab91a3845530406c4ba2107760eaa",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/strategy_search.py": {
@@ -600,8 +600,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/supervisor.py": {
-    "mtime": 1780585428.858919,
-    "ast_hash": "eb3cc836179df7ec990f6cd7eb148e94",
+    "mtime": 1780452917.166368,
+    "ast_hash": "6315641efaa657f240491a6876b2b4ab",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/portfolio_risk.py": {
@@ -620,8 +620,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_supervisor_control.py": {
-    "mtime": 1780959407.0999153,
-    "ast_hash": "fc67456b116502ff7212ca4f5937a59d",
+    "mtime": 1780325450.949273,
+    "ast_hash": "b740a1a5d527daa3cb72508541b00b7f",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_portfolio_risk.py": {
@@ -635,8 +635,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_orchestrator_portfolio.py": {
-    "mtime": 1780959476.9133499,
-    "ast_hash": "2b1b1e4fe1c4e6ee108efb58512d6895",
+    "mtime": 1780289209.3082669,
+    "ast_hash": "451cbca34041f89453607b4ee79dea52",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_state_multi.py": {
@@ -645,8 +645,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_supervisor.py": {
-    "mtime": 1780959476.9133499,
-    "ast_hash": "72fd13623b655bcd657d16abdc4356c2",
+    "mtime": 1780289209.3082669,
+    "ast_hash": "28964938aa1e56a2b129eb2300d6f2fd",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_web_portfolio.py": {
@@ -725,8 +725,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/data/backfill.py": {
-    "mtime": 1780959476.91135,
-    "ast_hash": "cb0a2712f03465ab51cbf5a4b4b9b9d7",
+    "mtime": 1780410466.6971054,
+    "ast_hash": "e0cb8fb34392c37b4ec13f339d017930",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/components/PositionGrid.jsx": {
@@ -745,8 +745,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_csv_import.py": {
-    "mtime": 1780959476.91135,
-    "ast_hash": "880859d18d5f60eb46d16ab9cf65c9c0",
+    "mtime": 1780410309.1941843,
+    "ast_hash": "e270b115287eeba3fd2dd0a4e8a854a7",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_backfill_cli.py": {
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/docs/DEVLOG.md": {
-    "mtime": 1781297829.3215327,
-    "ast_hash": "8adb36088a4f27175ab9575190abcfff",
+    "mtime": 1780507975.3131514,
+    "ast_hash": "e927d00d3720e190ec20144f14703dad",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/docs/superpowers/plans/2026-06-02-subproject-a-ui-cleanup-dashboard.md": {
@@ -800,13 +800,13 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/discovery.py": {
-    "mtime": 1780959476.91235,
-    "ast_hash": "496f6e221085933e4a552e6aab41ce8c",
+    "mtime": 1780471859.7113423,
+    "ast_hash": "f36c6c40abde6c1a7a092351a3536b2b",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/pages/Discover.jsx": {
-    "mtime": 1781297437.6357198,
-    "ast_hash": "84a0bcb30324afd23bd45f55a1cdea59",
+    "mtime": 1780472115.0403626,
+    "ast_hash": "46895decfdc33c6d7d48d4c6e7035cec",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_discovery.py": {
@@ -820,8 +820,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/docs/ROADMAP_STATUS.md": {
-    "mtime": 1781297700.6579547,
-    "ast_hash": "bd207f9dd56c005a78945edb07fafa7e",
+    "mtime": 1780508004.7507117,
+    "ast_hash": "9e6d031cd228802e57831b46e6ad470a",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/docs/superpowers/plans/2026-06-03-subproject-b-phase2-discovery.md": {
@@ -840,8 +840,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/decision/guardrails.py": {
-    "mtime": 1781296811.1806462,
-    "ast_hash": "ca39879ed5b68b8225bc0e42dff153b7",
+    "mtime": 1780507167.056693,
+    "ast_hash": "25d43b83dcd285092cd3d98111dde2a5",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/decision/ollama.py": {
@@ -860,23 +860,23 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/decision/proposals.py": {
-    "mtime": 1781296814.030699,
-    "ast_hash": "973980a898edbcc4d42e2ee62dca5df2",
+    "mtime": 1780507252.5033383,
+    "ast_hash": "1db25228c659738b8bb631c1c2f2de81",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/src/swingbot/decision/brain.py": {
-    "mtime": 1781296817.8757703,
-    "ast_hash": "08f43adcddc529c7729c803eede75097",
+    "mtime": 1780507257.5654356,
+    "ast_hash": "6df46dfbe7333baf6057deb7392d7ee2",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/frontend/src/pages/Brain.jsx": {
-    "mtime": 1781296922.7877321,
-    "ast_hash": "00589df9d9045004efdc8bad6de2fc60",
+    "mtime": 1780507685.497629,
+    "ast_hash": "784dd6e7bc980e078c355f074a244275",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_brain_settings.py": {
-    "mtime": 1780959418.53415,
-    "ast_hash": "24dbaa687c9385835422a5532ccc5a4b",
+    "mtime": 1780507288.6990342,
+    "ast_hash": "6a3a54e141a5fa4fcc131e4efa5467a7",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_web_brain_autorecommend.py": {
@@ -885,13 +885,13 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_decision_brain.py": {
-    "mtime": 1781296801.5664685,
-    "ast_hash": "350265080340a834b58c465616164e1d",
+    "mtime": 1780507231.2309291,
+    "ast_hash": "445c778b36bf705a113e3f994e8c5606",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_decision_guardrails.py": {
-    "mtime": 1781296785.1591659,
-    "ast_hash": "abb932ef6af7d944221a0a510ba6c62e",
+    "mtime": 1780507180.0709438,
+    "ast_hash": "4fad3cbe3c768dc1173b3b32787da86a",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_notify.py": {
@@ -910,8 +910,8 @@
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_web_brain.py": {
-    "mtime": 1780959476.9133499,
-    "ast_hash": "c2e37719860dcc8a674eac5c997d73ef",
+    "mtime": 1780507340.816035,
+    "ast_hash": "05b261e02ef78e7ab10a4351db317704",
     "semantic_hash": ""
   },
   "/home/redji/crypto-swing-bot/tests/test_decision_proposals.py": {
@@ -932,201 +932,6 @@
   "/home/redji/crypto-swing-bot/docs/superpowers/specs/2026-06-04-subproject-c-decision-brain-design.md": {
     "mtime": 1780504895.5210183,
     "ast_hash": "9f25de79703699ef7145089730917f71",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/expectations.py": {
-    "mtime": 1781297410.687187,
-    "ast_hash": "fd21dd6134cb83615c6ec93b16424fc3",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/__main__.py": {
-    "mtime": 1781297289.7158058,
-    "ast_hash": "ad7e3a41815bd93ab9fd76ab1076bb7f",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/runner.py": {
-    "mtime": 1781297223.017501,
-    "ast_hash": "7005ed42be293f93de034923f03436d4",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/uiprobe.py": {
-    "mtime": 1781297086.3648515,
-    "ast_hash": "3f814ea9c85afb8efab6ec6703fb8620",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/agentstore.py": {
-    "mtime": 1781296424.991375,
-    "ast_hash": "46e73a0a2ad5d31aa3dcf7de73612fcb",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/ephemeral.py": {
-    "mtime": 1781296563.7751966,
-    "ast_hash": "5c4561cd9cb98b92ab9d8d956a5b0bc1",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/checks.py": {
-    "mtime": 1780553951.1623561,
-    "ast_hash": "75952c4bc2bcf2dda113c258228c2d22",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/report.py": {
-    "mtime": 1781297265.6583345,
-    "ast_hash": "2108ab0883508543aadd1b9b38a4d22e",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/__init__.py": {
-    "mtime": 1781296421.0782938,
-    "ast_hash": "ac4c62d993232cc88c133c6103ad967c",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/llm.py": {
-    "mtime": 1781296898.615277,
-    "ast_hash": "7ce762e6c10c8517c7b27a05d286df05",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/sessions.py": {
-    "mtime": 1781297772.7233975,
-    "ast_hash": "8ee6e6b18a8c7812edc57b6882b0dcb3",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/src/swingbot/selftest/drift.py": {
-    "mtime": 1781296855.721474,
-    "ast_hash": "bea4079f641ec224e5835cff87c76f28",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/frontend/src/pages/Health.jsx": {
-    "mtime": 1781297070.0695379,
-    "ast_hash": "c432c19ef18ca8977aba896eacf301ab",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_expectations.py": {
-    "mtime": 1781296448.0768533,
-    "ast_hash": "336b038d9b14a6d04c245480b7e547bc",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_uiprobe.py": {
-    "mtime": 1781297088.7458975,
-    "ast_hash": "922286f965f4fc2587b24bc7278591e6",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_report.py": {
-    "mtime": 1781297238.3348002,
-    "ast_hash": "ec7808d1b26f197567abc9ee62e9437b",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_types.py": {
-    "mtime": 1780553878.5908751,
-    "ast_hash": "225fa26292f40ea9df0a21c6f08e7219",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_checks.py": {
-    "mtime": 1780553939.198112,
-    "ast_hash": "2ab3e12dec2cf1d482f18c6813d87c01",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_ephemeral.py": {
-    "mtime": 1781296516.9072793,
-    "ast_hash": "949095c79ebe2b7f901ef2ccbacf8672",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_sessions.py": {
-    "mtime": 1781297774.8164394,
-    "ast_hash": "5c5e2e9fe1d620428b08c35bf18600c5",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_web_agent.py": {
-    "mtime": 1781296986.4609385,
-    "ast_hash": "a2ed3fea23cadbf663145da77d0f17ee",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_agentstore.py": {
-    "mtime": 1781296402.5579102,
-    "ast_hash": "6152760135b7b39c7cb9446f25d77398",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_integration.py": {
-    "mtime": 1780554213.7157106,
-    "ast_hash": "589f3e0841b5ba1bc0f60b7b60de1ff5",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_llm.py": {
-    "mtime": 1781296886.310046,
-    "ast_hash": "074ce3ad21d45619fc0b92d015cab540",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_drift.py": {
-    "mtime": 1781296842.5562286,
-    "ast_hash": "0c463e4266c8a437d62f3cd4fbe04145",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/tests/test_selftest_runner.py": {
-    "mtime": 1781297186.243785,
-    "ast_hash": "9c52f1bed0aaa375f95dab2477815e01",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/SELFTEST_REPORT.md": {
-    "mtime": 1781297829.3215327,
-    "ast_hash": "d759dbd876076dd83dcf2da925c500b8",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/superpowers/plans/2026-06-03-subproject-d-self-test-gate.md": {
-    "mtime": 1780553838.5000565,
-    "ast_hash": "5f3c577ed511120e5c45a5933f16b4c6",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/superpowers/plans/2026-06-12-subproject-e-usage-agent.md": {
-    "mtime": 1781297317.6873546,
-    "ast_hash": "b28f26b18c9e45a2ac065d7fe04b1000",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/superpowers/specs/2026-06-03-subproject-d-self-test-gate-design.md": {
-    "mtime": 1780524058.540117,
-    "ast_hash": "c39bc67919415d334c03063f8f0a775e",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/superpowers/specs/2026-06-12-subproject-e-usage-agent-design.md": {
-    "mtime": 1781248545.8279834,
-    "ast_hash": "d8335cad372efac40a2761d9f005d182",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/selftest-artifacts/discover.png": {
-    "mtime": 1781297810.5811567,
-    "ast_hash": "8a44b517315d09eaae77dac547eaeddd",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/selftest-artifacts/guide.png": {
-    "mtime": 1781297821.7183802,
-    "ast_hash": "6f87a3056b353b102ec012fe06e5bc55",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/selftest-artifacts/settings.png": {
-    "mtime": 1781297815.1582484,
-    "ast_hash": "170f55a86b22bb55a49fa4a05ab85b50",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/selftest-artifacts/dashboard.png": {
-    "mtime": 1781297807.105087,
-    "ast_hash": "d2989e20ec36a2f61aa9f5d42abfb451",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/selftest-artifacts/brain.png": {
-    "mtime": 1781297813.1972091,
-    "ast_hash": "bfe3dde6fdfc7915a31b196362edf9aa",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/selftest-artifacts/index.png": {
-    "mtime": 1780959605.9260135,
-    "ast_hash": "632cab3ecd3bfedd0f85970cd03d6a3c",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/selftest-artifacts/strategy.png": {
-    "mtime": 1781297809.0071251,
-    "ast_hash": "2de862e1a1c46f27b0d5db49c7a0652c",
-    "semantic_hash": ""
-  },
-  "/home/redji/crypto-swing-bot/docs/selftest-artifacts/health.png": {
-    "mtime": 1781297817.629298,
-    "ast_hash": "8931f649a2021969dba5335c88c4c259",
     "semantic_hash": ""
   }
 }

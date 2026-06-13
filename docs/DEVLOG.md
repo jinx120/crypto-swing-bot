@@ -2,6 +2,48 @@
 
 Running log of platform improvements. Newest first.
 
+2026-06-12 20:56:26 UTC  GREEN  43.25s  pytest✓ ruff✓ npm-build✓  ui:0fatal  sessions:6/6  drift:0  proposals:0
+
+2026-06-12 20:54:08 UTC  GREEN  52.23s  pytest✓ ruff✓ npm-build✓  ui:0fatal  sessions:5/6  drift:1  proposals:0
+
+2026-06-12 20:52:37 UTC  GREEN  52.85s  pytest✓ ruff✓ npm-build✓  ui:0fatal  sessions:5/6  drift:1  proposals:0
+
+## Sub-project E — Usage Agent (2026-06-13)
+
+Scripted usage sessions that drive the app like a real user, reconcile observed
+behavior against documented intent, and emit drift as proposals into the brain inbox.
+
+- **Six sessions, two tiers.** S1 (tab navigation) and S6 (guide-affordance
+  reconciliation) run read-only against the live `:8000` container. S2–S5
+  (guided strategy flow, watchlist round-trip, settings persistence, brain
+  inbox) mutate state against an **ephemeral** `uvicorn` on `:8001` with a
+  throwaway `SWINGBOT_DATA_DIR` — the live paper-trading state is never touched.
+  Ephemeral teardown + stale-pidfile cleanup guard against leaked instances.
+- **Drift → proposals.** An expectations catalog ties each session step to a
+  documented claim (with a doc ref + `doc`/`ui` fix bias). Failed steps become
+  `DriftFinding`s, mapped to `doc_fix`/`ui_fix` proposals (`source="usage-agent"`,
+  recommend-only) in the existing inbox. A `supersede_pending` carve-out keeps
+  these findings on the Health tab across brain `recommend()` runs.
+- **New action type `doc_fix`** alongside `ui_fix` — both are `NON_EXECUTABLE_ACTIONS`:
+  guardrails open them, but `_dispatch` rejects apply with a clear "recommend-only"
+  message, and the Brain page hides the Apply button (fixes the ui_fix Apply dead-end).
+- **Hash routing** (`#/dashboard … #/health`) so the selftest probe and sessions
+  can deep-link every tab; the probe now renders all 7 routes.
+- **Health tab** + `/api/agent/runs`, `/runs/latest`, `/artifacts/{name}`
+  endpoints serving per-session step traces, screenshots, and drift cards from a
+  `runs.json` ring under `DATA_DIR/agent/`.
+- **Pipeline:** sessions stage added to the gate (browser/ephemeral infra
+  failure → RED; assertion drift stays GREEN and is stored). DEVLOG now inserts
+  newest-first under the header; a ROADMAP NEXT-ACTION pointer is written when
+  drift is pending.
+- **Audit fixes folded in:** honest selftest guardrail stamping (executable
+  proposals now `pending` "deferred", not a misleading `approved`); the proposal
+  store unified to `brain_proposals.json` (D was writing to a file the UI never
+  read); Guide rewritten (arm-not-set-active model, real FVG signal, new
+  Discover/Brain/Health section); Discover `alert()` → inline toast.
+- **Live-verified:** full gate green, all 6 sessions pass, 0 drift; Health tab
+  confirmed live via Playwright (GREEN banner, 6/6 sessions, run history).
+
 ## Sub-project C — Ollama Decision Brain (2026-06-03)
 
 - New `decision/` package: `ollama.py` (schema-constrained JSON client that never raises),
@@ -44,3 +86,6 @@ Running log of platform improvements. Newest first.
 - UI: `Discover` page — ranked-by-coin table, eligible badges, fires dot, one-click arm.
 - Deferred: per-row equity curves / trade tables, hardcoded crisis windows, timer recompute,
   real-money live gating.
+
+2026-06-08 22:55:05 UTC  RED  22.32s  pytest✗ ruff✗ npm-build✓  ui:0fatal  proposals:0
+2026-06-08 22:59:42 UTC  GREEN  24.9s  pytest✓ ruff✓ npm-build✓  ui:0fatal  proposals:0

@@ -4,27 +4,28 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-06-12
+**Last updated:** 2026-06-13
 
 ---
 
 ## ▶ NEXT ACTION
 
-**Execute the Sub-project E plan:** `docs/superpowers/plans/2026-06-12-subproject-e-usage-agent.md`
-(10 tasks, 64 checkbox steps, TDD per task — find the first `- [ ]` and go; load
-`superpowers:executing-plans`).
+**Sub-project E is DONE and live-verified** (full gate green, 6/6 usage sessions pass, 0 drift;
+Health tab confirmed live). The platform roadmap A→E is complete. Suggested next steps:
 
-Spec (final, do not re-derive): `docs/superpowers/specs/2026-06-12-subproject-e-usage-agent-design.md` —
-scripted usage sessions S1–S6 (live read-only tier + ephemeral mutating tier on :8001),
-intent-vs-actual drift findings (`doc_fix`/`ui_fix` proposals, `source="usage-agent"`) into C's
-inbox, new **Health** tab, DEVLOG/ROADMAP auto-updates. Plan task order: hash routing →
-types/store → expectations → ephemeral harness → S1/S6 → S2–S5 → drift+`doc_fix`+Apply-dead-end
-fixes → endpoints+Health tab → runner/report wiring → Guide rewrite + live full-loop verification.
+1. **Schedule the nightly usage-agent run** via `/schedule` (or `/loop`):
+   `cd crypto-swing-bot && .venv/bin/python -m swingbot.selftest` — drives all six sessions,
+   reconciles against the Guide/specs, and files any new drift into the Brain inbox.
+2. **Triage drift on the Health tab** (`http://localhost:8000/#/health`) whenever a run goes
+   non-green or files findings: each `doc_fix`/`ui_fix` card is recommend-only — fix manually,
+   then Dismiss.
+3. **Push when ready:** Sub-projects B2, D, and E are committed locally on `master` but **not
+   pushed** (A, B1, C are on `origin/master`). `git push origin master` when you want them remote.
 
-**Housekeeping:** Sub-projects A, B1, B2, C are committed **and pushed to `origin/master`**.
-Sub-project D is committed locally (master) — **push when ready** (`git push origin master`).
-The brain's default `brain_ollama_url` (`localhost:11434`) does not work inside Docker — use
-`http://172.17.0.1:11434` (already set on running instance). See `docs/SUBPROJECT_C_FINDINGS.md`.
+**Housekeeping:** The brain's default `brain_ollama_url` (`localhost:11434`) does not work inside
+Docker — use `http://172.17.0.1:11434` (already set on running instance). See
+`docs/SUBPROJECT_C_FINDINGS.md`. The selftest/usage-agent now writes proposals to
+`brain_proposals.json` (the file the UI reads); artifacts live under `~/.swingbot/agent/`.
 
 ---
 
@@ -37,7 +38,7 @@ The brain's default `brain_ollama_url` (`localhost:11434`) does not work inside 
 | B2 | Auto-strategy discovery | ✅ **DONE** | `specs/2026-06-03-subproject-b-phase2-discovery-design.md` | `plans/2026-06-03-subproject-b-phase2-discovery.md` (10 tasks, all boxes ✓) | sweep→rank→"eligible now"→`/api/discovery`→Discover panel; committed locally (not pushed) |
 | C | Ollama decision brain | ✅ **DONE** (live-verified) | `specs/2026-06-04-subproject-c-decision-brain-design.md` | `plans/2026-06-04-subproject-c-decision-brain.md` (11 tasks, all boxes ✓) | `decision/` pkg → qwen2.5; recommend-only default + autonomous toggle; Brain page. **Pushed to origin** |
 | D | Self-test gate + LLM proposals | ✅ **DONE** | `specs/2026-06-03-subproject-d-self-test-gate-design.md` | `plans/2026-06-03-subproject-d-self-test-gate.md` (8 tasks, all ✓) | `selftest/` pkg; `python -m swingbot.selftest`; pytest+ruff+npm gate + Playwright probe → SELFTEST_REPORT.md + DEVLOG; green→qwen3.5:9b proposals into C's inbox; 328 passed |
-| E | Usage Agent (usage sessions + drift detection) | 📋 **PLANNED** (next: execute) | `specs/2026-06-12-subproject-e-usage-agent-design.md` | `plans/2026-06-12-subproject-e-usage-agent.md` (10 tasks, 0/64 steps) | drives the app as a user would; reconciles vs Guide/specs; drift → `doc_fix`/`ui_fix` proposals in C's inbox; Health tab |
+| E | Usage Agent (usage sessions + drift detection) | ✅ **DONE** (live-verified) | `specs/2026-06-12-subproject-e-usage-agent-design.md` | `plans/2026-06-12-subproject-e-usage-agent.md` (10 tasks, all boxes ✓) | S1–S6 sessions (live `:8000` read-only + ephemeral `:8001` mutating); drift → `doc_fix`/`ui_fix` in brain inbox; Health tab + `/api/agent/*`; hash routing; 6/6 sessions green, 0 drift. Committed locally (not pushed) |
 
 Paths are under `docs/superpowers/`. Roadmap spec: `docs/superpowers/specs/2026-06-02-platform-improvement-roadmap-design.md`.
 
