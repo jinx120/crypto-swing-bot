@@ -10,20 +10,26 @@
 
 ## ▶ NEXT ACTION
 
-**Visible Autonomous Entry — Phase 0/1 (safety hardening) is DONE (2026-06-13).** Plan
-`plans/2026-06-13-visible-autonomous-entry-phase-0-1.md` executed end-to-end; all 6 tasks
-committed on `master` (broker-truth fix `1f47b94`, supervisor lifecycle `f02228f`, FastAPI
-lifespan `db0a6c4`, plus this roadmap commit). Full suite **394 passed, 6 skipped**; frontend
-builds; container rebuilt + restarted with clean lifespan startup **and** clean shutdown (no
-leaked-thread / duplicate-loop / poller errors). This phase deliberately does **not** auto-start
-the supervisor — it only makes the loop safe to run autonomously later: state mutations serialized
-by `_state_lock`, lifecycle transitions serialized by `_lifecycle_lock`, interruptible/idempotent
-stop, race-safe `set_mode`, confirmed-404-only broker position truth, and FastAPI lifespan as sole
-owner of poller start/stop + supervisor shutdown.
+**Visible Autonomous Entry — Phase 2 (persisted desire + paper auto-resume) is DONE (2026-06-13).**
+Plan `plans/2026-06-13-visible-autonomous-entry-phase-2.md` executed end-to-end; all 6 tasks
+committed on `master`. Full suite **412 passed, 6 skipped**; frontend builds; container rebuilt +
+restarted clean. **Live acceptance verified on `:8000`:** pressing Start persists
+`running_desired=true`; a full `docker compose build && up -d` with **no** Start press auto-resumed
+the paper loop (`running_actual: true`, `startup_error: null`) — **success criterion 1**; an
+explicit Stop then `restart` stayed stopped (`running_desired: false`, `running_actual: false`) —
+**success criterion 2**. Bot left running + desired so future rebuilds auto-resume.
 
-**NEXT: write the Phase 2 plan** — persisted desired-running state + paper-mode auto-resume on
-boot (so the bot actually starts trading after a container rebuild), building on the Phase 0/1
-safety primitives. Spec basis: `specs/2026-06-13-visible-autonomous-entry-design-reviewed.md`.
+What shipped: new `RuntimeStateStore` (SQLite, persists only `running_desired`, defaults false — no
+silent opt-in); supervisor gains `running_desired` property, `mark_desired()`, `startup_error`, and
+`auto_start_if_desired()` (paper-only, failure-tolerant, never raises); `POST /api/control/start`
+marks desire true only after a successful start, `POST /api/control/stop` marks false before
+stopping, `halt`/`pause`/`resume`/shutdown never touch desire; new `GET /api/control/lifecycle`;
+FastAPI lifespan calls `auto_start_if_desired()` after the poller and tolerates its failure;
+`webmain` wires the store into the supervisor.
+
+**NEXT: write the Phase 3 plan** — durable cycle/decision telemetry, order/pending/fill state with
+broker-confirmed positions, persistent trades, and the three `/api/health/*` contracts (spec §5
+Phase 3). Spec basis: `specs/2026-06-13-visible-autonomous-entry-design-reviewed.md`.
 
 ---
 

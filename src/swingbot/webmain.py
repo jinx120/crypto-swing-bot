@@ -13,6 +13,7 @@ from swingbot.data.poller import CandlePoller
 from swingbot.data.store import CandleStore
 from swingbot.discovery import DiscoveryEngine
 from swingbot.profiles import ProfileStore
+from swingbot.runtime_state import RuntimeStateStore
 from swingbot.supervisor import PortfolioSupervisor
 from swingbot.web import create_app
 
@@ -44,9 +45,11 @@ def main() -> None:
                                     symbol_overrides=archive_cfg.symbol_overrides)
     backfiller = Backfiller(store, provider=archive_provider)
     market = MarketData(store, creds)
+    runtime_state = RuntimeStateStore(os.path.join(DATA_DIR, "swingbot.db"))
     supervisor = PortfolioSupervisor(
         profiles=profiles, creds=creds,
-        state_db=os.path.join(DATA_DIR, "swingbot.db"), market=market)
+        state_db=os.path.join(DATA_DIR, "swingbot.db"), market=market,
+        runtime_state=runtime_state)
     poller = CandlePoller(market, profiles)        # lifespan owns start/stop
     discovery = DiscoveryEngine(market)
 
