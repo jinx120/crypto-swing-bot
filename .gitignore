@@ -13,3 +13,8 @@ data/
 
 frontend/node_modules/
 frontend/dist/
+
+# generated / regenerable artifacts (not source of truth)
+graphify-out/                     # knowledge-graph index, rebuilt by `graphify update .`
+docs/selftest-artifacts/          # self-test screenshots, rewritten each run
+docs/SELFTEST_REPORT.md           # self-test snapshot report, overwritten each run
