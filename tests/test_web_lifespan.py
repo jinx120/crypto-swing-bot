@@ -68,3 +68,35 @@ def test_lifespan_allows_no_poller():
     with TestClient(app):
         pass
     assert events == ["controller:stop"]
+
+
+class AutoStartController(RecordingController):
+    def __init__(self, events, raise_error=None):
+        super().__init__(events)
+        self.raise_error = raise_error
+
+    def auto_start_if_desired(self):
+        self.events.append("controller:auto_start")
+        if self.raise_error is not None:
+            raise self.raise_error
+
+
+def test_lifespan_auto_starts_after_poller():
+    events = []
+    app = create_app(
+        AutoStartController(events), profiles=None, creds=None, token="t",
+        poller=RecordingPoller(events))
+    with TestClient(app):
+        assert events[:2] == ["poller:start", "controller:auto_start"]
+
+
+def test_lifespan_survives_auto_start_failure():
+    events = []
+    app = create_app(
+        AutoStartController(events, RuntimeError("auto boom")),
+        profiles=None, creds=None, token="t", poller=RecordingPoller(events))
+    # The web app must still boot and serve even though auto-start raised.
+    with TestClient(app) as client:
+        assert client.get("/api/state").status_code == 200
+    assert "controller:auto_start" in events
+    assert events[-1] == "poller:stop"

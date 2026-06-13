@@ -96,6 +96,11 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     async def lifespan(_app: FastAPI):
         if poller is not None:
             poller.start()
+        if controller is not None and hasattr(controller, "auto_start_if_desired"):
+            try:
+                controller.auto_start_if_desired()
+            except Exception as e:   # auto-start must never prevent the app from serving
+                print(f"[lifespan] auto-start error: {e}")
         try:
             yield
         finally:
