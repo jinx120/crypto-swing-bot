@@ -83,12 +83,15 @@ class PortfolioSupervisor:
     """
 
     def __init__(self, profiles: ProfileStore, creds, state_db: str,
-                 market: MarketData | None = None, broker=None, mode: str = "paper"):
+                 market: MarketData | None = None, broker=None, mode: str = "paper",
+                 runtime_state=None):
         self.profiles = profiles
         self.creds = creds
         self.state_db = state_db
         self.market = market
         self.mode = mode
+        self.runtime_state = runtime_state    # durable running_desired flag (may be None)
+        self.startup_error: str | None = None  # most recent auto-start outcome
         self._broker = broker
         self.paused = False
         self._running = False
@@ -104,6 +107,17 @@ class PortfolioSupervisor:
         self._state_lock = threading.RLock()
         self._stop_event = threading.Event()
         self._join_timeout = 2.0
+
+    @property
+    def running_desired(self) -> bool:
+        """Operator wants the loop active across restarts (durable)."""
+        return bool(self.runtime_state is not None
+                    and self.runtime_state.get_running_desired())
+
+    def mark_desired(self, desired: bool) -> None:
+        """Persist desire. No-op when no runtime_state store is wired."""
+        if self.runtime_state is not None:
+            self.runtime_state.set_running_desired(desired)
 
     # ---- construction ----
     @_state_locked
@@ -278,8 +292,10 @@ class PortfolioSupervisor:
                     "running_flag": running_flag,
                     "thread_alive": thread_alive,
                     "running_actual": running_flag and thread_alive,
+                    "running_desired": self.running_desired,
                     "paused": bool(self.paused),
                     "halted": halted,
+                    "startup_error": self.startup_error,
                 }
 
     # ---- aggregate journal + metrics ----
