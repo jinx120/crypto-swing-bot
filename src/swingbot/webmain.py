@@ -47,8 +47,7 @@ def main() -> None:
     supervisor = PortfolioSupervisor(
         profiles=profiles, creds=creds,
         state_db=os.path.join(DATA_DIR, "swingbot.db"), market=market)
-    poller = CandlePoller(market, profiles)        # keeps all armed symbols warm for charts
-    poller.start()
+    poller = CandlePoller(market, profiles)        # lifespan owns start/stop
     discovery = DiscoveryEngine(market)
 
     from swingbot.decision.brain import DecisionBrain
@@ -91,7 +90,8 @@ def main() -> None:
                      token=token, store=store, market=market, backfiller=backfiller,
                      discovery=discovery,
                      discovery_cache_path=os.path.join(DATA_DIR, "discovery.json"),
-                     brain=brain, agent_dir=os.path.join(DATA_DIR, "agent"))
+                     brain=brain, agent_dir=os.path.join(DATA_DIR, "agent"),
+                     poller=poller)
     brain.get_discovery = lambda: app.state.discovery
     app.state.archive_config = archive_cfg
     print(f"[swingbot-web] token: {token}")

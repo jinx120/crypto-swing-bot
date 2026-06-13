@@ -4,6 +4,7 @@ import os
 import pathlib
 import threading
 import time
+from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse
@@ -90,8 +91,22 @@ class WebhookBody(BaseModel):
 
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
                backfiller=None, discovery=None, discovery_cache_path=None,
-               brain=None, agent_dir=None) -> FastAPI:
-    app = FastAPI(title="swingbot")
+               brain=None, agent_dir=None, poller=None) -> FastAPI:
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI):
+        if poller is not None:
+            poller.start()
+        try:
+            yield
+        finally:
+            try:
+                if controller is not None and hasattr(controller, "stop"):
+                    controller.stop()
+            finally:
+                if poller is not None:
+                    poller.stop()
+
+    app = FastAPI(title="swingbot", lifespan=lifespan)
 
     def require_token(x_token: str | None = Header(default=None)):
         if x_token != token:
