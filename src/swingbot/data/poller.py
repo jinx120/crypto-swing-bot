@@ -51,8 +51,14 @@ class CandlePoller:
                         break
                     time.sleep(1)
 
-        self._thread = threading.Thread(target=loop, daemon=True)
-        self._thread.start()
+        thread = threading.Thread(target=loop, daemon=True)
+        try:
+            thread.start()
+        except Exception:  # spawn failed: roll back so the poller stays restartable
+            self._running = False
+            self._thread = None
+            raise
+        self._thread = thread
 
     def stop(self) -> None:
         self._running = False

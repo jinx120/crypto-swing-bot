@@ -75,11 +75,12 @@ class PortfolioSupervisor:
     """Runs one Orchestrator per armed strategy in a single loop under a shared
     PortfolioRiskManager. The only component that talks to the broker/data upstream.
 
-    Single-writer invariant: tick_all/build/status/pause/resume must all be called
-    from ONE thread. The shared StateStore (check_same_thread=False, no internal
-    lock) and the in-memory PortfolioRiskManager are not synchronized; the start()
-    loop is the sole writer. Phase 2 must serialize any web/request-thread calls
-    onto this thread (or add locking) before invoking these methods concurrently.
+    Single-writer intent: tick_all/build/status/pause/resume mutate the shared
+    StateStore (check_same_thread=False, no internal lock) and the in-memory
+    PortfolioRiskManager, which are not themselves synchronized. Web/request-thread
+    calls are serialized against the start() loop via the @_state_locked
+    _state_lock (RLock) so these methods can be invoked concurrently without
+    corrupting state.
     """
 
     def __init__(self, profiles: ProfileStore, creds, state_db: str,

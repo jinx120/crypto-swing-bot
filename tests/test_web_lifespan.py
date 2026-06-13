@@ -61,6 +61,32 @@ def test_lifespan_stops_poller_even_when_controller_stop_raises():
     assert events == ["poller:start", "controller:stop", "poller:stop"]
 
 
+class FailingStartPoller:
+    def __init__(self, events):
+        self.events = events
+
+    def start(self):
+        self.events.append("poller:start")
+        raise RuntimeError("poller boom")
+
+    def stop(self):
+        self.events.append("poller:stop")
+
+
+def test_lifespan_cleans_up_when_poller_start_raises():
+    events = []
+    app = create_app(
+        RecordingController(events), profiles=None, creds=None, token="t",
+        poller=FailingStartPoller(events))
+
+    # A startup failure must not bypass cleanup: both components still stop.
+    with pytest.raises(RuntimeError, match="poller boom"):
+        with TestClient(app):
+            pass
+
+    assert events == ["poller:start", "controller:stop", "poller:stop"]
+
+
 def test_lifespan_allows_no_poller():
     events = []
     app = create_app(
