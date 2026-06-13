@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import pandas as pd
-import pytest
 
 from swingbot.backtest import _warmup_bars, precompute_forecasts, run_backtest
 from swingbot.profile import StrategyProfile
 from swingbot.signals.kronos_adapter import KronosAdapter
-from swingbot.signals.kronos_forecast import KronosForecastSignal
 
 
 def _df(n: int, close: float = 100.0) -> pd.DataFrame:

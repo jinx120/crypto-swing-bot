@@ -12,7 +12,8 @@ class _Ctl:
 class FakeBrain:
     def __init__(self):
         from swingbot.decision.proposals import IssueLog, ProposalStore, make_proposal
-        import tempfile, os
+        import tempfile
+        import os
         d = tempfile.mkdtemp()
         self.proposals = ProposalStore(os.path.join(d, "p.json"))
         self.issues = IssueLog(os.path.join(d, "i.json"))

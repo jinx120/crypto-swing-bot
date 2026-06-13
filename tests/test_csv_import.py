@@ -1,4 +1,3 @@
-import pandas as pd
 
 from swingbot.data.csv_import import CsvImporter
 from swingbot.data.store import CandleStore

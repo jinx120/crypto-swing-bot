@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from swingbot.profile import StrategyProfile
 
 # risk knob -> sizing / exit / breaker params
 RISK = {

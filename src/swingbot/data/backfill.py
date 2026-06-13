@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
-import pandas as pd
 
 from swingbot.data.market import timeframe_seconds
 from swingbot.data.store import CandleStore

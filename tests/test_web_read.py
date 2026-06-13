@@ -39,7 +39,6 @@ def test_write_requires_token():
 
 
 import importlib
-import pathlib
 from unittest.mock import patch
 
 

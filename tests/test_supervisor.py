@@ -1,8 +1,7 @@
 from datetime import datetime, timezone
-import numpy as np, pandas as pd
+import numpy as np
 
-from swingbot.supervisor import PortfolioSupervisor, CachedProvider, _bars_to_df
-from swingbot.data.store import CandleStore
+from swingbot.supervisor import PortfolioSupervisor, _bars_to_df
 from swingbot.profiles import ProfileStore
 
 T0 = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)

@@ -4,7 +4,8 @@ from swingbot.cli import run_from_files
 
 
 def test_run_from_files_outputs_metrics(tmp_path):
-    import numpy as np, pandas as pd
+    import numpy as np
+    import pandas as pd
     n = 130
     closes = np.linspace(100, 130, n)
     pd.DataFrame({

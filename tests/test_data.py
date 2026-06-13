@@ -1,4 +1,3 @@
-import pandas as pd
 
 from swingbot.data.historical import load_csv, REQUIRED_COLUMNS
 
