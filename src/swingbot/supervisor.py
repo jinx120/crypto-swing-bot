@@ -119,6 +119,26 @@ class PortfolioSupervisor:
         if self.runtime_state is not None:
             self.runtime_state.set_running_desired(desired)
 
+    def auto_start_if_desired(self) -> None:
+        """Resume a previously desired paper loop on application boot.
+
+        Records `startup_error` instead of raising, so a failed auto-start never
+        prevents the web app from serving. Only paper mode auto-resumes; live is
+        never started automatically. Does not change `running_desired`.
+        """
+        self.startup_error = None
+        if self.mode != "paper":
+            return
+        if not self.running_desired:
+            return
+        if not self.profiles.list_armed():
+            self.startup_error = "running desired but no armed strategies to resume"
+            return
+        try:
+            self.start()
+        except Exception as e:
+            self.startup_error = f"auto-start failed: {e}"
+
     # ---- construction ----
     @_state_locked
     def build(self) -> None:
