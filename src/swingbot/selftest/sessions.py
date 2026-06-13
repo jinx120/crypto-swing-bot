@@ -100,7 +100,9 @@ def _wait(page, rec: SessionRecorder, ctx: SessionContext, route: str,
 
 _TAB_CHECKS = [
     ("/#/dashboard", "text=Watchlist"),          # PositionGrid header
-    ("/#/strategy",  "text=Save profile"),
+    # "Save profile" lives inside a collapsed <details>; use the always-visible
+    # manual-form toggle as the strategy tab's key element.
+    ("/#/strategy",  "text=Advanced — hand-tune a profile"),
     ("/#/discover",  ".discover-controls"),
     ("/#/brain",     ".brain-title"),
     ("/#/settings",  "text=Alpaca credentials"),

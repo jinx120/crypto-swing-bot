@@ -39,8 +39,8 @@ class FakePage:
         pass
 
 
-_ALL_S1 = ["text=Watchlist", "text=Save profile", ".discover-controls",
-           ".brain-title", "text=Alpaca credentials",
+_ALL_S1 = ["text=Watchlist", "text=Advanced — hand-tune a profile",
+           ".discover-controls", ".brain-title", "text=Alpaca credentials",
            "text=Last usage-agent run", ".guide"]
 
 
