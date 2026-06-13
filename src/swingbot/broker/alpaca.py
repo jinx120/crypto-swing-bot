@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from alpaca.common.exceptions import APIError
 from alpaca.trading.client import TradingClient
 from alpaca.trading.enums import AssetClass, AssetStatus, OrderSide, TimeInForce
 from alpaca.trading.requests import GetAssetsRequest, MarketOrderRequest
@@ -26,10 +27,13 @@ class AlpacaBroker:
                 "buying_power": float(a.buying_power)}
 
     def get_position(self, symbol: str) -> dict | None:
+        """Return None only when Alpaca confirms that no position exists."""
         try:
             p = self._client.get_open_position(normalize_symbol(symbol))
-        except Exception:
-            return None
+        except APIError as exc:
+            if exc.status_code == 404:
+                return None
+            raise
         return {"symbol": symbol, "qty": float(p.qty),
                 "avg_entry_price": float(p.avg_entry_price),
                 "market_value": float(p.market_value)}
