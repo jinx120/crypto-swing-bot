@@ -13,9 +13,13 @@
 **Sub-project E is DONE and live-verified** (full gate green, 6/6 usage sessions pass, 0 drift;
 Health tab confirmed live). The platform roadmap A→E is complete. Suggested next steps:
 
-1. **Schedule the nightly usage-agent run** via `/schedule` (or `/loop`):
-   `cd crypto-swing-bot && .venv/bin/python -m swingbot.selftest` — drives all six sessions,
-   reconciles against the Guide/specs, and files any new drift into the Brain inbox.
+1. ~~Schedule the nightly usage-agent run~~ ✅ **DONE (2026-06-13).** A **system cron job**
+   runs `scripts/nightly-selftest.sh` daily at **03:00 local** (`crontab -l` to view; logs to
+   `~/.swingbot/selftest-cron.log`). It drives all six sessions, reconciles against the
+   Guide/specs, and files new drift into the Brain inbox. Runs `--no-llm` (deterministic gate +
+   sessions + drift, no Ollama dependency); drop that flag in the wrapper to also get LLM
+   improvement proposals. NB: `/schedule` (cloud routines) was **not** used — cloud agents can't
+   reach the local `:8000` container; this is a local cron job by design.
 2. **Triage drift on the Health tab** (`http://localhost:8000/#/health`) whenever a run goes
    non-green or files findings: each `doc_fix`/`ui_fix` card is recommend-only — fix manually,
    then Dismiss.
