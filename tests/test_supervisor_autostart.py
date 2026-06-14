@@ -185,6 +185,19 @@ def test_request_start_does_not_clear_startup_error_on_persist_failure(tmp_path)
     assert sup.startup_error == "auto-start failed: earlier boom"
 
 
+def test_request_start_when_already_running_leaves_loop_on_persist_failure(tmp_path):
+    from swingbot.supervisor import DesirePersistError
+    sup = _supervisor(tmp_path, runtime_state=_RaiseOnSetRuntimeState())
+    sup.start()  # loop already running before the explicit request
+    assert sup.lifecycle_state()["thread_alive"] is True
+    with pytest.raises(DesirePersistError) as exc:
+        sup.request_start()
+    # An already-running loop must NOT be stopped just because persistence failed.
+    assert exc.value.rolled_back is None
+    assert sup.lifecycle_state()["running_actual"] is True
+    sup.stop()  # cleanup
+
+
 def test_request_stop_clears_desire_before_stop(tmp_path):
     calls = []
     rs = RecordingRuntimeState(calls, desired=True)
