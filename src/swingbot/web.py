@@ -17,6 +17,7 @@ import swingbot.discovery as discovery_mod
 from swingbot.strategy_search import backtest_profile, search as run_strategy_search
 from swingbot.universe import fallback_universe
 from swingbot.broker.alpaca import AlpacaBroker
+from swingbot.supervisor import LifecycleError
 
 _DIST = str(pathlib.Path(__file__).parent.parent.parent / "frontend" / "dist")
 
@@ -325,7 +326,12 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
                 controller.request_start()
             else:
                 controller.start()
+        except LifecycleError as e:
+            # Partial/incomplete lifecycle outcome (e.g. started-but-not-persisted,
+            # rollback timed out). Report truthfully, never as success.
+            raise HTTPException(status_code=500, detail=str(e))
         except Exception as e:
+            # Pre-condition failures (e.g. duplicate live thread) — bad request.
             raise HTTPException(status_code=400, detail=str(e))
         return {"ok": True}
 
@@ -333,10 +339,13 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     def control_stop(_=Depends(require_token)):
         # request_stop clears desire before stopping, atomically; fall back to
         # bare stop() for fakes that lack it.
-        if hasattr(controller, "request_stop"):
-            controller.request_stop()
-        else:
-            controller.stop()
+        try:
+            if hasattr(controller, "request_stop"):
+                controller.request_stop()
+            else:
+                controller.stop()
+        except LifecycleError as e:
+            raise HTTPException(status_code=500, detail=str(e))
         return {"ok": True}
 
     @app.get("/api/control/lifecycle")

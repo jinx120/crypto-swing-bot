@@ -4,9 +4,10 @@ from swingbot.web import create_app
 
 
 class DesireController:
-    def __init__(self, start_error=None):
+    def __init__(self, start_error=None, stop_error=None):
         self.calls = []
         self.start_error = start_error
+        self.stop_error = stop_error
         self._lifecycle = {"running_desired": False, "running_actual": False,
                            "startup_error": None}
 
@@ -21,6 +22,8 @@ class DesireController:
 
     def request_stop(self):
         self.calls.append("request_stop")
+        if self.stop_error is not None:
+            raise self.stop_error
 
     def lifecycle_state(self):
         return self._lifecycle
@@ -57,3 +60,29 @@ def test_lifecycle_endpoint_returns_state():
     assert r.status_code == 200
     assert r.json()["running_desired"] is False
     assert "startup_error" in r.json()
+
+
+def test_stop_timeout_returns_500_not_ok():
+    from swingbot.supervisor import LifecycleError
+    ctrl = DesireController(stop_error=LifecycleError(
+        "stop timed out; loop thread still alive", stop_timed_out=True))
+    r = _client(ctrl).post("/api/control/stop", headers={"X-Token": "t"})
+    assert r.status_code == 500
+    assert r.json() != {"ok": True}
+    assert "still alive" in r.json()["detail"]
+
+
+def test_start_persist_failure_returns_500():
+    from swingbot.supervisor import DesirePersistError
+    ctrl = DesireController(start_error=DesirePersistError(
+        "started loop but failed to persist running_desired=true: disk full; "
+        "loop rolled back", rolled_back=True))
+    r = _client(ctrl).post("/api/control/start", headers={"X-Token": "t"})
+    assert r.status_code == 500
+    assert "rolled back" in r.json()["detail"]
+
+
+def test_start_precondition_error_still_returns_400():
+    ctrl = DesireController(start_error=RuntimeError("previous loop thread still alive"))
+    r = _client(ctrl).post("/api/control/start", headers={"X-Token": "t"})
+    assert r.status_code == 400
