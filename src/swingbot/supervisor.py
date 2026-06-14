@@ -180,12 +180,30 @@ class PortfolioSupervisor:
     def request_stop(self) -> None:
         """Handle an explicit operator Stop as one serialized lifecycle operation.
 
-        Desire is cleared before stopping, all under the lifecycle lock, so an
-        in-flight earlier Start cannot re-persist desire=true after this Stop.
+        Desire is cleared first (so a restart cannot auto-resume), but the current
+        process is ALWAYS asked to stop even if clearing desire fails — an explicit
+        Stop must never leave the loop trading. Persistence and stop failures are
+        both surfaced; success raises nothing.
         """
         with self._lifecycle_lock:
-            self.mark_desired(False)
-            self.stop()
+            persist_err: Exception | None = None
+            try:
+                self.mark_desired(False)
+            except Exception as e:
+                persist_err = e
+            stopped = self.stop()  # always attempt, even if desire-clear failed
+            problems: list[str] = []
+            if persist_err is not None:
+                problems.append(
+                    "failed to clear running_desired (restart may auto-resume): "
+                    f"{persist_err}")
+            if not stopped:
+                problems.append("stop timed out; loop thread still alive")
+            if problems:
+                raise LifecycleError(
+                    "; ".join(problems),
+                    persist_error=persist_err,
+                    stop_timed_out=not stopped) from persist_err
 
     def auto_start_if_desired(self) -> None:
         """Resume a previously desired paper loop on application boot.

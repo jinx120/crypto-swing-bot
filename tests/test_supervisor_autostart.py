@@ -202,11 +202,38 @@ def test_request_stop_clears_desire_before_stop(tmp_path):
     calls = []
     rs = RecordingRuntimeState(calls, desired=True)
     sup = _supervisor(tmp_path, runtime_state=rs)
-    sup.stop = lambda: calls.append("stop")
 
-    sup.request_stop()
+    def fake_stop():
+        calls.append("stop")
+        return True
+
+    sup.stop = fake_stop
+
+    sup.request_stop()  # no exception
 
     assert calls == [("mark_desired", False), "stop"]
+
+
+def test_request_stop_still_stops_when_clearing_desire_fails(tmp_path):
+    from swingbot.supervisor import LifecycleError
+    sup = _supervisor(tmp_path, runtime_state=_RaiseOnSetRuntimeState())
+    sup.start()
+    assert sup.lifecycle_state()["thread_alive"] is True
+    with pytest.raises(LifecycleError) as exc:
+        sup.request_stop()
+    # Stop must have been attempted despite the persistence failure.
+    assert sup.lifecycle_state()["thread_alive"] is False
+    assert exc.value.persist_error is not None
+    assert "auto-resume" in str(exc.value)
+
+
+def test_request_stop_succeeds_when_everything_works(tmp_path):
+    rs = RuntimeStateStore(str(tmp_path / "rt.db"))
+    sup = _supervisor(tmp_path, runtime_state=rs)
+    sup.start()
+    sup.request_stop()  # no exception
+    assert sup.lifecycle_state()["thread_alive"] is False
+    assert rs.get_running_desired() is False
 
 
 def test_concurrent_stop_cannot_be_overwritten_by_inflight_start(tmp_path):
@@ -221,8 +248,12 @@ def test_concurrent_stop_cannot_be_overwritten_by_inflight_start(tmp_path):
         start_entered.set()
         assert release_start.wait(timeout=2)
 
+    def fake_stop():
+        calls.append("stop")
+        return True
+
     sup.start = blocking_start
-    sup.stop = lambda: calls.append("stop")
+    sup.stop = fake_stop
     start_thread = threading.Thread(target=sup.request_start)
     stop_thread = threading.Thread(target=sup.request_stop)
 
