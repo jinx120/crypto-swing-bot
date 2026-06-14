@@ -4,7 +4,7 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-06-13
+**Last updated:** 2026-06-14
 
 ---
 
@@ -26,6 +26,18 @@ marks desire true only after a successful start, `POST /api/control/stop` marks 
 stopping, `halt`/`pause`/`resume`/shutdown never touch desire; new `GET /api/control/lifecycle`;
 FastAPI lifespan calls `auto_start_if_desired()` after the poller and tolerates its failure;
 `webmain` wires the store into the supervisor.
+
+**Phase 2 review corrections integrated (2026-06-14):** applied the code-review-revised plan's
+hardening to `master`. `RuntimeStateStore` now guards its shared `check_same_thread=False`
+connection with an `RLock`. The supervisor gained serialized `request_start()` / `request_stop()`
+that hold `_lifecycle_lock` across both the loop transition and desire persistence (so a concurrent
+Stop can't be overwritten by an in-flight earlier Start, and an explicit Stop never auto-resumes on
+restart); a successful explicit Start clears any stale `startup_error`; `auto_start_if_desired()` now
+runs under `_lifecycle_lock` and captures runtime-state read failures. `POST /api/control/start|stop`
+route through these serialized methods (with `hasattr` fallbacks for fakes). Suite **420 passed,
+6 skipped**; ruff clean; frontend builds; container rebuilt + live-verified on `:8000`
+(`running_actual:true`, `running_desired:true`, `startup_error:null`). +20 tests over the prior 412
+(new concurrency/request-ordering coverage).
 
 **NEXT: write the Phase 3 plan** — durable cycle/decision telemetry, order/pending/fill state with
 broker-confirmed positions, persistent trades, and the three `/api/health/*` contracts (spec §5

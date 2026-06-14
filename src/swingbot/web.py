@@ -318,19 +318,25 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
 
     @app.post("/api/control/start")
     def control_start(_=Depends(require_token)):
+        # request_start serializes start + desire persistence under the supervisor
+        # lifecycle lock; fall back to bare start() for fakes that lack it.
         try:
-            controller.start()
+            if hasattr(controller, "request_start"):
+                controller.request_start()
+            else:
+                controller.start()
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
-        if hasattr(controller, "mark_desired"):
-            controller.mark_desired(True)   # persist desire only after a successful start
         return {"ok": True}
 
     @app.post("/api/control/stop")
     def control_stop(_=Depends(require_token)):
-        if hasattr(controller, "mark_desired"):
-            controller.mark_desired(False)  # clear desire first, then stop
-        controller.stop()
+        # request_stop clears desire before stopping, atomically; fall back to
+        # bare stop() for fakes that lack it.
+        if hasattr(controller, "request_stop"):
+            controller.request_stop()
+        else:
+            controller.stop()
         return {"ok": True}
 
     @app.get("/api/control/lifecycle")

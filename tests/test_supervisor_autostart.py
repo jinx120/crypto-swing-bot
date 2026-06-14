@@ -1,3 +1,8 @@
+import threading
+import time
+
+import pytest
+
 from swingbot.profiles import ProfileStore
 from swingbot.runtime_state import RuntimeStateStore
 from swingbot.supervisor import PortfolioSupervisor
@@ -98,3 +103,95 @@ def test_auto_start_captures_start_failure_without_raising(tmp_path):
     sup.auto_start_if_desired()   # must not raise
     assert sup.lifecycle_state()["running_actual"] is False
     assert "credentials" in sup.startup_error
+
+
+def test_auto_start_captures_runtime_state_read_failure(tmp_path):
+    class FailingRuntimeState:
+        def get_running_desired(self):
+            raise RuntimeError("runtime-state read failed")
+
+    sup = _supervisor(tmp_path, runtime_state=FailingRuntimeState())
+    sup.auto_start_if_desired()   # must not raise
+    assert "runtime-state read failed" in sup.startup_error
+
+
+class RecordingRuntimeState:
+    def __init__(self, calls, desired=False):
+        self.calls = calls
+        self.desired = desired
+
+    def get_running_desired(self):
+        return self.desired
+
+    def set_running_desired(self, desired):
+        self.calls.append(("mark_desired", desired))
+        self.desired = desired
+
+
+def test_request_start_marks_desire_after_success(tmp_path):
+    calls = []
+    rs = RecordingRuntimeState(calls)
+    sup = _supervisor(tmp_path, runtime_state=rs)
+    sup.startup_error = "old auto-start failure"
+    sup.start = lambda: calls.append("start")
+
+    sup.request_start()
+
+    assert calls == ["start", ("mark_desired", True)]
+    assert sup.startup_error is None
+
+
+def test_request_start_failure_does_not_mark_desire(tmp_path):
+    calls = []
+    rs = RecordingRuntimeState(calls)
+    sup = _supervisor(tmp_path, runtime_state=rs)
+    sup.start = lambda: (_ for _ in ()).throw(RuntimeError("boom"))
+
+    with pytest.raises(RuntimeError, match="boom"):
+        sup.request_start()
+
+    assert calls == []
+
+
+def test_request_stop_clears_desire_before_stop(tmp_path):
+    calls = []
+    rs = RecordingRuntimeState(calls, desired=True)
+    sup = _supervisor(tmp_path, runtime_state=rs)
+    sup.stop = lambda: calls.append("stop")
+
+    sup.request_stop()
+
+    assert calls == [("mark_desired", False), "stop"]
+
+
+def test_concurrent_stop_cannot_be_overwritten_by_inflight_start(tmp_path):
+    calls = []
+    rs = RecordingRuntimeState(calls)
+    sup = _supervisor(tmp_path, runtime_state=rs)
+    start_entered = threading.Event()
+    release_start = threading.Event()
+
+    def blocking_start():
+        calls.append("start")
+        start_entered.set()
+        assert release_start.wait(timeout=2)
+
+    sup.start = blocking_start
+    sup.stop = lambda: calls.append("stop")
+    start_thread = threading.Thread(target=sup.request_start)
+    stop_thread = threading.Thread(target=sup.request_stop)
+
+    start_thread.start()
+    assert start_entered.wait(timeout=2)
+    stop_thread.start()
+    time.sleep(0.05)
+    assert "stop" not in calls
+
+    release_start.set()
+    start_thread.join(timeout=2)
+    stop_thread.join(timeout=2)
+
+    assert not start_thread.is_alive()
+    assert not stop_thread.is_alive()
+    assert calls == ["start", ("mark_desired", True), ("mark_desired", False), "stop"]
+    assert rs.desired is False

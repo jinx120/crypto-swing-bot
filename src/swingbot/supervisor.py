@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import threading
-import time
 import traceback
 from datetime import datetime, timezone
 from functools import wraps
@@ -75,12 +74,13 @@ class PortfolioSupervisor:
     """Runs one Orchestrator per armed strategy in a single loop under a shared
     PortfolioRiskManager. The only component that talks to the broker/data upstream.
 
-    Single-writer intent: tick_all/build/status/pause/resume mutate the shared
-    StateStore (check_same_thread=False, no internal lock) and the in-memory
-    PortfolioRiskManager, which are not themselves synchronized. Web/request-thread
-    calls are serialized against the start() loop via the @_state_locked
-    _state_lock (RLock) so these methods can be invoked concurrently without
-    corrupting state.
+    Thread safety: lifecycle transitions (start/stop and explicit operator
+    request_start/request_stop, plus their desire persistence) are serialized by
+    the `_lifecycle_lock` RLock; the mutable trading state shared with the loop
+    (StateStore, opened check_same_thread=False with no internal lock, and the
+    in-memory PortfolioRiskManager) is protected by the @_state_locked
+    `_state_lock` RLock. Lock order is lifecycle then state; never acquire
+    lifecycle while holding state.
     """
 
     def __init__(self, profiles: ProfileStore, creds, state_db: str,
@@ -120,25 +120,50 @@ class PortfolioSupervisor:
         if self.runtime_state is not None:
             self.runtime_state.set_running_desired(desired)
 
+    def request_start(self) -> None:
+        """Handle an explicit operator Start as one serialized lifecycle operation.
+
+        Starting and persisting desire happen atomically under the lifecycle lock
+        so a concurrent Stop cannot interleave and leave running_actual=false with
+        a stale running_desired=true. Desire is marked only after start() succeeds;
+        a successful start clears any stale auto-start `startup_error`.
+        """
+        with self._lifecycle_lock:
+            self.start()
+            self.mark_desired(True)
+            self.startup_error = None
+
+    def request_stop(self) -> None:
+        """Handle an explicit operator Stop as one serialized lifecycle operation.
+
+        Desire is cleared before stopping, all under the lifecycle lock, so an
+        in-flight earlier Start cannot re-persist desire=true after this Stop.
+        """
+        with self._lifecycle_lock:
+            self.mark_desired(False)
+            self.stop()
+
     def auto_start_if_desired(self) -> None:
         """Resume a previously desired paper loop on application boot.
 
         Records `startup_error` instead of raising, so a failed auto-start never
         prevents the web app from serving. Only paper mode auto-resumes; live is
-        never started automatically. Does not change `running_desired`.
+        never started automatically. Does not change `running_desired`. Runs under
+        the lifecycle lock so it is ordered against explicit start/stop requests.
         """
-        self.startup_error = None
-        if self.mode != "paper":
-            return
-        if not self.running_desired:
-            return
-        if not self.profiles.list_armed():
-            self.startup_error = "running desired but no armed strategies to resume"
-            return
-        try:
-            self.start()
-        except Exception as e:
-            self.startup_error = f"auto-start failed: {e}"
+        with self._lifecycle_lock:
+            self.startup_error = None
+            if self.mode != "paper":
+                return
+            try:
+                if not self.running_desired:
+                    return
+                if not self.profiles.list_armed():
+                    self.startup_error = "running desired but no armed strategies to resume"
+                    return
+                self.start()
+            except Exception as e:
+                self.startup_error = f"auto-start failed: {e}"
 
     # ---- construction ----
     @_state_locked

@@ -4,15 +4,30 @@
 
 **Goal:** Persist the operator's desired-running state and auto-resume the paper-trading loop on container boot, so the bot actually starts trading after a rebuild without anyone pressing Start — while a failed auto-start never prevents the web app from serving.
 
-**Architecture:** A new `RuntimeStateStore` (SQLite, mirroring `ProfileStore`) durably persists a single `running_desired` flag. `PortfolioSupervisor` gains a `running_desired` view, a `mark_desired()` writer, a `startup_error` attribute, and an `auto_start_if_desired()` method that resumes only a *paper*, *desired*, *armed* loop and records (never raises) failures. The FastAPI lifespan calls `auto_start_if_desired()` after the poller starts and tolerates its failure. `POST /api/control/start` marks desire true only after a successful start; `POST /api/control/stop` marks desire false before stopping; `halt`/`pause`/`resume` and app shutdown never touch desire.
+**Architecture:** A new lock-protected `RuntimeStateStore` (SQLite, mirroring `ProfileStore`) durably persists a single `running_desired` flag. `PortfolioSupervisor` gains a `running_desired` view, a `mark_desired()` writer, serialized `request_start()` / `request_stop()` operations, a `startup_error` attribute, and an `auto_start_if_desired()` method that resumes only a *paper*, *desired*, *armed* loop and records (never raises) failures. The request-level operations hold the existing lifecycle `RLock` across both loop transition and desire persistence, preventing concurrent Start/Stop requests from leaving `running_actual=false` with stale `running_desired=true`. The FastAPI lifespan calls `auto_start_if_desired()` after the poller starts and tolerates its failure; `halt`/`pause`/`resume` and app shutdown never touch desire.
 
 **Tech Stack:** Python 3.11+, `sqlite3` (`check_same_thread=False`), FastAPI/Starlette lifespan, `threading`, pytest, FastAPI `TestClient`.
 
 **Scope:** This plan implements only spec §5 *Phase 2* (persist desire + paper-mode auto-resume) and the §3.1 start/stop/desire contract. It does **not** persist `mode` (restart always defaults to `paper` per §3.1), persist the `paused` flag, add cycle/decision telemetry, model order/fill state, persist trades, add managed profiles/proof-of-life, add the three `/api/health/*` contracts, or rebuild the dashboard. Those are Phases 3–5.
 
-**Builds on:** `plans/2026-06-13-visible-autonomous-entry-phase-0-1.md` (locks, interruptible loop, duplicate-loop prevention, confirmed-404 broker truth, FastAPI lifespan ownership) — all of which are already merged on `master`.
+**Reference checkout:** `/home/ahmad/crypto-swing-bot-review`, clean `master` at `68077ec` (2026-06-13). This is the newer clone and contains the older `/home/ahmad/crypto-swing-bot` checkout as an ancestor.
 
-**Spec basis:** `specs/2026-06-13-visible-autonomous-entry-design-reviewed.md` §3.1 (lifecycle states + auto-start rule), §5 Phase 2, success criteria 1–2.
+**Builds on:** `docs/superpowers/plans/2026-06-13-visible-autonomous-entry-phase-0-1.md` (locks, interruptible loop, duplicate-loop prevention, confirmed-404 broker truth, FastAPI lifespan ownership) — merged on `master` in commits `1f47b94`, `f02228f`, and `db0a6c4`.
+
+**Spec basis:** `docs/superpowers/specs/2026-06-13-visible-autonomous-entry-design-reviewed.md` §3.1 (lifecycle states + auto-start rule), §5 Phase 2, success criteria 1–2.
+
+## Review Corrections Incorporated
+
+1. Reset every implementation checkbox to unchecked; Phase 2 is planned, not implemented.
+2. Pin the plan to the newer clean checkout and use repository-relative `docs/superpowers/...` paths.
+3. Protect `RuntimeStateStore`'s shared `check_same_thread=False` connection with an `RLock`.
+4. Serialize explicit Start/Stop plus desire persistence under the supervisor lifecycle lock; separate web-layer calls could otherwise race and make an explicit Stop auto-resume on restart.
+5. Guard `startup_error` updates with the lifecycle lock already used by `lifecycle_state()`.
+6. Clear a stale auto-start failure after a successful explicit Start.
+7. Add request-ordering/concurrency tests and adjust the expected full-suite count.
+8. Record the reference checkout's environment issue: its copied `.venv` currently has neither `pip` nor `pytest`; recreate/install the dev environment before executing tests.
+9. Replace the stale supervisor docstring that still says Phase 2 must add synchronization, even
+   though Phase 0/1 already added the locks.
 
 ---
 
@@ -50,8 +65,8 @@ Default for a fresh/existing install is `running_desired=false` — installation
 | File | Responsibility | Change |
 |---|---|---|
 | `src/swingbot/runtime_state.py` | Durable lifecycle desire | **New.** `RuntimeStateStore` with `get_running_desired()` / `set_running_desired()`; `CREATE TABLE IF NOT EXISTS` migration |
-| `src/swingbot/supervisor.py` | Lifecycle owner | Accept `runtime_state=`; add `running_desired` property, `mark_desired()`, `startup_error` attr, `auto_start_if_desired()`; extend `lifecycle_state()` with `running_desired` + `startup_error` |
-| `src/swingbot/web.py` | HTTP control + lifespan | Mark desire in `start`/`stop`; add `GET /api/control/lifecycle`; call `auto_start_if_desired()` in lifespan (failure-tolerant) |
+| `src/swingbot/supervisor.py` | Lifecycle owner | Accept `runtime_state=`; add `running_desired`, `mark_desired()`, serialized `request_start()` / `request_stop()`, `startup_error`, and `auto_start_if_desired()`; extend `lifecycle_state()` |
+| `src/swingbot/web.py` | HTTP control + lifespan | Route Start/Stop through serialized supervisor request operations; add `GET /api/control/lifecycle`; call `auto_start_if_desired()` in lifespan (failure-tolerant) |
 | `src/swingbot/webmain.py` | Composition root | Build `RuntimeStateStore` and inject into the supervisor |
 | `tests/test_runtime_state.py` | Persistence | **New.** default/true/false round-trips across reopen |
 | `tests/test_supervisor_autostart.py` | Auto-resume logic | **New.** desire/mode/armed gating + start-failure capture |
@@ -74,6 +89,14 @@ Regression commands (from repo root):
 cd frontend && npm run build
 ```
 
+Execution preflight for the reference checkout:
+
+```bash
+# The cloned .venv is incomplete as reviewed (no pip/pytest). Recreate it before Task 1.
+python3 -m venv --clear .venv
+.venv/bin/python -m pip install -e '.[dev]'
+```
+
 ---
 
 ### Task 1: Durable runtime-state store
@@ -87,6 +110,8 @@ cd frontend && npm run build
 Create `tests/test_runtime_state.py`:
 
 ```python
+from concurrent.futures import ThreadPoolExecutor
+
 from swingbot.runtime_state import RuntimeStateStore
 
 
@@ -108,6 +133,20 @@ def test_set_running_desired_false_clears(tmp_path):
     rs.set_running_desired(True)
     rs.set_running_desired(False)
     assert RuntimeStateStore(db).get_running_desired() is False
+
+
+def test_runtime_state_store_serializes_concurrent_access(tmp_path):
+    rs = RuntimeStateStore(str(tmp_path / "rt.db"))
+
+    def write_then_read(desired):
+        rs.set_running_desired(desired)
+        return rs.get_running_desired()
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        results = list(pool.map(write_then_read, [True, False] * 50))
+
+    assert len(results) == 100
+    assert isinstance(rs.get_running_desired(), bool)
 ```
 
 - [x] **Step 2: Run the tests to verify they fail**
@@ -128,6 +167,7 @@ Create `src/swingbot/runtime_state.py`:
 from __future__ import annotations
 
 import sqlite3
+import threading
 
 
 class RuntimeStateStore:
@@ -139,21 +179,23 @@ class RuntimeStateStore:
     """
 
     def __init__(self, db_path: str):
+        self._lock = threading.RLock()
         self._conn = sqlite3.connect(db_path, check_same_thread=False)
-        self._conn.execute(
-            "CREATE TABLE IF NOT EXISTS runtime_state (key TEXT PRIMARY KEY, value TEXT)")
-        self._conn.commit()
+        with self._lock, self._conn:
+            self._conn.execute(
+                "CREATE TABLE IF NOT EXISTS runtime_state (key TEXT PRIMARY KEY, value TEXT)")
 
     def get_running_desired(self) -> bool:
-        row = self._conn.execute(
-            "SELECT value FROM runtime_state WHERE key='running_desired'").fetchone()
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT value FROM runtime_state WHERE key='running_desired'").fetchone()
         return row is not None and row[0] == "1"
 
     def set_running_desired(self, desired: bool) -> None:
-        self._conn.execute(
-            "INSERT OR REPLACE INTO runtime_state (key, value) VALUES ('running_desired', ?)",
-            ("1" if desired else "0",))
-        self._conn.commit()
+        with self._lock, self._conn:
+            self._conn.execute(
+                "INSERT OR REPLACE INTO runtime_state (key, value) VALUES ('running_desired', ?)",
+                ("1" if desired else "0",))
 ```
 
 - [x] **Step 4: Run the tests to verify they pass**
@@ -164,7 +206,7 @@ Run:
 .venv/bin/python -m pytest tests/test_runtime_state.py -q
 ```
 
-Expected: PASS (3 passed).
+Expected: PASS (4 passed).
 
 - [x] **Step 5: Commit**
 
@@ -249,7 +291,20 @@ Run:
 
 Expected: FAIL — `PortfolioSupervisor.__init__()` rejects `runtime_state=`, and `running_desired`/`mark_desired`/the new `lifecycle_state` keys do not exist.
 
-- [x] **Step 3: Accept `runtime_state` and add desire fields in `__init__`**
+- [x] **Step 3: Correct the stale supervisor synchronization docstring**
+
+Replace the `PortfolioSupervisor` class docstring with:
+
+```python
+    """Runs one Orchestrator per armed strategy under shared portfolio risk.
+
+    Thread safety: lifecycle transitions are serialized by `_lifecycle_lock`;
+    mutable trading state and strategy structures are protected by `_state_lock`.
+    Lock order is lifecycle then state. Never acquire lifecycle while holding state.
+    """
+```
+
+- [x] **Step 4: Accept `runtime_state` and add desire fields in `__init__`**
 
 In `src/swingbot/supervisor.py`, change the constructor signature from:
 
@@ -273,7 +328,7 @@ Then, immediately after the existing `self.mode = mode` line in `__init__`, add:
         self.startup_error: str | None = None  # most recent auto-start outcome
 ```
 
-- [x] **Step 4: Add the `running_desired` property and `mark_desired()` writer**
+- [x] **Step 5: Add the `running_desired` property and `mark_desired()` writer**
 
 Add these two members immediately after `__init__` (before the `# ---- construction ----` block):
 
@@ -290,7 +345,7 @@ Add these two members immediately after `__init__` (before the `# ---- construct
             self.runtime_state.set_running_desired(desired)
 ```
 
-- [x] **Step 5: Extend `lifecycle_state()` with desire + startup_error**
+- [x] **Step 6: Extend `lifecycle_state()` with desire + startup_error**
 
 In `lifecycle_state()`, replace the returned dict literal:
 
@@ -320,7 +375,7 @@ with:
                 }
 ```
 
-- [x] **Step 6: Run focused tests to verify they pass**
+- [x] **Step 7: Run focused tests to verify they pass**
 
 Run:
 
@@ -330,7 +385,7 @@ Run:
 
 Expected: PASS (4 passed).
 
-- [x] **Step 7: Run supervisor regressions**
+- [x] **Step 8: Run supervisor regressions**
 
 Run:
 
@@ -340,7 +395,7 @@ Run:
 
 Expected: PASS. The Phase 0/1 safety tests assert individual `lifecycle_state()` keys, so the two new keys do not break them.
 
-- [x] **Step 8: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/swingbot/supervisor.py tests/test_supervisor_autostart.py
@@ -407,6 +462,16 @@ def test_auto_start_captures_start_failure_without_raising(tmp_path):
     sup.auto_start_if_desired()   # must not raise
     assert sup.lifecycle_state()["running_actual"] is False
     assert "credentials" in sup.startup_error
+
+
+def test_auto_start_captures_runtime_state_read_failure(tmp_path):
+    class FailingRuntimeState:
+        def get_running_desired(self):
+            raise RuntimeError("runtime-state read failed")
+
+    sup = _supervisor(tmp_path, runtime_state=FailingRuntimeState())
+    sup.auto_start_if_desired()   # must not raise
+    assert "runtime-state read failed" in sup.startup_error
 ```
 
 - [x] **Step 2: Run the new tests to verify they fail**
@@ -431,18 +496,19 @@ In `src/swingbot/supervisor.py`, add this method immediately after `mark_desired
         prevents the web app from serving. Only paper mode auto-resumes; live is
         never started automatically. Does not change `running_desired`.
         """
-        self.startup_error = None
-        if self.mode != "paper":
-            return
-        if not self.running_desired:
-            return
-        if not self.profiles.list_armed():
-            self.startup_error = "running desired but no armed strategies to resume"
-            return
-        try:
-            self.start()
-        except Exception as e:
-            self.startup_error = f"auto-start failed: {e}"
+        with self._lifecycle_lock:
+            self.startup_error = None
+            if self.mode != "paper":
+                return
+            try:
+                if not self.running_desired:
+                    return
+                if not self.profiles.list_armed():
+                    self.startup_error = "running desired but no armed strategies to resume"
+                    return
+                self.start()
+            except Exception as e:
+                self.startup_error = f"auto-start failed: {e}"
 ```
 
 - [x] **Step 4: Run the auto-start tests to verify they pass**
@@ -453,7 +519,7 @@ Run:
 .venv/bin/python -m pytest tests/test_supervisor_autostart.py -q
 ```
 
-Expected: PASS (9 passed total in this file).
+Expected: PASS (10 passed total in this file).
 
 - [x] **Step 5: Run supervisor regressions**
 
@@ -474,13 +540,126 @@ git commit -m "feat: paper-only failure-tolerant auto-resume on boot"
 
 ---
 
-### Task 4: Control endpoints set desire + lifecycle endpoint
+### Task 4: Serialize explicit Start/Stop desire semantics + lifecycle endpoint
 
 **Files:**
+- Modify: `src/swingbot/supervisor.py` (add `request_start()` / `request_stop()`)
 - Modify: `src/swingbot/web.py` (`control_start`, `control_stop`, add `control_lifecycle`)
+- Test: `tests/test_supervisor_autostart.py`
 - Test: `tests/test_web_desire.py`
 
-- [x] **Step 1: Write the failing tests**
+- [x] **Step 1: Add failing supervisor request-semantics tests**
+
+Add `import pytest`, `import threading`, and `import time` with the imports at the top of
+`tests/test_supervisor_autostart.py`, then append:
+
+```python
+class RecordingRuntimeState:
+    def __init__(self, calls, desired=False):
+        self.calls = calls
+        self.desired = desired
+
+    def get_running_desired(self):
+        return self.desired
+
+    def set_running_desired(self, desired):
+        self.calls.append(("mark_desired", desired))
+        self.desired = desired
+
+
+def test_request_start_marks_desire_after_success(tmp_path):
+    calls = []
+    rs = RecordingRuntimeState(calls)
+    sup = _supervisor(tmp_path, runtime_state=rs)
+    sup.startup_error = "old auto-start failure"
+    sup.start = lambda: calls.append("start")
+
+    sup.request_start()
+
+    assert calls == ["start", ("mark_desired", True)]
+    assert sup.startup_error is None
+
+
+def test_request_start_failure_does_not_mark_desire(tmp_path):
+    calls = []
+    rs = RecordingRuntimeState(calls)
+    sup = _supervisor(tmp_path, runtime_state=rs)
+    sup.start = lambda: (_ for _ in ()).throw(RuntimeError("boom"))
+
+    with pytest.raises(RuntimeError, match="boom"):
+        sup.request_start()
+
+    assert calls == []
+
+
+def test_request_stop_clears_desire_before_stop(tmp_path):
+    calls = []
+    rs = RecordingRuntimeState(calls, desired=True)
+    sup = _supervisor(tmp_path, runtime_state=rs)
+    sup.stop = lambda: calls.append("stop")
+
+    sup.request_stop()
+
+    assert calls == [("mark_desired", False), "stop"]
+
+
+def test_concurrent_stop_cannot_be_overwritten_by_inflight_start(tmp_path):
+    calls = []
+    rs = RecordingRuntimeState(calls)
+    sup = _supervisor(tmp_path, runtime_state=rs)
+    start_entered = threading.Event()
+    release_start = threading.Event()
+
+    def blocking_start():
+        calls.append("start")
+        start_entered.set()
+        assert release_start.wait(timeout=2)
+
+    sup.start = blocking_start
+    sup.stop = lambda: calls.append("stop")
+    start_thread = threading.Thread(target=sup.request_start)
+    stop_thread = threading.Thread(target=sup.request_stop)
+
+    start_thread.start()
+    assert start_entered.wait(timeout=2)
+    stop_thread.start()
+    time.sleep(0.05)
+    assert "stop" not in calls
+
+    release_start.set()
+    start_thread.join(timeout=2)
+    stop_thread.join(timeout=2)
+
+    assert not start_thread.is_alive()
+    assert not stop_thread.is_alive()
+    assert calls == ["start", ("mark_desired", True), ("mark_desired", False), "stop"]
+    assert rs.desired is False
+```
+
+- [x] **Step 2: Implement serialized request operations**
+
+Add immediately after `mark_desired()` in `src/swingbot/supervisor.py`:
+
+```python
+    def request_start(self) -> None:
+        """Handle an explicit operator Start as one serialized lifecycle operation."""
+        with self._lifecycle_lock:
+            self.start()
+            self.mark_desired(True)
+            self.startup_error = None
+
+    def request_stop(self) -> None:
+        """Handle an explicit operator Stop as one serialized lifecycle operation."""
+        with self._lifecycle_lock:
+            self.mark_desired(False)
+            self.stop()
+```
+
+The existing lifecycle lock is an `RLock`, so calling `start()` / `stop()` while holding it is
+intentional. This preserves request order: if Stop arrives after Start, Stop's final durable state
+is false; if Start arrives after Stop, Start's final durable state is true.
+
+- [x] **Step 3: Write failing web routing + lifecycle tests**
 
 Create `tests/test_web_desire.py`:
 
@@ -493,7 +672,6 @@ from swingbot.web import create_app
 class DesireController:
     def __init__(self, start_error=None):
         self.calls = []
-        self.desired = None
         self.start_error = start_error
         self._lifecycle = {"running_desired": False, "running_actual": False,
                            "startup_error": None}
@@ -502,17 +680,13 @@ class DesireController:
     def journal(self, strategy=None): return []
     def metrics(self, strategy=None): return {}
 
-    def start(self):
-        self.calls.append("start")
+    def request_start(self):
+        self.calls.append("request_start")
         if self.start_error is not None:
             raise self.start_error
 
-    def stop(self):
-        self.calls.append("stop")
-
-    def mark_desired(self, desired):
-        self.calls.append(("mark_desired", desired))
-        self.desired = desired
+    def request_stop(self):
+        self.calls.append("request_stop")
 
     def lifecycle_state(self):
         return self._lifecycle
@@ -522,28 +696,25 @@ def _client(ctrl):
     return TestClient(create_app(controller=ctrl, profiles=None, creds=None, token="t"))
 
 
-def test_start_marks_desired_true_after_success():
+def test_start_routes_to_serialized_request_start():
     ctrl = DesireController()
     r = _client(ctrl).post("/api/control/start", headers={"X-Token": "t"})
     assert r.status_code == 200
-    assert ctrl.desired is True
-    assert ctrl.calls.index("start") < ctrl.calls.index(("mark_desired", True))
+    assert ctrl.calls == ["request_start"]
 
 
-def test_failed_start_does_not_mark_desired():
+def test_failed_request_start_surfaces_400():
     ctrl = DesireController(start_error=RuntimeError("boom"))
     r = _client(ctrl).post("/api/control/start", headers={"X-Token": "t"})
     assert r.status_code == 400
-    assert ctrl.desired is None
-    assert ("mark_desired", True) not in ctrl.calls
+    assert "boom" in r.json()["detail"]
 
 
-def test_stop_marks_desired_false_before_stopping():
+def test_stop_routes_to_serialized_request_stop():
     ctrl = DesireController()
     r = _client(ctrl).post("/api/control/stop", headers={"X-Token": "t"})
     assert r.status_code == 200
-    assert ctrl.desired is False
-    assert ctrl.calls.index(("mark_desired", False)) < ctrl.calls.index("stop")
+    assert ctrl.calls == ["request_stop"]
 
 
 def test_lifecycle_endpoint_returns_state():
@@ -554,60 +725,30 @@ def test_lifecycle_endpoint_returns_state():
     assert "startup_error" in r.json()
 ```
 
-- [x] **Step 2: Run the tests to verify they fail**
+- [x] **Step 4: Route control endpoints through serialized operations**
 
-Run:
-
-```bash
-.venv/bin/python -m pytest tests/test_web_desire.py -q
-```
-
-Expected: FAIL — `start`/`stop` do not call `mark_desired`, and `GET /api/control/lifecycle` returns 404.
-
-- [x] **Step 3: Mark desire in `control_start` / `control_stop`**
-
-In `src/swingbot/web.py`, replace the existing `control_start` and `control_stop` handlers:
+Replace the existing Start/Stop handlers in `src/swingbot/web.py` with:
 
 ```python
     @app.post("/api/control/start")
     def control_start(_=Depends(require_token)):
         try:
-            controller.start()
+            if hasattr(controller, "request_start"):
+                controller.request_start()
+            else:
+                controller.start()
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
         return {"ok": True}
 
     @app.post("/api/control/stop")
     def control_stop(_=Depends(require_token)):
-        controller.stop(); return {"ok": True}
-```
-
-with:
-
-```python
-    @app.post("/api/control/start")
-    def control_start(_=Depends(require_token)):
-        try:
-            controller.start()
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        if hasattr(controller, "mark_desired"):
-            controller.mark_desired(True)   # persist desire only after a successful start
+        if hasattr(controller, "request_stop"):
+            controller.request_stop()
+        else:
+            controller.stop()
         return {"ok": True}
 
-    @app.post("/api/control/stop")
-    def control_stop(_=Depends(require_token)):
-        if hasattr(controller, "mark_desired"):
-            controller.mark_desired(False)  # clear desire first, then stop
-        controller.stop()
-        return {"ok": True}
-```
-
-- [x] **Step 4: Add the lifecycle GET endpoint**
-
-In `src/swingbot/web.py`, immediately after the `control_stop` handler, add:
-
-```python
     @app.get("/api/control/lifecycle")
     def control_lifecycle():
         if hasattr(controller, "lifecycle_state"):
@@ -615,21 +756,28 @@ In `src/swingbot/web.py`, immediately after the `control_stop` handler, add:
         return {}
 ```
 
-- [x] **Step 5: Run focused + control regressions to verify they pass**
+The fallbacks preserve compatibility with existing web-test fakes. Production uses the serialized
+supervisor methods.
+
+- [x] **Step 5: Run focused + control regressions**
 
 Run:
 
 ```bash
-.venv/bin/python -m pytest tests/test_web_desire.py tests/test_web_control.py -q
+.venv/bin/python -m pytest \
+  tests/test_supervisor_autostart.py \
+  tests/test_web_desire.py \
+  tests/test_web_control.py -q
 ```
 
-Expected: PASS. The existing `test_web_control.py` fakes lack `mark_desired`/`lifecycle_state`, so the `hasattr` guards leave those tests unchanged.
+Expected: PASS.
 
 - [x] **Step 6: Commit**
 
 ```bash
-git add src/swingbot/web.py tests/test_web_desire.py
-git commit -m "feat: control endpoints persist desire; add lifecycle endpoint"
+git add src/swingbot/supervisor.py src/swingbot/web.py \
+  tests/test_supervisor_autostart.py tests/test_web_desire.py
+git commit -m "feat: serialize explicit start and stop desire semantics"
 ```
 
 ---
@@ -805,7 +953,10 @@ Run:
 .venv/bin/python -m pytest -q
 ```
 
-Expected: PASS (Phase 0/1 baseline was `394 passed, 6 skipped`; this phase adds new passing tests — expect ~`410 passed, 6 skipped`). If an unrelated pre-existing failure appears, confirm it against the base commit before recording it as pre-existing.
+Expected: PASS (Phase 0/1 baseline was `394 passed, 6 skipped`; this phase adds 24 tests, so
+expect approximately `418 passed, 6 skipped`). If collection differs because `master` moved,
+record the new pre-change baseline before implementation. If an unrelated pre-existing failure
+appears, confirm it against the base commit before recording it as pre-existing.
 
 - [x] **Step 4: Build the frontend**
 
@@ -864,7 +1015,7 @@ Expected: step 4 shows the loop running with no button press (success criterion 
 
 Edit `docs/ROADMAP_STATUS.md`:
 - Mark **Visible Autonomous Entry — Phase 2** complete (persisted desire + paper auto-resume), referencing this plan and the acceptance evidence from Step 6.
-- Set **NEXT ACTION** to: *write the Phase 3 plan* — durable cycle/decision telemetry, order/pending/fill state with broker-confirmed positions, persistent trades, and the three `/api/health/*` contracts (spec §5 Phase 3). Spec basis: `specs/2026-06-13-visible-autonomous-entry-design-reviewed.md`.
+- Set **NEXT ACTION** to: *write the Phase 3 plan* — durable cycle/decision telemetry, order/pending/fill state with broker-confirmed positions, persistent trades, and the three `/api/health/*` contracts (spec §5 Phase 3). Spec basis: `docs/superpowers/specs/2026-06-13-visible-autonomous-entry-design-reviewed.md`.
 
 - [x] **Step 8: Commit**
 
@@ -883,6 +1034,10 @@ Before execution handoff, confirm:
 - [x] `mode` is constructed as `paper` every boot; live is never auto-started.
 - [x] `POST /api/control/start` sets desire true **only** after `controller.start()` succeeds.
 - [x] `POST /api/control/stop` sets desire false **before** stopping.
+- [x] Explicit Start/Stop plus desire persistence are serialized under `_lifecycle_lock`.
+- [x] Concurrent Stop cannot be overwritten by an in-flight earlier Start.
+- [x] `RuntimeStateStore` serializes access to its shared SQLite connection.
+- [x] A successful explicit Start clears a stale `startup_error`.
 - [x] `halt`, `pause`, `resume`, and app shutdown never call `mark_desired`.
 - [x] `auto_start_if_desired()` records `startup_error` and never raises.
 - [x] The lifespan tolerates an `auto_start_if_desired()` exception and still serves requests.
@@ -899,7 +1054,7 @@ Before execution handoff, confirm:
 | Spec Phase 2 item | Task |
 |---|---|
 | 1. Dedicated runtime-state record / schema migration | Task 1 (+ wiring Task 6) |
-| 2. Update start/stop semantics per §3.1 | Tasks 2, 3, 4 |
+| 2. Update start/stop semantics per §3.1 | Tasks 2, 4 (including concurrent request ordering) |
 | 3. Lifespan auto-start with visible `startup_error` | Tasks 3, 5 (+ `lifecycle` endpoint Task 4) |
 | 4. Keep web API available when auto-start fails | Tasks 3, 5 (failure-tolerant) |
 | Exit: resume desired paper loop after restart | Task 6 Step 6 |
@@ -910,7 +1065,7 @@ Before execution handoff, confirm:
 
 ## Execution Handoff
 
-Plan complete and saved to `docs/superpowers/plans/2026-06-13-visible-autonomous-entry-phase-2.md`. Two execution options:
+Plan complete and saved to `docs/superpowers/plans/2026-06-13-visible-autonomous-entry-phase-2.md` in the reference checkout. Two execution options:
 
 **1. Subagent-Driven (recommended)** — dispatch a fresh subagent per task, review between tasks, fast iteration. REQUIRED SUB-SKILL: `superpowers:subagent-driven-development`.
 
