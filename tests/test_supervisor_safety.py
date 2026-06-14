@@ -4,7 +4,7 @@ import time
 import pytest
 
 from swingbot.profiles import ProfileStore
-from swingbot.supervisor import PortfolioSupervisor
+from swingbot.supervisor import LifecycleError, PortfolioSupervisor
 from tests.test_supervisor import FakeBroker, FakeMarket, _bars, _profile
 
 
@@ -94,16 +94,31 @@ def test_stop_retains_live_thread_after_join_timeout(tmp_path):
     sup._join_timeout = 0.05
     thread, release = _install_stubborn_thread(sup)
     try:
-        sup.stop()
+        stopped = sup.stop()
+        # A timed-out stop is distinguishable from a completed stop.
+        assert stopped is False
         assert sup._thread is thread
         assert thread.is_alive()
         state = sup.lifecycle_state()
-        assert state["running_flag"] is False
         assert state["thread_alive"] is True
-        assert state["running_actual"] is False
+        # Reviewed contract (spec 3.1): running_actual == loop thread is alive.
+        assert state["running_actual"] is True
+        # The internal flag is cleared and reported separately.
+        assert state["running_flag"] is False
+        # A later Start stays blocked while that thread is alive.
+        with pytest.raises(RuntimeError, match="still alive"):
+            sup.start()
     finally:
         release.set()
         thread.join(timeout=2)
+
+
+def test_lifecycle_error_is_a_runtime_error_with_structured_attrs():
+    err = LifecycleError("stop timed out", stop_timed_out=True, rolled_back=False)
+    assert isinstance(err, RuntimeError)
+    assert err.stop_timed_out is True
+    assert err.rolled_back is False
+    assert err.persist_error is None
 
 
 def test_start_refuses_while_prior_thread_is_alive(tmp_path):

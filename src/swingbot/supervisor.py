@@ -23,6 +23,31 @@ from swingbot.metrics import compute_metrics
 from swingbot.state import StateStore, StrategyStateView
 from swingbot.types import MarketContext
 
+class LifecycleError(RuntimeError):
+    """An explicit operator lifecycle command (start/stop) did not fully succeed.
+
+    Carries structured attributes so the web layer can report a truthful,
+    actionable outcome instead of a bare success. `persist_error` is the
+    underlying desire-persistence exception (or None); `stop_timed_out` is True
+    when the loop thread was still alive after the join timeout; `rolled_back`
+    indicates whether a partially-started loop was successfully stopped again
+    (None when not applicable).
+    """
+
+    def __init__(self, message: str, *, persist_error: Exception | None = None,
+                 stop_timed_out: bool = False, rolled_back: bool | None = None):
+        super().__init__(message)
+        self.persist_error = persist_error
+        self.stop_timed_out = stop_timed_out
+        self.rolled_back = rolled_back
+
+
+class DesirePersistError(LifecycleError):
+    """Persisting the durable `running_desired` flag failed during an explicit
+    start/stop. Subclass so callers may catch it specifically while still
+    matching `LifecycleError`."""
+
+
 _CANON = ["ts", "open", "high", "low", "close", "volume"]
 
 
@@ -337,7 +362,7 @@ class PortfolioSupervisor:
                     "mode": self.mode,
                     "running_flag": running_flag,
                     "thread_alive": thread_alive,
-                    "running_actual": running_flag and thread_alive,
+                    "running_actual": thread_alive,
                     "running_desired": self.running_desired,
                     "paused": bool(self.paused),
                     "halted": halted,
@@ -404,8 +429,7 @@ class PortfolioSupervisor:
                         return (False, f"go-live blocked: {reason}")
                 was_running = self._running
 
-            self.stop()
-            if self._thread is not None and self._thread.is_alive():
+            if not self.stop():
                 return (False, "previous loop thread still alive; mode unchanged")
 
             with self._state_lock:
@@ -467,21 +491,27 @@ class PortfolioSupervisor:
             if self._stop_event.wait(delay):
                 break
 
-    def stop(self) -> None:
+    def stop(self) -> bool:
         # Lifecycle lock remains held across join so concurrent start/set_mode
         # cannot race this transition. Do not take the state lock here: a hung
         # tick may hold it, and stop must still signal and time out.
+        # Returns True if the loop is fully stopped (no live thread), False if
+        # the thread was still alive after the join timeout. On False the thread
+        # reference is retained so a second Start stays blocked.
         with self._lifecycle_lock:
             self._running = False
             self._stop_event.set()
             thread = self._thread
             if thread is None:
-                return
+                return True
             if thread is threading.current_thread():
-                return
+                return True
             thread.join(timeout=self._join_timeout)
-            if not thread.is_alive() and self._thread is thread:
+            if thread.is_alive():
+                return False
+            if self._thread is thread:
                 self._thread = None
+            return True
 
     @_state_locked
     def pause(self) -> None:
