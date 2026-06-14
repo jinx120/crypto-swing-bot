@@ -148,14 +148,31 @@ class PortfolioSupervisor:
     def request_start(self) -> None:
         """Handle an explicit operator Start as one serialized lifecycle operation.
 
-        Starting and persisting desire happen atomically under the lifecycle lock
-        so a concurrent Stop cannot interleave and leave running_actual=false with
-        a stale running_desired=true. Desire is marked only after start() succeeds;
-        a successful start clears any stale auto-start `startup_error`.
+        Start and desire-persistence are atomic under the lifecycle lock. Desire
+        is marked only after start() succeeds. If persisting desire fails AND this
+        call is what started the loop, roll the loop back so the operator is never
+        told Start failed while a live thread keeps trading. A stale startup_error
+        is cleared only on full success.
         """
         with self._lifecycle_lock:
-            self.start()
-            self.mark_desired(True)
+            was_running = self._running
+            self.start()  # precondition failures (e.g. duplicate thread) propagate as RuntimeError
+            try:
+                self.mark_desired(True)
+            except Exception as persist_err:
+                rolled_back: bool | None = None
+                if not was_running:
+                    rolled_back = self.stop()  # only stop a loop THIS call started
+                raise DesirePersistError(
+                    "started loop but failed to persist running_desired=true: "
+                    f"{persist_err}; "
+                    + ("loop rolled back" if rolled_back
+                       else "ROLLBACK STOP TIMED OUT — loop thread still alive"
+                       if rolled_back is False
+                       else "loop was already running before this request; left running"),
+                    persist_error=persist_err,
+                    stop_timed_out=(rolled_back is False),
+                    rolled_back=rolled_back) from persist_err
             self.startup_error = None
 
     def request_stop(self) -> None:

@@ -153,6 +153,38 @@ def test_request_start_failure_does_not_mark_desire(tmp_path):
     assert calls == []
 
 
+class _RaiseOnSetRuntimeState:
+    """Runtime store whose desire-read works but desire-write raises."""
+    def __init__(self):
+        self._desired = False
+
+    def get_running_desired(self):
+        return self._desired
+
+    def set_running_desired(self, desired):
+        raise RuntimeError("disk full")
+
+
+def test_request_start_rolls_back_when_persist_fails(tmp_path):
+    from swingbot.supervisor import DesirePersistError
+    sup = _supervisor(tmp_path, runtime_state=_RaiseOnSetRuntimeState())
+    with pytest.raises(DesirePersistError) as exc:
+        sup.request_start()
+    state = sup.lifecycle_state()
+    assert state["running_actual"] is False
+    assert state["thread_alive"] is False
+    assert exc.value.rolled_back is True
+    assert exc.value.persist_error is not None
+
+
+def test_request_start_does_not_clear_startup_error_on_persist_failure(tmp_path):
+    sup = _supervisor(tmp_path, runtime_state=_RaiseOnSetRuntimeState())
+    sup.startup_error = "auto-start failed: earlier boom"
+    with pytest.raises(Exception):
+        sup.request_start()
+    assert sup.startup_error == "auto-start failed: earlier boom"
+
+
 def test_request_stop_clears_desire_before_stop(tmp_path):
     calls = []
     rs = RecordingRuntimeState(calls, desired=True)
