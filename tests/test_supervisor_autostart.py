@@ -165,6 +165,15 @@ class _RaiseOnSetRuntimeState:
         raise RuntimeError("disk full")
 
 
+class _RaiseOnGetRuntimeState:
+    """Runtime store whose desire-read raises (write is a harmless no-op)."""
+    def get_running_desired(self):
+        raise RuntimeError("runtime-state read failed")
+
+    def set_running_desired(self, desired):
+        pass
+
+
 def test_request_start_rolls_back_when_persist_fails(tmp_path):
     from swingbot.supervisor import DesirePersistError
     sup = _supervisor(tmp_path, runtime_state=_RaiseOnSetRuntimeState())
@@ -271,3 +280,15 @@ def test_concurrent_stop_cannot_be_overwritten_by_inflight_start(tmp_path):
     assert not stop_thread.is_alive()
     assert calls == ["start", ("mark_desired", True), ("mark_desired", False), "stop"]
     assert rs.desired is False
+
+
+def test_lifecycle_state_tolerates_unreadable_desire(tmp_path):
+    sup = _supervisor(tmp_path, runtime_state=_RaiseOnGetRuntimeState())
+    # auto_start_if_desired already captures the read failure into startup_error
+    sup.auto_start_if_desired()  # must not raise
+    state = sup.lifecycle_state()  # must not raise
+    assert state["running_desired"] is None
+    assert "runtime-state read failed" in state["running_desired_error"]
+    # The captured auto-start failure remains visible.
+    assert state["startup_error"] is not None
+    assert "runtime-state read failed" in state["startup_error"]

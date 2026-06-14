@@ -391,6 +391,14 @@ class PortfolioSupervisor:
         with self._lifecycle_lock:
             thread_alive = bool(self._thread is not None and self._thread.is_alive())
             running_flag = bool(self._running)
+            try:
+                running_desired: bool | None = self.running_desired
+                running_desired_error: str | None = None
+            except Exception as e:
+                # An unreadable store must not break the lifecycle endpoint, and
+                # unreadable desire is reported as null (not a silent false).
+                running_desired = None
+                running_desired_error = str(e)
             with self._state_lock:
                 halted = bool(
                     self._portfolio_risk
@@ -400,7 +408,8 @@ class PortfolioSupervisor:
                     "running_flag": running_flag,
                     "thread_alive": thread_alive,
                     "running_actual": thread_alive,
-                    "running_desired": self.running_desired,
+                    "running_desired": running_desired,
+                    "running_desired_error": running_desired_error,
                     "paused": bool(self.paused),
                     "halted": halted,
                     "startup_error": self.startup_error,
