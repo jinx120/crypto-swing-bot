@@ -62,6 +62,23 @@ def test_lifecycle_endpoint_returns_state():
     assert "startup_error" in r.json()
 
 
+def test_lifecycle_endpoint_exposes_unreadable_desire():
+    ctrl = DesireController()
+    ctrl._lifecycle = {
+        "mode": "paper", "running_flag": False, "thread_alive": False,
+        "running_actual": False, "running_desired": None,
+        "running_desired_error": "runtime-state read failed",
+        "paused": False, "halted": False,
+        "startup_error": "auto-start failed: runtime-state read failed",
+    }
+    r = _client(ctrl).get("/api/control/lifecycle")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["running_desired"] is None
+    assert body["running_desired_error"] == "runtime-state read failed"
+    assert "runtime-state read failed" in body["startup_error"]
+
+
 def test_stop_timeout_returns_500_not_ok():
     from swingbot.supervisor import LifecycleError
     ctrl = DesireController(stop_error=LifecycleError(
