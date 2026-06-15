@@ -4,11 +4,13 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-06-14
+**Last updated:** 2026-06-15
 
 ---
 
 ## ▶ NEXT ACTION
+
+**Usage Agent: 1 drift finding(s) pending — see docs/SELFTEST_REPORT.md §Drift Findings and the Health tab.**
 
 **Visible Autonomous Entry — Phase 2 (persisted desire + paper auto-resume) is DONE (2026-06-13).**
 Plan `plans/2026-06-13-visible-autonomous-entry-phase-2.md` executed end-to-end; all 6 tasks
@@ -74,13 +76,24 @@ rebuilt + live-verified on `:8000` (`running_actual:true`, `running_desired:true
 left running + desired. Fault-injection findings (F1/F4/F5 timeouts) are covered by the test suite
 (can't inject disk-full/stuck-thread into the live container).
 
-**NEXT ACTION — write the Phase 3 plan.** The lifecycle truth layer is now hardened, so Phase 3's
-`/api/health/trading` (spec §3.3: "a desired-but-not-running loop is immediately unhealthy") can be
-built on a `running_actual`/`running_desired` surface that cannot lie. Phase 3 scope: durable
-cycle/decision telemetry, order/pending/fill state with broker-confirmed positions, persistent
-trades, and the three `/api/health/*` contracts (spec §5 Phase 3). Load
-`superpowers:brainstorming` only if design forks remain, else `superpowers:writing-plans`. Spec
-basis: `specs/2026-06-13-visible-autonomous-entry-design-reviewed.md`.
+**Visible Autonomous Entry — Phase 3 is DONE (2026-06-15).** Plan
+`plans/2026-06-15-visible-autonomous-entry-phase-3.md` executed end-to-end in 8 tasks. Shipped:
+stable decision/order contracts; durable 200-cycle telemetry and reliability; closed-bar
+freshness; restart-safe pending orders and broker order lookup; broker-confirmed position/fill
+transitions; durable trades/journal/metrics; one terminal record per strategy cycle; and separate
+`/api/health/live`, `/api/health/ready`, and `/api/health/trading` contracts. Deterministic
+integration coverage verifies restart/no-duplicate behavior, confirmed durable exits, broker error
+truth, the exact latest-200 health window, and desired-but-not-running override.
+
+Final gates: **521 passed, 6 skipped**; Phase 3 focused matrix **72 passed**; ruff clean; frontend
+untouched. `python3 -m graphify update .` was attempted but this clean host has no `graphify`
+module (and PyPI has no matching distribution); no tracked graph artifacts exist in this clone.
+No live Alpaca/container acceptance is claimed; that remains Phase 6.
+
+**NEXT ACTION — write the Phase 4 plan.** Scope: managed strategy definitions plus the optional
+paper proof-of-life probe from spec §5 Phase 4, using
+`specs/2026-06-13-visible-autonomous-entry-design-reviewed.md` as the basis. Use
+`superpowers:brainstorming` only if design forks remain, then `superpowers:writing-plans`.
 
 ---
 

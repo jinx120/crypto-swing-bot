@@ -179,7 +179,6 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
             profiles.arm(body.name)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
-        # TODO(Phase3): serialize onto the loop thread or lock before reload() while the supervisor is running
         controller.reload()
         return {"ok": True}
 
@@ -189,7 +188,6 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
             raise HTTPException(status_code=404, detail=f"strategy {body.name!r} is not armed")
         controller.flatten(body.name)
         profiles.disarm(body.name)
-        # TODO(Phase3): serialize onto the loop thread or lock before reload() while the supervisor is running
         controller.reload()
         return {"ok": True}
 
@@ -213,7 +211,6 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
             profiles.set_portfolio_settings(patch)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
-        # TODO(Phase3): serialize onto the loop thread or lock before reload() while the supervisor is running
         controller.reload()
         return profiles.get_portfolio_settings()
 

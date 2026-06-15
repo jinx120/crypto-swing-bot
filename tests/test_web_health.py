@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from fastapi.testclient import TestClient
 
@@ -7,7 +7,7 @@ from swingbot.supervisor import PortfolioSupervisor
 from swingbot.telemetry import CycleRecord
 from swingbot.types import DecisionCode
 from swingbot.web import create_app
-from tests.test_supervisor import FakeBroker, FakeMarket, T0, _bars, _profile, _supervisor
+from tests.test_supervisor import FakeBroker, FakeMarket, T0, _supervisor
 
 
 class HealthController:
