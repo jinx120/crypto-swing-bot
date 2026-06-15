@@ -5,6 +5,7 @@ import pathlib
 import threading
 import time
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse
@@ -130,6 +131,18 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     @app.get("/api/metrics")
     def metrics(strategy: str | None = None):
         return controller.metrics(strategy)
+
+    @app.get("/api/health/live")
+    def health_live():
+        return {"status": "live", "served_at": datetime.now(timezone.utc).isoformat()}
+
+    @app.get("/api/health/ready")
+    def health_ready():
+        return controller.readiness()
+
+    @app.get("/api/health/trading")
+    def health_trading():
+        return controller.trading_health()
 
     @app.get("/api/candles")
     def candles(symbol: str | None = None, timeframe: str | None = None, limit: int = 500):

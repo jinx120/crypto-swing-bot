@@ -535,6 +535,81 @@ class PortfolioSupervisor:
                     "startup_error": self.startup_error,
                 }
 
+    def readiness(self) -> dict:
+        """Local readiness snapshot; never performs a broker or market network call."""
+        lifecycle = self.lifecycle_state()
+        with self._state_lock:
+            try:
+                credentials_ok = bool(self.creds is not None and self.creds.get() is not None)
+                credentials_detail = "credentials available" if credentials_ok else "missing credentials"
+            except Exception as exc:
+                credentials_ok = False
+                credentials_detail = f"credentials unreadable: {exc}"
+            armed = self.profiles.list_armed()
+            recent = self._telemetry.recent(limit=200)
+            latest_by_strategy = {}
+            for row in recent:
+                latest_by_strategy.setdefault(row.strategy, row)
+            critical_ok = all(
+                row.ingest == "ok" and row.reconcile == "ok" and row.persist == "ok"
+                for row in latest_by_strategy.values()
+            )
+            desired = lifecycle["running_desired"]
+            checks = {
+                "credentials": {
+                    "ok": credentials_ok,
+                    "detail": credentials_detail,
+                },
+                "armed_strategies": {
+                    "ok": bool(armed),
+                    "detail": f"{len(armed)} armed strategies",
+                },
+                "lifecycle_desire_readable": {
+                    "ok": desired is not None,
+                    "detail": lifecycle.get("running_desired_error") or "desire readable",
+                },
+                "completed_cycle_while_desired": {
+                    "ok": desired is not True or bool(recent),
+                    "detail": (
+                        "completed cycle available"
+                        if recent else "no completed cycle available"
+                    ),
+                },
+                "latest_critical_stages": {
+                    "ok": critical_ok,
+                    "detail": (
+                        "latest critical stages succeeded"
+                        if critical_ok else "latest critical-stage failure present"
+                    ),
+                },
+            }
+            return {"ready": all(check["ok"] for check in checks.values()), "checks": checks}
+
+    def trading_health(self) -> dict:
+        """Trading lifecycle and reliability snapshot with no broker mutations/queries."""
+        lifecycle = self.lifecycle_state()
+        with self._state_lock:
+            rows = self._telemetry.recent(limit=200)
+            reliability = self._telemetry.reliability(limit=200)
+            last_decisions = {}
+            for row in rows:
+                last_decisions.setdefault(row.strategy, _cycle_dict(row))
+            desired = lifecycle["running_desired"]
+            actual = lifecycle["running_actual"]
+            if desired is False:
+                status = "inactive"
+            elif desired is None or not actual:
+                status = "unhealthy"
+            else:
+                status = "active"
+            return {
+                "status": status,
+                "lifecycle": lifecycle,
+                "last_cycle": _cycle_dict(rows[0]) if rows else None,
+                "last_decisions_by_strategy": last_decisions,
+                "reliability": reliability,
+            }
+
     # ---- aggregate journal + metrics ----
     def _trades(self, strategy: str | None = None) -> list:
         return self._trade_store.list(strategy=strategy)
@@ -703,3 +778,21 @@ def _trade_dict(t):
             "entry_price": t.entry_price, "exit_price": t.exit_price, "qty": t.qty,
             "pnl": t.pnl, "exit_reason": t.exit_reason.value,
             "score_at_entry": t.score_at_entry, "regime_at_entry": t.regime_at_entry.value}
+
+
+def _cycle_dict(record: CycleRecord) -> dict:
+    return {
+        "cycle_id": record.cycle_id,
+        "strategy": record.strategy,
+        "started_at": record.started_at.isoformat(),
+        "completed_at": record.completed_at.isoformat(),
+        "bar_ts": record.bar_ts.isoformat() if record.bar_ts else None,
+        "ingest": record.ingest,
+        "reconcile": record.reconcile,
+        "manage": record.manage,
+        "decide": record.decide,
+        "persist": record.persist,
+        "decision_code": record.decision_code.value,
+        "decision_reason": record.decision_reason,
+        "decision_details": record.decision_details,
+    }
