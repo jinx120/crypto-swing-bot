@@ -21,7 +21,7 @@ from dataclasses import asdict, fields
 from swingbot.graduation import can_go_live
 from swingbot.metrics import compute_metrics
 from swingbot.state import StateStore, StrategyStateView
-from swingbot.types import MarketContext
+from swingbot.types import MarketContext, OrderSide
 
 class LifecycleError(RuntimeError):
     """An explicit operator lifecycle command (start/stop) did not fully succeed.
@@ -271,13 +271,20 @@ class PortfolioSupervisor:
     def _make_gate(self, profile: StrategyProfile):
         def gate(symbol: str, prospective_value: float):
             positions = self._store.load_all_positions()
+            pending_buys = [
+                order for order in self._store.load_all_pending_orders().values()
+                if order.side is OrderSide.BUY
+            ]
             deployed = 0.0
             for pos in positions.values():
                 price = self._latest_prices.get(pos.symbol, pos.entry_price)
                 deployed += pos.qty * price
+            for order in pending_buys:
+                price = self._latest_prices.get(order.symbol, 0.0)
+                deployed += order.requested_qty * price
             equity = self._broker.get_account()["equity"]
             return self._portfolio_risk.check_can_enter(
-                equity=equity, open_position_count=len(positions),
+                equity=equity, open_position_count=len(positions) + len(pending_buys),
                 deployed_value=deployed, prospective_value=prospective_value)
         return gate
 

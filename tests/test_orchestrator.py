@@ -8,7 +8,7 @@ from swingbot.profile import StrategyProfile
 from swingbot.risk import RiskManager, RiskState
 from swingbot.state import StateStore
 from swingbot.journal import TradeJournal
-from swingbot.types import ExitReason
+from swingbot.types import BrokerOrder, ExitReason, OrderSide, OrderStatus
 
 T0 = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
 
@@ -31,16 +31,23 @@ class FakeData:
 
 class FakeBroker:
     def __init__(self, equity=1000.0):
-        self._equity = equity; self.position = None; self.buys = []; self.sells = []
+        self._equity = equity; self.position = None; self.order = None; self.buys = []; self.sells = []
     def get_account(self): return {"equity": self._equity, "cash": self._equity,
                                    "buying_power": self._equity}
     def get_position(self, symbol): return self.position
-    def submit_market_buy(self, symbol, qty):
+    def get_order(self, order_id=None, client_order_id=None): return self.order
+    def submit_market_buy(self, symbol, qty, client_order_id):
         self.position = {"symbol": symbol, "qty": qty, "avg_entry_price": 100.0,
                          "market_value": qty * 100.0}
-        self.buys.append((symbol, qty)); return "buy-1"
-    def submit_market_sell(self, symbol, qty):
-        self.position = None; self.sells.append((symbol, qty)); return "sell-1"
+        self.buys.append((symbol, qty))
+        self.order = BrokerOrder("buy-1", symbol, OrderSide.BUY, OrderStatus.FILLED,
+                                 qty, qty, 100.0, client_order_id)
+        return self.order
+    def submit_market_sell(self, symbol, qty, client_order_id):
+        self.position = None; self.sells.append((symbol, qty))
+        self.order = BrokerOrder("sell-1", symbol, OrderSide.SELL, OrderStatus.FILLED,
+                                 qty, qty, 99.0, client_order_id)
+        return self.order
     def cancel_all(self): pass
 
 
@@ -75,6 +82,7 @@ def test_tick_opens_position_on_signal(tmp_path):
     orch = _orch(data, broker, tmp_path)
     orch.tick(now=T0)
     assert len(broker.buys) == 1
+    orch.reconcile(now=T0)
     assert orch.state.load_position() is not None
 
 
@@ -93,11 +101,13 @@ def test_tick_exits_on_stop(tmp_path):
     broker = FakeBroker(equity=1000.0)
     orch = _orch(data, broker, tmp_path)
     orch.tick(now=T0)
+    orch.reconcile(now=T0)
     pos = orch.state.load_position()
     assert pos is not None
     data.set_price(pos.stop * 0.99)
     orch.tick(now=T0 + timedelta(minutes=1))
     assert len(broker.sells) == 1
+    orch.reconcile(now=T0 + timedelta(minutes=1))
     assert orch.state.load_position() is None
     assert len(orch.journal.trades) == 1
     assert orch.journal.trades[0].exit_reason == ExitReason.STOP
@@ -146,6 +156,7 @@ def test_killswitch_allows_exit_of_open_position(tmp_path):
     broker = FakeBroker(equity=1000.0)
     orch = _orch(data, broker, tmp_path)
     orch.tick(now=T0)                      # opens a position
+    orch.reconcile(now=T0)
     pos = orch.state.load_position()
     assert pos is not None
     # trip kill switch AFTER entry
@@ -155,6 +166,7 @@ def test_killswitch_allows_exit_of_open_position(tmp_path):
     data.set_price(pos.stop * 0.99)        # stop is hit
     orch.tick(now=T0 + timedelta(minutes=1))
     assert len(broker.sells) == 1          # exit still happens despite kill switch
+    orch.reconcile(now=T0 + timedelta(minutes=1))
     assert orch.state.load_position() is None
 
 def test_stop_exit_updates_risk_state(tmp_path):
@@ -163,8 +175,10 @@ def test_stop_exit_updates_risk_state(tmp_path):
     broker = FakeBroker(equity=1000.0)
     orch = _orch(data, broker, tmp_path)
     orch.tick(now=T0)
+    orch.reconcile(now=T0)
     pos = orch.state.load_position()
     data.set_price(pos.stop * 0.99)
     orch.tick(now=T0 + timedelta(minutes=1))
+    orch.reconcile(now=T0 + timedelta(minutes=1))
     assert orch.risk.state.consecutive_losses == 1
     assert "TRX/USD" in orch.risk.state.cooldown_until

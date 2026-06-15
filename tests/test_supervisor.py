@@ -3,6 +3,7 @@ import numpy as np
 
 from swingbot.supervisor import PortfolioSupervisor, _bars_to_df
 from swingbot.profiles import ProfileStore
+from swingbot.types import BrokerOrder, OrderSide, OrderStatus
 
 T0 = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
 
@@ -31,13 +32,21 @@ class FakeMarket:
 
 
 class FakeBroker:
-    def __init__(self): self.positions = {}; self.buys = []; self.sells = []
+    def __init__(self): self.positions = {}; self.order = None; self.buys = []; self.sells = []
     def get_account(self): return {"equity": 1000.0, "cash": 1000.0, "buying_power": 1000.0}
     def get_position(self, s): return self.positions.get(s)
-    def submit_market_buy(self, s, q):
+    def get_order(self, order_id=None, client_order_id=None): return self.order
+    def submit_market_buy(self, s, q, client_order_id):
         self.positions[s] = {"symbol": s, "qty": q, "avg_entry_price": 100.0, "market_value": q * 100}
-        self.buys.append((s, q)); return "b"
-    def submit_market_sell(self, s, q): self.positions.pop(s, None); self.sells.append((s, q)); return "s"
+        self.buys.append((s, q))
+        self.order = BrokerOrder(f"b-{s}", s, OrderSide.BUY, OrderStatus.FILLED,
+                                 q, q, 100.0, client_order_id)
+        return self.order
+    def submit_market_sell(self, s, q, client_order_id):
+        self.positions.pop(s, None); self.sells.append((s, q))
+        self.order = BrokerOrder(f"s-{s}", s, OrderSide.SELL, OrderStatus.FILLED,
+                                 q, q, 99.0, client_order_id)
+        return self.order
     def cancel_all(self): pass
 
 
@@ -77,6 +86,7 @@ def test_supervisor_ticks_all_armed_and_warms_once(tmp_path):
     assert market.refresh_calls == [(("BTC/USD", "ETH/USD"), "15m")]
     # both armed strategies were evaluated and (given the dip) opened positions
     assert set(broker.positions) == {"BTC/USD", "ETH/USD"}
+    assert set(sup._store.load_all_pending_orders()) == {"btc", "eth"}
 
 
 def test_supervisor_status_lists_strategies(tmp_path):
@@ -86,7 +96,7 @@ def test_supervisor_status_lists_strategies(tmp_path):
     assert "portfolio" in st and isinstance(st["strategies"], list)
     names = {s["name"] for s in st["strategies"]}
     assert names == {"btc", "eth"}
-    assert st["portfolio"]["open_positions"] == 2
+    assert st["portfolio"]["open_positions"] == 0  # fills promote on the next reconcile cycle
 
 
 def test_max_concurrent_caps_open_positions(tmp_path):
@@ -95,3 +105,4 @@ def test_max_concurrent_caps_open_positions(tmp_path):
     sup.build()                                   # rebuild with new settings
     sup.tick_all(now=T0)
     assert len(broker.positions) == 1             # portfolio cap allowed only one entry
+    assert len(sup._store.load_all_pending_orders()) == 1

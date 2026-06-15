@@ -6,6 +6,7 @@ from swingbot.profile import StrategyProfile
 from swingbot.risk import RiskManager
 from swingbot.state import StateStore
 from swingbot.journal import TradeJournal
+from swingbot.types import BrokerOrder, OrderSide, OrderStatus
 
 T0 = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
 
@@ -25,11 +26,19 @@ class FakeData:
 
 
 class FakeBroker:
-    def __init__(self): self.position=None; self.buys=[]; self.sells=[]
+    def __init__(self): self.position=None; self.order=None; self.buys=[]; self.sells=[]
     def get_account(self): return {"equity":1000.0,"cash":1000.0,"buying_power":1000.0}
     def get_position(self,s): return self.position
-    def submit_market_buy(self,s,q): self.position={"symbol":s,"qty":q,"avg_entry_price":100.0,"market_value":q*100}; self.buys.append((s,q)); return "b"
-    def submit_market_sell(self,s,q): self.position=None; self.sells.append((s,q)); return "s"
+    def get_order(self, order_id=None, client_order_id=None): return self.order
+    def submit_market_buy(self,s,q,client_order_id):
+        self.position={"symbol":s,"qty":q,"avg_entry_price":100.0,"market_value":q*100}
+        self.buys.append((s,q))
+        self.order=BrokerOrder("b",s,OrderSide.BUY,OrderStatus.FILLED,q,q,100.0,client_order_id)
+        return self.order
+    def submit_market_sell(self,s,q,client_order_id):
+        self.position=None; self.sells.append((s,q))
+        self.order=BrokerOrder("s",s,OrderSide.SELL,OrderStatus.FILLED,q,q,99.0,client_order_id)
+        return self.order
     def cancel_all(self): pass
 
 
@@ -62,8 +71,10 @@ def test_flatten_closes_open_position(tmp_path):
     data=FakeData(_dip(), float(_dip()["close"].iloc[-1])); broker=FakeBroker()
     orch=_orch(data,broker,tmp_path)
     orch.tick(now=T0)
+    orch.reconcile(now=T0)
     assert orch.state.load_position() is not None
     orch.flatten(now=T0 + timedelta(minutes=1))
     assert len(broker.sells) == 1
+    orch.reconcile(now=T0 + timedelta(minutes=1))
     assert orch.state.load_position() is None
     assert len(orch.journal.trades) == 1

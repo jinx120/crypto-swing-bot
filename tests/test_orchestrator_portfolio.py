@@ -8,6 +8,7 @@ from swingbot.profile import StrategyProfile
 from swingbot.risk import RiskManager
 from swingbot.state import StateStore
 from swingbot.journal import TradeJournal
+from swingbot.types import BrokerOrder, OrderSide, OrderStatus
 
 T0 = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
 
@@ -26,13 +27,21 @@ class FakeData:
 
 
 class FakeBroker:
-    def __init__(self): self.position = None; self.buys = []; self.sells = []
+    def __init__(self): self.position = None; self.order = None; self.buys = []; self.sells = []
     def get_account(self): return {"equity": 1000.0, "cash": 1000.0, "buying_power": 1000.0}
     def get_position(self, s): return self.position
-    def submit_market_buy(self, s, q):
+    def get_order(self, order_id=None, client_order_id=None): return self.order
+    def submit_market_buy(self, s, q, client_order_id):
         self.position = {"symbol": s, "qty": q, "avg_entry_price": 100.0, "market_value": q * 100}
-        self.buys.append((s, q)); return "b"
-    def submit_market_sell(self, s, q): self.position = None; self.sells.append((s, q)); return "s"
+        self.buys.append((s, q))
+        self.order = BrokerOrder("b", s, OrderSide.BUY, OrderStatus.FILLED,
+                                 q, q, 100.0, client_order_id)
+        return self.order
+    def submit_market_sell(self, s, q, client_order_id):
+        self.position = None; self.sells.append((s, q))
+        self.order = BrokerOrder("s", s, OrderSide.SELL, OrderStatus.FILLED,
+                                 q, q, 99.0, client_order_id)
+        return self.order
     def cancel_all(self): pass
 
 
@@ -73,9 +82,11 @@ def test_portfolio_gate_allows_and_notifies_on_close(tmp_path):
                         portfolio_on_close=lambda pnl, now: closed.append(pnl))
     orch.tick(now=T0)
     assert len(broker.buys) == 1
+    orch.reconcile(now=T0)
     pos = orch.state.load_position()
     data._p = pos.stop * 0.99                       # force a stop-out
     orch.tick(now=T0 + timedelta(minutes=1))
+    orch.reconcile(now=T0 + timedelta(minutes=1))
     assert len(closed) == 1                          # portfolio_on_close fired with the pnl
 
 
@@ -89,6 +100,8 @@ def test_flatten_notifies_on_close(tmp_path):
                         portfolio_on_close=lambda pnl, now: closed.append(pnl))
     orch.tick(now=T0)
     assert len(broker.buys) == 1                  # a position was opened
+    orch.reconcile(now=T0)
     orch.flatten(now=T0 + timedelta(minutes=1))   # manual close
+    orch.reconcile(now=T0 + timedelta(minutes=1))
     assert orch.state.load_position() is None      # position cleared
     assert len(closed) == 1                          # hook fired via flatten
