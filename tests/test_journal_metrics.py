@@ -22,6 +22,15 @@ def test_journal_records_and_lists():
     assert j.trades[0].pnl == 5.0
 
 
+def test_in_memory_journal_behavior_is_unchanged():
+    journal = TradeJournal()
+    trade = _trade(3.0)
+
+    journal.record(trade)
+
+    assert journal.trades == [trade]
+
+
 from swingbot.metrics import compute_metrics
 
 
