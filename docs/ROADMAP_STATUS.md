@@ -39,9 +39,48 @@ route through these serialized methods (with `hasattr` fallbacks for fakes). Sui
 (`running_actual:true`, `running_desired:true`, `startup_error:null`). +20 tests over the prior 412
 (new concurrency/request-ordering coverage).
 
-**NEXT: write the Phase 3 plan** — durable cycle/decision telemetry, order/pending/fill state with
-broker-confirmed positions, persistent trades, and the three `/api/health/*` contracts (spec §5
-Phase 3). Spec basis: `specs/2026-06-13-visible-autonomous-entry-design-reviewed.md`.
+**Phase 2 code review (2026-06-14) found 4 remaining lifecycle *failure-path* defects** (handoff:
+`plans/2026-06-14-phase2-lifecycle-code-review-handoff.md`, reviewed head `2f13bda`): (1) a failed
+desire-write during Start leaves the loop running while the API returns failure; (2) Stop reports
+`{"ok":true}` while the loop thread is still alive, and `running_actual` is mis-computed as
+`running_flag and thread_alive` instead of the reviewed "thread is alive" contract; (3) a captured
+runtime-state read failure makes `lifecycle_state()` itself raise; (4) a failed desire-clear during
+Stop skips `stop()` entirely so the bot keeps trading. The happy paths and concurrent Start/Stop
+ordering from `2f13bda` are sound — these are all partial-failure truthfulness gaps.
+
+**Phase 2.1 lifecycle failure-path hardening is DONE (2026-06-15).** Plan
+`plans/2026-06-14-visible-autonomous-entry-phase-2-1-lifecycle-hardening.md` executed end-to-end via
+subagent-driven development (fresh implementer + spec-compliance + code-quality review per task);
+7 commits on `master` (`0c5783e`, `51270d6`, `a27beba`, `feb567d`, `68e5c26`, `fc79cd0`, `ea0b1f3`).
+All 4 review findings fixed:
+- **F1 (Start):** `request_start()` now rolls back a loop it just started if desire-persistence fails
+  (guarded by `was_running` so an already-running loop is never stopped), raises `DesirePersistError`,
+  and clears stale `startup_error` only on full success.
+- **F2 (Stop truthfulness):** new typed `LifecycleError`/`DesirePersistError`; `stop()` returns a bool
+  (True=stopped, False=thread alive after join, retaining the thread ref so duplicate starts stay
+  blocked); `running_actual` now = `thread_alive` per spec §3.1, with `running_flag` reported
+  separately.
+- **F3 (read failure):** `lifecycle_state()` tolerates an unreadable runtime store — reports
+  `running_desired=null` + `running_desired_error`, never raises, keeps `startup_error` visible.
+- **F4 (Stop skip):** `request_stop()` always attempts `stop()` even when clearing desire fails, and
+  surfaces both failures in one `LifecycleError`.
+- **Web:** `POST /api/control/start|stop` map `LifecycleError` → HTTP 500 (never `{"ok":true}` on a
+  live thread); precondition `RuntimeError` on Start stays 400. `GET /api/control/lifecycle` passes
+  the new fields through (pinned by test).
+
+Full suite **431 passed, 6 skipped** (+11 over prior 420); ruff clean; frontend builds; container
+rebuilt + live-verified on `:8000` (`running_actual:true`, `running_desired:true`,
+`running_desired_error:null`, `startup_error:null` — auto-resume intact, new fields correct). Bot
+left running + desired. Fault-injection findings (F1/F4/F5 timeouts) are covered by the test suite
+(can't inject disk-full/stuck-thread into the live container).
+
+**NEXT ACTION — write the Phase 3 plan.** The lifecycle truth layer is now hardened, so Phase 3's
+`/api/health/trading` (spec §3.3: "a desired-but-not-running loop is immediately unhealthy") can be
+built on a `running_actual`/`running_desired` surface that cannot lie. Phase 3 scope: durable
+cycle/decision telemetry, order/pending/fill state with broker-confirmed positions, persistent
+trades, and the three `/api/health/*` contracts (spec §5 Phase 3). Load
+`superpowers:brainstorming` only if design forks remain, else `superpowers:writing-plans`. Spec
+basis: `specs/2026-06-13-visible-autonomous-entry-design-reviewed.md`.
 
 ---
 
