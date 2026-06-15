@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import re
 import time
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+
+import pandas as pd
 
 from swingbot.data.alpaca import AlpacaData
 from swingbot.data.store import CandleStore
@@ -15,6 +19,44 @@ def timeframe_seconds(tf: str) -> int:
     if not m:
         return 900
     return int(m.group(1)) * _UNIT_SECONDS[m.group(2)]
+
+
+@dataclass(frozen=True)
+class ClosedBarFreshness:
+    closed: pd.DataFrame
+    bar_ts: datetime | None
+    fresh: bool
+
+
+def closed_bars(bars: pd.DataFrame, timeframe: str, now: datetime) -> pd.DataFrame:
+    """Return only bars whose full interval has elapsed at the supplied clock."""
+    if bars.empty:
+        return bars.copy()
+    interval = pd.Timedelta(seconds=timeframe_seconds(timeframe))
+    timestamps = pd.to_datetime(bars["ts"], utc=True)
+    now_ts = pd.Timestamp(now)
+    if now_ts.tzinfo is None:
+        now_ts = now_ts.tz_localize("UTC")
+    else:
+        now_ts = now_ts.tz_convert("UTC")
+    return bars.loc[timestamps + interval <= now_ts].copy().reset_index(drop=True)
+
+
+def closed_bar_freshness(
+    bars: pd.DataFrame,
+    timeframe: str,
+    now: datetime,
+    provider_grace: int = 120,
+) -> ClosedBarFreshness:
+    """Return closed bars and whether the latest is within provider grace."""
+    closed = closed_bars(bars, timeframe=timeframe, now=now)
+    if closed.empty:
+        return ClosedBarFreshness(closed=closed, bar_ts=None, fresh=False)
+    bar_ts = pd.Timestamp(closed["ts"].iloc[-1]).to_pydatetime()
+    fresh_until = bar_ts + timedelta(
+        seconds=timeframe_seconds(timeframe) + provider_grace
+    )
+    return ClosedBarFreshness(closed=closed, bar_ts=bar_ts, fresh=now <= fresh_until)
 
 
 class MarketData:
