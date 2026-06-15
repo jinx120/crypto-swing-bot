@@ -13,7 +13,7 @@ def _bars(symbol_base=100.0, n=120):
     base = list(np.linspace(symbol_base, symbol_base * 1.3, n - dip_len))
     dip = list(np.linspace(symbol_base * 1.3, symbol_base * 1.20, dip_len))
     closes = base + dip
-    t0 = 1_700_000_000
+    t0 = int(T0.timestamp()) - (n - 1) * 900
     return [{"time": t0 + i * 900, "open": c, "high": c * 1.002, "low": c * 0.998,
              "close": c, "volume": 100.0} for i, c in enumerate(closes)]
 

@@ -2,26 +2,33 @@ from __future__ import annotations
 
 import threading
 import traceback
+from dataclasses import asdict, fields
 from datetime import datetime, timezone
 from functools import wraps
+from uuid import uuid4
 
 import pandas as pd
 
 from swingbot.broker.alpaca import AlpacaBroker
-from swingbot.data.market import MarketData, timeframe_seconds
+from swingbot.data.market import (
+    MarketData,
+    closed_bar_freshness,
+    closed_bars,
+    timeframe_seconds,
+)
+from swingbot.graduation import can_go_live
 from swingbot.journal import TradeJournal
+from swingbot.metrics import compute_metrics
 from swingbot.orchestrator import Orchestrator
 from swingbot.portfolio_risk import PortfolioRiskManager, PortfolioSettings
 from swingbot.profile import StrategyProfile
 from swingbot.profiles import ProfileStore
 from swingbot.risk import RiskManager
 from swingbot.snapshot import signal_snapshot
-from dataclasses import asdict, fields
-
-from swingbot.graduation import can_go_live
-from swingbot.metrics import compute_metrics
 from swingbot.state import StateStore, StrategyStateView
-from swingbot.types import MarketContext, OrderSide
+from swingbot.telemetry import CycleRecord, TelemetryStore
+from swingbot.trade_store import TradeStore
+from swingbot.types import DecisionCode, DecisionResult, MarketContext, OrderSide
 
 class LifecycleError(RuntimeError):
     """An explicit operator lifecycle command (start/stop) did not fully succeed.
@@ -70,11 +77,15 @@ class CachedProvider:
         self.market = market
         self.latest = latest_prices          # symbol -> float
         self.timeframes = timeframes          # symbol -> timeframe (price fallback)
+        self.cycle_now: datetime | None = None
 
     def get_candles(self, symbol: str, timeframe: str, lookback: int) -> pd.DataFrame:
         bars = self.market.get(symbol, timeframe, lookback,
                                max_age=timeframe_seconds(timeframe))
-        return _bars_to_df(bars)
+        frame = _bars_to_df(bars)
+        if self.cycle_now is None:
+            return frame
+        return closed_bars(frame, timeframe=timeframe, now=self.cycle_now)
 
     def get_latest_price(self, symbol: str) -> float:
         p = self.latest.get(symbol)
@@ -127,6 +138,9 @@ class PortfolioSupervisor:
         self._strategies: dict = {}          # name -> {profile, orch, view, journal, snapshot}
         self._portfolio_risk: PortfolioRiskManager | None = None
         self._store: StateStore | None = None
+        self._telemetry = TelemetryStore(state_db)
+        self._trade_store = TradeStore(state_db)
+        self._provider: CachedProvider | None = None
         self._summary: dict = {}
         # Lock order: lifecycle -> state. Never acquire lifecycle while holding state.
         self._lifecycle_lock = threading.RLock()
@@ -249,6 +263,7 @@ class PortfolioSupervisor:
             settings, self._store.load_portfolio_risk_state())
 
         provider = CachedProvider(self.market, self._latest_prices, self._timeframes)
+        self._provider = provider
         self._timeframes.clear()
         self._latest_prices.clear()
         self._strategies = {}
@@ -262,7 +277,7 @@ class PortfolioSupervisor:
             risk = RiskManager(profile, view.load_risk_state())
             orch = Orchestrator(
                 profile=profile, data=provider, broker=self._broker, state=view,
-                risk=risk, journal=TradeJournal(),
+                risk=risk, journal=TradeJournal(store=self._trade_store, strategy=name),
                 portfolio_gate=self._make_gate(profile),
                 portfolio_on_close=self._make_on_close())
             self._strategies[name] = {"profile": profile, "orch": orch,
@@ -298,29 +313,87 @@ class PortfolioSupervisor:
     @_state_locked
     def tick_all(self, now: datetime | None = None) -> None:
         now = now or datetime.now(timezone.utc)
-        self._warm(now)
+        if self._provider is not None:
+            self._provider.cycle_now = now
+        ingest = self._warm(now)
         acct = self._broker.get_account()
         self._portfolio_risk.start_day(now, acct["equity"])
         for name in sorted(self._strategies):                 # deterministic priority
             s = self._strategies[name]
-            if self.paused:
-                s["orch"].paused = True
+            orch = s["orch"]
+            orch.paused = bool(self.paused)
+            orch.halted = bool(self._portfolio_risk.state.kill_switch_active)
+            cycle_id = uuid4().hex
+            stages = {
+                "ingest": ingest[name]["outcome"],
+                "reconcile": "ok",
+                "manage": "skipped",
+                "decide": "skipped",
+                "persist": "ok",
+            }
+            decision = DecisionResult(DecisionCode.ERROR, "cycle did not complete")
+            reconcile_ok = True
             try:
-                s["orch"].tick(now)
-            except Exception as e:                            # one bad strategy never aborts the cycle
-                print(f"[supervisor] {name} tick error: {e}")
+                orch.reconcile(now)
+            except Exception as exc:
+                reconcile_ok = False
+                stages["reconcile"] = "failed"
+                decision = self._error_decision("reconcile", exc)
+
+            position_exists = s["view"].load_position() is not None
+            required_stage = "manage" if position_exists else "decide"
+            if not reconcile_ok or stages["ingest"] == "failed":
+                stages[required_stage] = "failed"
+                if stages["ingest"] == "failed":
+                    decision = DecisionResult(
+                        DecisionCode.ERROR,
+                        ingest[name]["error"] or "fresh closed-bar ingest failed",
+                        {"stage": "ingest"},
+                    )
+            else:
+                try:
+                    decision = orch.tick(now)
+                    if not isinstance(decision, DecisionResult):
+                        raise TypeError("orchestrator tick returned no DecisionResult")
+                    stages[required_stage] = "ok"
+                except Exception as exc:
+                    stages[required_stage] = "failed"
+                    decision = self._error_decision(required_stage, exc)
+
+            try:
+                self._store.save_portfolio_risk_state(self._portfolio_risk.state)
+            except Exception as exc:
+                stages["persist"] = "failed"
+                decision = self._error_decision("persist", exc)
+
+            self._telemetry.record(CycleRecord(
+                cycle_id=cycle_id,
+                strategy=name,
+                started_at=now,
+                completed_at=now,
+                bar_ts=ingest[name]["bar_ts"],
+                ingest=stages["ingest"],
+                reconcile=stages["reconcile"],
+                manage=stages["manage"],
+                decide=stages["decide"],
+                persist=stages["persist"],
+                decision_code=decision.code,
+                decision_reason=decision.reason,
+                decision_details=decision.details,
+            ))
             s["snapshot"] = self._snapshot(s["profile"])
-        self._store.save_portfolio_risk_state(self._portfolio_risk.state)
         self._summary = self._build_summary(acct)
 
-    def _warm(self, now: datetime) -> None:
+    def _warm(self, now: datetime) -> dict[str, dict]:
         by_tf: dict = {}
         for s in self._strategies.values():
             by_tf.setdefault(s["profile"].timeframe, set()).add(s["profile"].symbol)
+        refresh_errors: dict[str, str] = {}
         for tf, syms in by_tf.items():
             try:
                 self.market.refresh_many(sorted(syms), tf)
             except Exception as e:
+                refresh_errors[tf] = f"warm {tf} failed: {e}"
                 print(f"[supervisor] warm {tf} error: {e}")
         prov = self.market._provider()
         all_syms = sorted({s["profile"].symbol for s in self._strategies.values()})
@@ -329,6 +402,46 @@ class PortfolioSupervisor:
                 self._latest_prices.update(prov.get_latest_prices(all_syms))
             except Exception as e:
                 print(f"[supervisor] latest-price error: {e}")
+        results = {}
+        for name, strategy in self._strategies.items():
+            profile = strategy["profile"]
+            error = refresh_errors.get(profile.timeframe)
+            try:
+                bars = self.market.get(
+                    profile.symbol,
+                    profile.timeframe,
+                    profile.regime_ma_period + 5,
+                    max_age=None,
+                )
+                freshness = closed_bar_freshness(
+                    _bars_to_df(bars),
+                    timeframe=profile.timeframe,
+                    now=now,
+                )
+                if error is None and not freshness.fresh:
+                    error = "no fresh closed bar available"
+                results[name] = {
+                    "outcome": "failed" if error else "ok",
+                    "bar_ts": freshness.bar_ts,
+                    "fresh": freshness.fresh,
+                    "error": error,
+                }
+            except Exception as exc:
+                results[name] = {
+                    "outcome": "failed",
+                    "bar_ts": None,
+                    "fresh": False,
+                    "error": f"ingest failed: {exc}",
+                }
+        return results
+
+    @staticmethod
+    def _error_decision(stage: str, exc: Exception) -> DecisionResult:
+        return DecisionResult(
+            DecisionCode.ERROR,
+            f"{stage} failed: {exc}",
+            {"stage": stage, "exception_type": type(exc).__name__},
+        )
 
     def _snapshot(self, profile: StrategyProfile) -> dict:
         try:
@@ -424,12 +537,7 @@ class PortfolioSupervisor:
 
     # ---- aggregate journal + metrics ----
     def _trades(self, strategy: str | None = None) -> list:
-        out = []
-        for name, s in self._strategies.items():
-            if strategy and name != strategy:
-                continue
-            out.extend(s["orch"].journal.trades)
-        return out
+        return self._trade_store.list(strategy=strategy)
 
     @_state_locked
     def journal(self, strategy: str | None = None) -> list[dict]:

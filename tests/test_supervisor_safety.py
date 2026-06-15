@@ -5,7 +5,7 @@ import pytest
 
 from swingbot.profiles import ProfileStore
 from swingbot.supervisor import LifecycleError, PortfolioSupervisor
-from tests.test_supervisor import FakeBroker, FakeMarket, _bars, _profile
+from tests.test_supervisor import T0, FakeBroker, FakeMarket, _bars, _profile
 
 
 class NoCredentials:
@@ -53,7 +53,7 @@ def test_reload_waits_for_inflight_tick(tmp_path):
         original_tick(now)
 
     strategy["orch"].tick = blocking_tick
-    tick_thread = threading.Thread(target=sup.tick_all)
+    tick_thread = threading.Thread(target=lambda: sup.tick_all(T0))
     tick_thread.start()
     assert tick_entered.wait(timeout=2)
 
