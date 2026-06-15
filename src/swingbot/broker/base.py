@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Protocol
 
-from swingbot.types import Regime
+from swingbot.types import BrokerOrder, Regime
 
 
 class Broker(Protocol):
@@ -13,3 +13,17 @@ class Broker(Protocol):
     ) -> None: ...
 
     def equity(self, mark_price: float) -> float: ...
+
+    def submit_market_buy(
+        self, symbol: str, qty: float, client_order_id: str
+    ) -> BrokerOrder: ...
+
+    def submit_market_sell(
+        self, symbol: str, qty: float, client_order_id: str
+    ) -> BrokerOrder: ...
+
+    def get_order(
+        self, order_id: str | None = None, client_order_id: str | None = None
+    ) -> BrokerOrder | None: ...
+
+    def get_position(self, symbol: str) -> dict | None: ...
