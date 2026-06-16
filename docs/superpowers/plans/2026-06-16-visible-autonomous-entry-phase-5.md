@@ -88,7 +88,7 @@ Authoritative spec: `docs/superpowers/specs/2026-06-13-visible-autonomous-entry-
 - Modify: `src/swingbot/web.py:166-174` (`/api/strategies`)
 - Test: `tests/test_web_strategy.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_web_strategy.py`:
 
@@ -113,12 +113,12 @@ def test_strategies_carry_kind_and_label():
     assert rows["btc_trend"]["armed"] is True and rows["my_custom"]["armed"] is False
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_web_strategy.py::test_strategies_carry_kind_and_label -v`
 Expected: FAIL with `KeyError: 'kind'`.
 
-- [ ] **Step 3: Add the helper to `managed_profiles.py`**
+- [x] **Step 3: Add the helper to `managed_profiles.py`**
 
 After the `MANAGED_LABELS` dict, add:
 
@@ -131,7 +131,7 @@ def managed_meta(name: str) -> dict:
     return MANAGED_LABELS.get(name, {"kind": "user", "label": name})
 ```
 
-- [ ] **Step 4: Use it in `/api/strategies`**
+- [x] **Step 4: Use it in `/api/strategies`**
 
 In `src/swingbot/web.py`, add the import near the other `swingbot` imports at the top of the file:
 
@@ -155,12 +155,12 @@ Replace the `list_strategies` body (currently around lines 166–174):
         return out
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_web_strategy.py::test_strategies_carry_kind_and_label -v`
 Expected: PASS.
 
-- [ ] **Step 6: Lint + commit**
+- [x] **Step 6: Lint + commit**
 
 ```bash
 ruff check src/
@@ -176,7 +176,7 @@ git commit -m "feat(api): expose managed kind/label on /api/strategies"
 - Modify: `src/swingbot/supervisor.py` (`status()` ~506-536; add `_pending_dict` near `_pos_dict` ~795)
 - Test: `tests/test_supervisor_managed.py`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_supervisor_managed.py` (it already imports `_probe_supervisor`, `ProbeMarkerStore`, `FakeBroker`, `FakeMarket`, `_bars`):
 
@@ -216,12 +216,12 @@ def test_status_includes_pending_orders(tmp_path):
 
 > Before running, confirm the exact import paths for `PendingOrder`, `OrderSide`, and `Regime` by grepping `src/swingbot/types.py` and the file that defines `Regime` (e.g. `grep -rn "class Regime\|class OrderSide\|class PendingOrder" src/swingbot/`). Use whatever the codebase exports — the enum `.value` for `OrderSide.BUY` must equal `"buy"` (adjust the assertion if the codebase uses uppercase).
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_supervisor_managed.py::test_status_labels_and_probe_complete tests/test_supervisor_managed.py::test_status_includes_pending_orders -v`
 Expected: FAIL (`KeyError: 'probe_complete'` / `KeyError: 'pending_orders'`).
 
-- [ ] **Step 3: Add the `_pending_dict` helper**
+- [x] **Step 3: Add the `_pending_dict` helper**
 
 In `src/swingbot/supervisor.py`, just after `_pos_dict` (~line 802), add:
 
@@ -238,7 +238,7 @@ def _pending_dict(strategy, o):
     }
 ```
 
-- [ ] **Step 4: Enrich `status()`**
+- [x] **Step 4: Enrich `status()`**
 
 Add the import near the top of `supervisor.py` (with the other `swingbot` imports):
 
@@ -304,12 +304,12 @@ Finally, build `pending_orders` and add it to the return dict:
                 "strategies": strategies, "pending_orders": pending}
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_supervisor_managed.py -q`
 Expected: PASS (including the two new tests).
 
-- [ ] **Step 6: Lint + commit**
+- [x] **Step 6: Lint + commit**
 
 ```bash
 ruff check src/
@@ -327,7 +327,7 @@ git commit -m "feat(api): status() exposes pending orders, managed labels, and p
 
 Unrealized P&L = `(mark_price - entry_price) * qty`, where `mark_price`/`mark_ts` come from the **latest local market bar** (no broker network). When no local price is available, all three fields are `null` and the UI shows "—".
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `tests/test_supervisor_managed.py`:
 
@@ -370,12 +370,12 @@ def test_status_unrealized_null_without_market(tmp_path):
 
 > `_probe_supervisor` wires a `FakeMarket({"BTC/USD": _bars(100.0)})`; `FakeMarket.get(symbol, tf, limit, max_age=None)` returns bars whose dicts contain `"time"` (epoch seconds) and `"close"`. Confirm the exact bar key names with `grep -n "def _bars" tests/test_supervisor.py` and adjust `_mark` (Step 3) to read whatever keys those bars use (`"time"`/`"close"`).
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `.venv/bin/python -m pytest tests/test_supervisor_managed.py::test_status_open_position_has_unrealized_pnl tests/test_supervisor_managed.py::test_status_unrealized_null_without_market -v`
 Expected: FAIL with `KeyError: 'mark_price'`.
 
-- [ ] **Step 3: Add a `_mark` helper and annotate positions**
+- [x] **Step 3: Add a `_mark` helper and annotate positions**
 
 In `src/swingbot/supervisor.py`, add a method on `PortfolioSupervisor` (near `_probe_complete`):
 
@@ -423,12 +423,12 @@ Then use `pos_dict` (not `_pos_dict(pos)`) when appending to `strategies` in the
 
 > Confirm the profile timeframe attribute name (`s["profile"].timeframe`) by grepping the profile object; if it is a dict or uses a different attribute, adapt the `getattr` accordingly.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_supervisor_managed.py -q`
 Expected: PASS.
 
-- [ ] **Step 5: Full backend gate + commit**
+- [x] **Step 5: Full backend gate + commit**
 
 ```bash
 .venv/bin/python -m pytest -q
@@ -446,7 +446,7 @@ Expected: full suite green (≥ the prior 551 passed, 6 skipped).
 - Modify: `frontend/src/api.js`
 - Modify: `frontend/src/App.jsx`
 
-- [ ] **Step 1: Add `tradingHealth` to the API client**
+- [x] **Step 1: Add `tradingHealth` to the API client**
 
 In `frontend/src/api.js`, inside the `api` object (next to `metrics:`), add:
 
@@ -454,7 +454,7 @@ In `frontend/src/api.js`, inside the `api` object (next to `metrics:`), add:
   tradingHealth: () => req('GET', '/api/health/trading'),
 ```
 
-- [ ] **Step 2: Poll trading health in App and pass to Dashboard**
+- [x] **Step 2: Poll trading health in App and pass to Dashboard**
 
 In `frontend/src/App.jsx`:
 
@@ -482,12 +482,12 @@ Pass `health` into the Dashboard render:
         <Dashboard state={state} trades={trades} metrics={metrics} health={health} onChange={refresh} />
 ```
 
-- [ ] **Step 3: Build to verify it compiles**
+- [x] **Step 3: Build to verify it compiles**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds (no syntax/import errors).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add frontend/src/api.js frontend/src/App.jsx
@@ -502,7 +502,7 @@ git commit -m "feat(ui): poll /api/health/trading and thread it to the dashboard
 - Create: `frontend/src/components/LifecycleBanner.jsx`
 - Modify: `frontend/src/pages/Dashboard.jsx`
 
-- [ ] **Step 1: Create the component**
+- [x] **Step 1: Create the component**
 
 `frontend/src/components/LifecycleBanner.jsx`:
 
@@ -540,7 +540,7 @@ export default function LifecycleBanner({ health }) {
 }
 ```
 
-- [ ] **Step 2: Render it at the top of the Dashboard**
+- [x] **Step 2: Render it at the top of the Dashboard**
 
 In `frontend/src/pages/Dashboard.jsx`, add the import and render it first. Update the signature to accept `health`:
 
@@ -558,12 +558,12 @@ export default function Dashboard({ state, trades, metrics, health, onChange }){
       {/* ...rest unchanged for now (StrategyCard / MetricsPanel / JournalTable)... */}
 ```
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `cd frontend && npm run build`
 Expected: success.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add frontend/src/components/LifecycleBanner.jsx frontend/src/pages/Dashboard.jsx
@@ -578,7 +578,7 @@ git commit -m "feat(ui): lifecycle banner showing desired vs actual state and st
 - Modify: `frontend/src/components/StrategyCard.jsx`
 - Modify: `frontend/src/pages/Dashboard.jsx` (pass `health` to each card)
 
-- [ ] **Step 1: Pass per-strategy decisions into each card**
+- [x] **Step 1: Pass per-strategy decisions into each card**
 
 In `frontend/src/pages/Dashboard.jsx`, where strategies are mapped, pass the decision for that strategy from trading health:
 
@@ -589,7 +589,7 @@ In `frontend/src/pages/Dashboard.jsx`, where strategies are mapped, pass the dec
       ))}
 ```
 
-- [ ] **Step 2: Rebuild StrategyCard**
+- [x] **Step 2: Rebuild StrategyCard**
 
 Replace `frontend/src/components/StrategyCard.jsx` with:
 
@@ -670,12 +670,12 @@ export default function StrategyCard({ strategy, mode, decision, onChange }){
 }
 ```
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `cd frontend && npm run build`
 Expected: success.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add frontend/src/components/StrategyCard.jsx frontend/src/pages/Dashboard.jsx
@@ -692,7 +692,7 @@ git commit -m "feat(ui): strategy card shows label/kind, probe state, last decis
 - Modify: `frontend/src/components/MetricsPanel.jsx`
 - Modify: `frontend/src/pages/Dashboard.jsx`
 
-- [ ] **Step 1: Create PendingOrders**
+- [x] **Step 1: Create PendingOrders**
 
 `frontend/src/components/PendingOrders.jsx`:
 
@@ -726,7 +726,7 @@ export default function PendingOrders({ orders = [] }) {
 
 > If `table.tbl` / `JournalTable`'s table classes differ, mirror whatever `frontend/src/components/JournalTable.jsx` uses so styling is consistent.
 
-- [ ] **Step 2: Create ReliabilityPanel**
+- [x] **Step 2: Create ReliabilityPanel**
 
 `frontend/src/components/ReliabilityPanel.jsx`:
 
@@ -766,7 +766,7 @@ export default function ReliabilityPanel({ health }) {
 
 > The exact shape of `trading_health().reliability` is produced by `_telemetry.reliability(limit=200)`. Before finishing, **read that method** (`grep -n "def reliability" src/swingbot/telemetry.py`) and align the field names (`window_start`/`window_end`, per-stage `ok`/`failed`/`reliability`, `cycle_completion`, `critical_floor`, `sample_count`) with what it actually returns. Keep the "counts + window, never a bare percentage" contract (spec §3.3).
 
-- [ ] **Step 3: Realized P&L total + source timestamp in MetricsPanel**
+- [x] **Step 3: Realized P&L total + source timestamp in MetricsPanel**
 
 In `frontend/src/components/MetricsPanel.jsx`, change the signature to also accept `trades`, compute the realized total and its source timestamp, and add a row. Update the export line and add the computation + row:
 
@@ -791,7 +791,7 @@ export default function MetricsPanel({ metrics, trades = [] }){
 
 Keep all existing rows below the new Realized P&L row.
 
-- [ ] **Step 4: Compose the new panels into the Dashboard**
+- [x] **Step 4: Compose the new panels into the Dashboard**
 
 In `frontend/src/pages/Dashboard.jsx`, render `PendingOrders` and `ReliabilityPanel`, and pass `trades` to `MetricsPanel`. Final structure:
 
@@ -829,16 +829,16 @@ export default function Dashboard({ state, trades, metrics, health, onChange }){
 }
 ```
 
-- [ ] **Step 5: Build**
+- [x] **Step 5: Build**
 
 Run: `cd frontend && npm run build`
 Expected: success.
 
-- [ ] **Step 6: Verify usage-agent health stays separate**
+- [x] **Step 6: Verify usage-agent health stays separate**
 
 Confirm `frontend/src/pages/Health.jsx` is unchanged and still renders the usage-agent runs; the Dashboard must NOT import or render usage-agent data. (Read-only check — no edit. Run `grep -n "agentLatest\|agentRuns" frontend/src/pages/Dashboard.jsx` and expect no matches.)
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add frontend/src/components/PendingOrders.jsx frontend/src/components/ReliabilityPanel.jsx frontend/src/components/MetricsPanel.jsx frontend/src/pages/Dashboard.jsx
@@ -852,7 +852,7 @@ git commit -m "feat(ui): pending orders, trading reliability, and realized P&L o
 **Files:**
 - Modify: `docs/ROADMAP_STATUS.md`
 
-- [ ] **Step 1: Full gate**
+- [x] **Step 1: Full gate**
 
 ```bash
 .venv/bin/python -m pytest -q
@@ -861,13 +861,13 @@ cd frontend && npm run build && cd ..
 ```
 Expected: pytest green (≥ 551 + the new tests passed), ruff clean, build OK. If any fails, fix before continuing — do not proceed to the doc update on red.
 
-- [ ] **Step 2: Rebuild + restart the container (standing policy)**
+- [x] **Step 2: Rebuild + restart the container (standing policy)**
 
 ```bash
 docker compose build swingbot && docker compose up -d swingbot
 ```
 
-- [ ] **Step 3: Live smoke check**
+- [x] **Step 3: Live smoke check**
 
 ```bash
 curl -s localhost:8000/api/state | python3 -m json.tool | head -40
@@ -875,11 +875,11 @@ curl -s localhost:8000/api/health/trading | python3 -m json.tool | head -40
 ```
 Expected: `/api/state` strategies carry `kind`/`label`/`probe_complete` and a top-level `pending_orders`; `/api/health/trading` returns `status`, `lifecycle` (with `running_desired`/`running_actual`/`startup_error`), `last_decisions_by_strategy`, and `reliability`. Note the actual values in the commit/roadmap update.
 
-- [ ] **Step 4: Update ROADMAP_STATUS.md**
+- [x] **Step 4: Update ROADMAP_STATUS.md**
 
 In `docs/ROADMAP_STATUS.md`, update the **NEXT ACTION** block: mark Phase 5 DONE (list the commits and the gate result), and set the next anchor to **Phase 6 (live acceptance)** per spec §Phase 6 — run acceptance in paper mode: back up the data dir, start from a managed-canvas/probe config, rebuild without pressing Start, verify desired/actual + fresh closed bars + cycle records + decision reasons, (if probe enabled) verify an Alpaca-confirmed fill + durable position + chart marker + persisted completion marker, restart and verify no duplicate probe/order, then simulate credential/network failure and verify the UI stays available without clearing positions or duplicating orders. Bump **Last updated** to the current date.
 
-- [ ] **Step 5: Commit + push**
+- [x] **Step 5: Commit + push**
 
 ```bash
 git add docs/ROADMAP_STATUS.md
@@ -906,3 +906,14 @@ git push origin master
 **Type/name consistency:** `kind`/`label`/`probe_complete` defined in Task 1/2 and consumed in Task 6; `pending_orders` defined Task 2, consumed Task 7; `mark_price`/`mark_ts`/`unrealized` defined Task 3, consumed Task 6; `tradingHealth()` defined Task 4, consumed Tasks 5/6/7; `health.last_decisions_by_strategy`/`health.reliability`/`health.lifecycle` are the documented `trading_health()` keys.
 
 **Open verification flagged inline** (the implementer must confirm against the real code, not guess): exact import paths for `PendingOrder`/`OrderSide`/`Regime` (Task 2), bar dict keys + market attribute name + profile timeframe accessor (Task 3), and the precise `reliability` field names from `telemetry.py` (Task 7). These are explicit "confirm with grep" notes, not placeholders.
+
+## Implementation notes from Codex execution
+
+- Baseline after sync: `.venv/bin/python -m pytest -q` passed with `551 passed, 6 skipped`; `.venv/bin/ruff check src/` passed; `cd frontend && npm run build` passed. Bare `ruff` is not on PATH in this environment, so lint commands are executed as `.venv/bin/ruff check src/`.
+- Confirmed `PendingOrder`, `OrderSide`, and `Regime` all live in `swingbot.types`.
+- Confirmed `PortfolioSupervisor` stores local market data as `self.market` (not `self._market`).
+- Adapted Task 3's no-market test: building with no market raises by design, so the test builds with a market, clears `sup.market`, and verifies status marks are null without crashing.
+- Confirmed `TelemetryStore.reliability()` returns `stages.*.ratio`, `completed_cycles`, `successful_cycles`, `cycle_completion_ratio`, `critical_stage_floor`, `window_started_at`, and `window_completed_at`.
+- Task 6 requires a small `ChartPanel.jsx` adjustment even though it was not listed in the file table: existing mini charts default `markers: false` and have no visible settings button, so passing `trades` alone would not show durable entry/exit markers. The implementation adds an explicit mini-marker prop and uses it only from `StrategyCard`.
+- Final gate: `.venv/bin/python -m pytest -q` passed with `556 passed, 6 skipped`; `.venv/bin/ruff check src/` passed; `cd frontend && npm run build` passed.
+- Docker image rebuild succeeded. Default `docker compose up -d swingbot` failed because this host's daemon lacks the compose file's hardcoded `runtime: nvidia`; live smoke was completed by starting the same service/image with a temporary local compose override `runtime: runc`.

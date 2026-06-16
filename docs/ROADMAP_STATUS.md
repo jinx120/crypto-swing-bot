@@ -130,24 +130,36 @@ the reconciler overwrites a *pre-existing user profile that shares a managed nam
 
 **Phase 4 DONE & reviewed; fix `e0523ba` + docs `9f1cb9c` pushed to `origin/master` (2026-06-16).**
 
-**Phase 5 plan WRITTEN (2026-06-16) and pushed to `origin/master`. Phase: EXECUTE.**
-Plan: `docs/superpowers/plans/2026-06-16-visible-autonomous-entry-phase-5.md` (8 tasks, TDD on the
-backend + `npm run build`-verified frontend; self-contained "Context for a cold code-gen agent"
-preamble — it IS the Codex handoff). Rebuilds the dashboard around truthful state.
+**Visible Autonomous Entry — Phase 5 is DONE (2026-06-16).** Plan
+`docs/superpowers/plans/2026-06-16-visible-autonomous-entry-phase-5.md` executed task-by-task on
+`master` in 7 implementation commits (`b817a74`→`85b6d2e`) plus this roadmap/plan tracking update.
+Shipped: `managed_meta()` and `kind`/`label` on `/api/strategies`; `/api/state` now exposes
+`pending_orders`, per-strategy `kind`/`label`/`probe_complete`, and open-position
+`mark_price`/`mark_ts`/`unrealized` from the local market cache; the Dashboard polls
+`/api/health/trading`; lifecycle, pending-order, reliability, realized P&L, last-decision, probe-state,
+unrealized P&L, and durable trade-marker surfaces are visible; usage-agent health remains isolated on
+the Health tab; operational controls remain available.
 
-Tasks: (1) `managed_meta()` + `kind`/`label` on `/api/strategies`; (2) `status()` exposes
-`pending_orders` + per-strategy `kind`/`label`/`probe_complete`; (3) `status()` annotates open
-positions with `mark_price`/`mark_ts`/`unrealized` (local-only, no broker call); (4) `api.tradingHealth()`
-+ App polling; (5) `LifecycleBanner` (desired vs actual + startup error); (6) `StrategyCard` rebuild
-(label/kind badge, probe state, last decision code/reason + bar ts, unrealized P&L, per-strategy trade
-markers); (7) `PendingOrders` + `ReliabilityPanel` (counts + window) + realized P&L w/ source ts, keep
-usage-agent health on the Health tab; (8) regression gate + Docker rebuild + ROADMAP_STATUS update.
-Three inline "confirm with grep" verifications for the implementer (PendingOrder/OrderSide/Regime
-imports; bar keys/market attr/profile timeframe accessor; `telemetry.reliability()` field names).
+Plan adjustments documented inline: `ruff` is available as `.venv/bin/ruff`; `Regime`/`OrderSide`/
+`PendingOrder` are in `swingbot.types`; supervisor market data is `self.market`; reliability fields
+are `ratio`/`completed_cycles`/`cycle_completion_ratio`/`critical_stage_floor`/`window_started_at`/
+`window_completed_at`; and `ChartPanel` needed a small mini-marker opt-in because mini charts
+previously disabled trade markers with no settings UI.
 
-**NEXT ACTION — execute the Phase 5 plan.** Load `superpowers:executing-plans` (or
-subagent-driven-development), read the plan, find the first `- [ ]` task, execute → tick → commit per
-task. After Phase 5: resume to **Phase 6 (live acceptance)** per spec §Phase 6.
+Final gates: **556 passed, 6 skipped**, ruff clean via `.venv/bin/ruff check src/`, frontend build
+green. Docker image rebuilt. Default `docker compose up -d swingbot` failed on this host because the
+daemon lacks the compose file's hardcoded `runtime: nvidia`; the service was started for smoke with a
+temporary local override `runtime: runc`. Live smoke on `:8000`: `/api/state` returned
+`pending_orders: []` (no armed strategies in this local data dir); `/api/health/trading` returned
+`status: inactive`, lifecycle with `running_desired:false`, `running_actual:false`,
+`startup_error:null`, empty decisions, and reliability counts/window fields.
+
+**NEXT ACTION — Phase 6 (live acceptance).** Per spec §Phase 6: run acceptance in paper mode. Back up
+the data dir; start from a managed-canvas/probe config; rebuild without pressing Start; verify desired
+vs actual state, fresh closed bars, cycle records, and decision reasons; if probe is enabled, verify an
+Alpaca-confirmed fill, durable position, chart marker, and persisted completion marker; restart and
+verify no duplicate probe/order; then simulate credential/network failure and verify the UI stays
+available without clearing positions or duplicating orders.
 
 **Codex handoff decision (resolved this session):** do NOT write a separate `PHASE4_CODEX_HANDOFF.md`.
 The Phase 3 handoff (`docs/PHASE3_CODEX_HANDOFF.md`, 210 lines) overlapped heavily with the 773-line
