@@ -128,9 +128,26 @@ the additive code. **551 passed, 6 skipped**, ruff clean; container rebuilt + li
 probe correctly absent with `SWINGBOT_ENABLE_PAPER_PROBE` unset). Minor (deferred, doc-note only):
 the reconciler overwrites a *pre-existing user profile that shares a managed name* (backup mitigates).
 
-**NEXT ACTION — Phase 4 DONE & reviewed; fix `e0523ba` committed locally (not yet pushed).** Push
-`master` to `origin` at session end, then resume to **Phase 5 (dashboard)**: managed-strategy labels
-(`MANAGED_LABELS`, `kind: strategy|probe`) + probe state surfaced in the UI.
+**Phase 4 DONE & reviewed; fix `e0523ba` + docs `9f1cb9c` pushed to `origin/master` (2026-06-16).**
+
+**Phase 5 plan WRITTEN (2026-06-16) and pushed to `origin/master`. Phase: EXECUTE.**
+Plan: `docs/superpowers/plans/2026-06-16-visible-autonomous-entry-phase-5.md` (8 tasks, TDD on the
+backend + `npm run build`-verified frontend; self-contained "Context for a cold code-gen agent"
+preamble — it IS the Codex handoff). Rebuilds the dashboard around truthful state.
+
+Tasks: (1) `managed_meta()` + `kind`/`label` on `/api/strategies`; (2) `status()` exposes
+`pending_orders` + per-strategy `kind`/`label`/`probe_complete`; (3) `status()` annotates open
+positions with `mark_price`/`mark_ts`/`unrealized` (local-only, no broker call); (4) `api.tradingHealth()`
++ App polling; (5) `LifecycleBanner` (desired vs actual + startup error); (6) `StrategyCard` rebuild
+(label/kind badge, probe state, last decision code/reason + bar ts, unrealized P&L, per-strategy trade
+markers); (7) `PendingOrders` + `ReliabilityPanel` (counts + window) + realized P&L w/ source ts, keep
+usage-agent health on the Health tab; (8) regression gate + Docker rebuild + ROADMAP_STATUS update.
+Three inline "confirm with grep" verifications for the implementer (PendingOrder/OrderSide/Regime
+imports; bar keys/market attr/profile timeframe accessor; `telemetry.reliability()` field names).
+
+**NEXT ACTION — execute the Phase 5 plan.** Load `superpowers:executing-plans` (or
+subagent-driven-development), read the plan, find the first `- [ ]` task, execute → tick → commit per
+task. After Phase 5: resume to **Phase 6 (live acceptance)** per spec §Phase 6.
 
 **Codex handoff decision (resolved this session):** do NOT write a separate `PHASE4_CODEX_HANDOFF.md`.
 The Phase 3 handoff (`docs/PHASE3_CODEX_HANDOFF.md`, 210 lines) overlapped heavily with the 773-line
