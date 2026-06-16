@@ -33,6 +33,10 @@ def sma(series: pd.Series, period: int) -> pd.Series:
     return series.rolling(period).mean()
 
 
+def ema(series: pd.Series, period: int) -> pd.Series:
+    return series.ewm(span=period, min_periods=period, adjust=False).mean()
+
+
 def lookback_return(close: pd.Series, n: int) -> float:
     if len(close) <= n:
         return 0.0
