@@ -22,6 +22,7 @@ from swingbot.metrics import compute_metrics
 from swingbot.orchestrator import Orchestrator
 from swingbot.portfolio_risk import PortfolioRiskManager, PortfolioSettings
 from swingbot.profile import StrategyProfile
+from swingbot.probe_marker import probe_should_fire
 from swingbot.profiles import ProfileStore
 from swingbot.risk import RiskManager
 from swingbot.snapshot import signal_snapshot
@@ -320,6 +321,15 @@ class PortfolioSupervisor:
         if decision.code in (DecisionCode.ENTERED, DecisionCode.EXITED):
             self._probe_marker.mark_complete("paper_probe")
 
+    def _probe_suppressed(self, name: str, position_exists: bool) -> bool:
+        """Fire-once gate. Once the paper probe's durable marker is set (or it is
+        not eligible to fire) and it holds no position, suppress further entries so
+        the probe fires at most once. A probe that still holds a position keeps
+        ticking so it can manage and exit cleanly."""
+        if name != "paper_probe" or position_exists or self._probe_marker is None:
+            return False
+        return not probe_should_fire(self._probe_marker, enabled=True, mode=self.mode)
+
     # ---- the loop ----
     @_state_locked
     def tick_all(self, now: datetime | None = None) -> None:
@@ -361,6 +371,12 @@ class PortfolioSupervisor:
                         ingest[name]["error"] or "fresh closed-bar ingest failed",
                         {"stage": "ingest"},
                     )
+            elif self._probe_suppressed(name, position_exists):
+                decision = DecisionResult(
+                    DecisionCode.PROBE_COMPLETE,
+                    "paper probe already fired; not re-entering",
+                )
+                stages[required_stage] = "ok"
             else:
                 try:
                     decision = orch.tick(now)
