@@ -65,6 +65,17 @@ class ProfileStore:
         name = self.get_active_name()
         return self.get(name) if name else None
 
+    # --- generic meta key/value (managed reconciliation bookkeeping) ---
+    def get_meta(self, key: str) -> str | None:
+        row = self._conn.execute("SELECT value FROM meta WHERE key=?", (key,)).fetchone()
+        return row[0] if row else None
+
+    def set_meta(self, key: str, value: str) -> None:
+        self._conn.execute(
+            "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)", (key, value)
+        )
+        self._conn.commit()
+
     # --- armed set + per-strategy live-eligible flag ---
     def arm(self, name: str) -> None:
         if self.get(name) is None:
