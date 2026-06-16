@@ -154,6 +154,23 @@ temporary local override `runtime: runc`. Live smoke on `:8000`: `/api/state` re
 `status: inactive`, lifecycle with `running_desired:false`, `running_actual:false`,
 `startup_error:null`, empty decisions, and reliability counts/window fields.
 
+**Phase 5 independently REVIEWED & APPROVED (2026-06-16).** Codex's 8 commits (`b817a74`→`8740471`)
+were fetched, fast-forwarded onto local `master`, and reviewed against the plan/spec by a fresh
+session. Implementation matches the plan line-for-line; the three flagged deviations are all handled
+correctly: (1) `self.market` (not `self._market`); (2) `ReliabilityPanel.jsx` rewritten to the real
+telemetry field names (`window_started_at`/`window_completed_at`/`cycle_completion_ratio`/
+`critical_stage_floor`/`stages.*.ratio`/`ok`/`failed`/`skipped`/`samples`) — verified against
+`TelemetryStore.reliability()` in `telemetry.py:144`; (3) `ChartPanel` `showMarkersInMini` opt-in so
+per-strategy durable entry/exit markers render in the mini chart. Backend `status()` enrichment is
+local-only (no broker/network calls), all in `try/except` returning nulls on failure. **No blocking
+issues; no corrections needed.** Re-ran the gate on this host: **556 passed, 6 skipped**, ruff clean,
+frontend build green — matches Codex's reported gate exactly. **Live-deployed on this host:** image
+rebuilt + container recreated with the `runtime: runc` override (host daemon lacks `runtime: nvidia`);
+`:8000` now serves Phase 5 — `/api/state` carries `pending_orders` + per-strategy `kind`/`label`/
+`probe_complete`, `/api/health/trading` returns `status:active`, `running_desired:true`/
+`running_actual:true`, `startup_error:null`, and the full reliability key set. Already on `origin`; not
+re-pushed.
+
 **NEXT ACTION — Phase 6 (live acceptance).** Per spec §Phase 6: run acceptance in paper mode. Back up
 the data dir; start from a managed-canvas/probe config; rebuild without pressing Start; verify desired
 vs actual state, fresh closed bars, cycle records, and decision reasons; if probe is enabled, verify an
