@@ -114,10 +114,23 @@ Tasks: (1) EMA indicator; (2) `EmaTrendSignal` + registry; (3) managed definitio
 hook + `note_managed_decision` probe-complete-on-entry + webmain wiring; (8) regression gate
 (`pytest -q`, `ruff check src/`, `npm run build`).
 
-**NEXT ACTION — Phase 4 is being code-generated externally by Codex** from the pushed plan. When
-Codex's commits land on `origin/master`, fetch + review against the plan/spec (same protocol used
-for Phase 3): contracts, user-profile preservation, probe gating, fire-once marker; re-run
-`.venv/bin/python -m pytest -q` + `ruff check src/`. Then resume to Phase 5 (dashboard).
+**Phase 4 code by Codex REVIEWED (2026-06-16).** Codex's 7 commits (`42f4b2e`→`06ef0d9`) were
+fast-forwarded onto local `master` and reviewed against the plan/spec. Implementation matches the
+plan line-for-line; **548 passed, 6 skipped**, ruff clean on review. **One Medium correctness gap
+found & fixed:** the fire-once guarantee was not enforced in the live path — the probe wrote its
+durable marker on entry but nothing consumed it (`probe_should_fire()` was dead code), so a completed
+probe re-entered every flat cycle. **Fixed in `e0523ba`:** `tick_all` now gates the probe via
+`_probe_suppressed()` (reuses `probe_should_fire`) — a completed, flat probe is suppressed with a new
+terminal `DecisionCode.PROBE_COMPLETE`; a probe still holding a position keeps ticking so it can exit.
++3 regression tests in `test_supervisor_managed.py`; Phase-3 decision-code contract test updated for
+the additive code. **551 passed, 6 skipped**, ruff clean; container rebuilt + live-verified on `:8000`
+(`running_actual:true`, `startup_error:null`, ready; reconciler seeded managed strategies → 7 armed,
+probe correctly absent with `SWINGBOT_ENABLE_PAPER_PROBE` unset). Minor (deferred, doc-note only):
+the reconciler overwrites a *pre-existing user profile that shares a managed name* (backup mitigates).
+
+**NEXT ACTION — Phase 4 DONE & reviewed; fix `e0523ba` committed locally (not yet pushed).** Push
+`master` to `origin` at session end, then resume to **Phase 5 (dashboard)**: managed-strategy labels
+(`MANAGED_LABELS`, `kind: strategy|probe`) + probe state surfaced in the UI.
 
 **Codex handoff decision (resolved this session):** do NOT write a separate `PHASE4_CODEX_HANDOFF.md`.
 The Phase 3 handoff (`docs/PHASE3_CODEX_HANDOFF.md`, 210 lines) overlapped heavily with the 773-line
