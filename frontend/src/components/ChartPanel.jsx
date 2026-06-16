@@ -78,7 +78,9 @@ function tradeMarkers(trades) {
   return m.sort((a, b) => a.time - b.time)
 }
 
-export default function ChartPanel({ symbol, timeframe, trades = [], position, mini = false }) {
+export default function ChartPanel({
+  symbol, timeframe, trades = [], position, mini = false, showMarkersInMini = false,
+}) {
   const boxRef = useRef(null)
   const chartRef = useRef(null)
   const candleRef = useRef(null)
@@ -92,7 +94,9 @@ export default function ChartPanel({ symbol, timeframe, trades = [], position, m
 
   const [cfg, setCfg] = useState(() => {
     const base = loadCfg()
-    return mini ? { ...base, markers: false, sma: false, ema: false, volume: false } : base
+    return mini
+      ? { ...base, markers: showMarkersInMini, sma: false, ema: false, volume: false }
+      : base
   })
   const [showCfg, setShowCfg] = useState(false)
   const [meta, setMeta] = useState({ symbol, timeframe: '' })

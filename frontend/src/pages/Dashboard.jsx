@@ -17,7 +17,8 @@ export default function Dashboard({ state, trades, metrics, health, onChange }){
         </div>
       )}
       {strategies.map(s => (
-        <StrategyCard key={s.symbol || s.name} strategy={s} mode={mode} onChange={onChange} />
+        <StrategyCard key={s.symbol || s.name} strategy={s} mode={mode}
+          decision={health?.last_decisions_by_strategy?.[s.name]} onChange={onChange} />
       ))}
       <MetricsPanel metrics={metrics} />
       <JournalTable trades={trades} />
