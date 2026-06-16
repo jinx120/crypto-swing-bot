@@ -331,6 +331,17 @@ class PortfolioSupervisor:
             return False
         return not probe_should_fire(self._probe_marker, enabled=True, mode=self.mode)
 
+    def _symbol_owned_by_other_strategy(self, name: str, symbol: str) -> bool:
+        positions = self._store.load_all_positions()
+        for strategy, pos in positions.items():
+            if strategy != name and pos.symbol == symbol:
+                return True
+        pending = self._store.load_all_pending_orders()
+        for strategy, order in pending.items():
+            if strategy != name and order.side is OrderSide.BUY and order.symbol == symbol:
+                return True
+        return False
+
     # ---- the loop ----
     @_state_locked
     def tick_all(self, now: datetime | None = None) -> None:
@@ -356,7 +367,12 @@ class PortfolioSupervisor:
             decision = DecisionResult(DecisionCode.ERROR, "cycle did not complete")
             reconcile_ok = True
             try:
-                orch.reconcile(now)
+                orch.reconcile(
+                    now,
+                    adopt_broker_position=not self._symbol_owned_by_other_strategy(
+                        name, s["profile"].symbol
+                    ),
+                )
             except Exception as exc:
                 reconcile_ok = False
                 stages["reconcile"] = "failed"

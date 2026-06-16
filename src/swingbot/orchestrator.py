@@ -46,7 +46,9 @@ class Orchestrator:
         self.portfolio_gate = portfolio_gate          # (symbol, value) -> decision with .approved
         self.portfolio_on_close = portfolio_on_close  # (pnl, now) -> None
 
-    def reconcile(self, now: datetime) -> DecisionResult:
+    def reconcile(
+        self, now: datetime, *, adopt_broker_position: bool = True
+    ) -> DecisionResult:
         """Broker is source of truth. If broker holds a position we don't have
         recorded, adopt it (with conservative exit levels) so we can manage it."""
         pending = self.state.load_pending_order()
@@ -55,7 +57,7 @@ class Orchestrator:
 
         broker_pos = self.broker.get_position(self.profile.symbol)
         stored = self.state.load_position()
-        if broker_pos and stored is None:
+        if broker_pos and stored is None and adopt_broker_position:
             price = float(broker_pos["avg_entry_price"])
             stop, tp = bracket_levels(price, price * 0.02,
                                       self.profile.stop_atr_mult,
