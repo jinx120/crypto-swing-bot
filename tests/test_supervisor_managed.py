@@ -159,3 +159,54 @@ def test_status_includes_pending_orders(tmp_path):
     assert pend[0]["symbol"] == "BTC/USD"
     assert pend[0]["side"] == "buy"
     assert pend[0]["client_order_id"] == "cid-1"
+
+
+def test_status_open_position_has_unrealized_pnl(tmp_path):
+    """An open position is annotated from the latest local market bar."""
+    sup, broker, marker = _probe_supervisor(tmp_path)
+    name = "paper_probe"
+    strat = sup._strategies[name]
+
+    class _Pos:
+        symbol = "BTC/USD"
+        entry_price = 100.0
+        qty = 2.0
+        stop = 90.0
+        tp = 120.0
+        max_hold_until = datetime(2026, 6, 17, tzinfo=timezone.utc)
+        entry_ts = datetime(2026, 6, 16, tzinfo=timezone.utc)
+
+    strat["view"].load_position = lambda: _Pos()
+
+    st = sup.status()
+    s = next(x for x in st["strategies"] if x["name"] == name)
+
+    assert s["position"] is not None
+    mark_price = s["position"]["mark_price"]
+    assert mark_price is not None
+    assert s["position"]["mark_ts"] is not None
+    assert abs(s["position"]["unrealized"] - (mark_price - 100.0) * 2.0) < 1e-9
+
+
+def test_status_unrealized_null_without_market(tmp_path):
+    sup, broker, marker = _probe_supervisor(tmp_path)
+    name = "paper_probe"
+    strat = sup._strategies[name]
+    sup.market = None
+
+    class _Pos:
+        symbol = "BTC/USD"
+        entry_price = 100.0
+        qty = 2.0
+        stop = 90.0
+        tp = 120.0
+        max_hold_until = datetime(2026, 6, 17, tzinfo=timezone.utc)
+        entry_ts = datetime(2026, 6, 16, tzinfo=timezone.utc)
+
+    strat["view"].load_position = lambda: _Pos()
+
+    s = next(x for x in sup.status()["strategies"] if x["name"] == name)
+
+    assert s["position"]["mark_price"] is None
+    assert s["position"]["mark_ts"] is None
+    assert s["position"]["unrealized"] is None

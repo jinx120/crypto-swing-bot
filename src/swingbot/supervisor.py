@@ -511,6 +511,24 @@ class PortfolioSupervisor:
         except Exception:
             return None
 
+    def _mark(self, symbol: str, timeframe: str):
+        """Latest local-market close and bar timestamp for marking a position."""
+        if self.market is None:
+            return None, None
+        try:
+            bars = self.market.get(symbol, timeframe, 1)
+            if not bars:
+                return None, None
+            last = bars[-1]
+            ts = last.get("time")
+            ts_iso = (
+                datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
+                if isinstance(ts, (int, float)) else None
+            )
+            return float(last["close"]), ts_iso
+        except Exception:
+            return None, None
+
     @_state_locked
     def status(self) -> dict:
         strategies = []
@@ -518,6 +536,16 @@ class PortfolioSupervisor:
             for name in sorted(self._strategies):
                 s = self._strategies[name]
                 pos = s["view"].load_position()
+                pos_dict = _pos_dict(pos)
+                if pos_dict is not None:
+                    timeframe = getattr(s["profile"], "timeframe", "15m")
+                    mark_price, mark_ts = self._mark(pos.symbol, timeframe)
+                    pos_dict["mark_price"] = mark_price
+                    pos_dict["mark_ts"] = mark_ts
+                    pos_dict["unrealized"] = (
+                        (mark_price - pos.entry_price) * pos.qty
+                        if mark_price is not None else None
+                    )
                 rs = s["orch"].risk.state
                 meta = managed_meta(name)
                 strategies.append({
@@ -527,7 +555,7 @@ class PortfolioSupervisor:
                     "kind": meta["kind"], "label": meta["label"],
                     "probe_complete": self._probe_complete(name, meta["kind"]),
                     "snapshot": s["snapshot"],
-                    "position": _pos_dict(pos),
+                    "position": pos_dict,
                     "risk": {"kill_switch": {"active": rs.kill_switch_active,
                                              "reason": rs.kill_switch_reason},
                              "consecutive_losses": rs.consecutive_losses},
