@@ -1,8 +1,10 @@
+from datetime import datetime, timezone
+
 from swingbot.managed_profiles import managed_definitions
 from swingbot.probe_marker import ProbeMarkerStore
 from swingbot.profiles import ProfileStore
 from swingbot.supervisor import PortfolioSupervisor
-from swingbot.types import DecisionCode, DecisionResult
+from swingbot.types import DecisionCode, DecisionResult, OrderSide, PendingOrder, Regime
 from tests.test_supervisor import T0, FakeBroker, FakeMarket, _bars
 
 
@@ -115,3 +117,45 @@ def test_completed_probe_still_manages_open_position(tmp_path):
     sup.tick_all(T0)
 
     assert called == [T0]                          # manage path is not suppressed
+
+
+def test_status_labels_and_probe_complete(tmp_path):
+    sup, broker, marker = _probe_supervisor(tmp_path)
+    st = sup.status()
+    probe = next(s for s in st["strategies"] if s["name"] == "paper_probe")
+    assert probe["kind"] == "probe"
+    assert probe["label"] == "proof-of-life probe"
+    assert probe["probe_complete"] is False
+
+    marker.mark_complete("paper_probe")
+
+    probe2 = next(s for s in sup.status()["strategies"] if s["name"] == "paper_probe")
+    assert probe2["probe_complete"] is True
+
+
+def test_status_includes_pending_orders(tmp_path):
+    sup, broker, marker = _probe_supervisor(tmp_path)
+    order = PendingOrder(
+        client_order_id="cid-1",
+        broker_order_id=None,
+        symbol="BTC/USD",
+        side=OrderSide.BUY,
+        submitted_at=datetime(2026, 6, 16, tzinfo=timezone.utc),
+        requested_qty=0.01,
+        stop=None,
+        tp=None,
+        max_hold_until=datetime(2026, 6, 17, tzinfo=timezone.utc),
+        score_at_entry=0.9,
+        regime_at_entry=Regime.UPTREND,
+        exit_reason=None,
+        observed_exit_price=None,
+    )
+    sup._store.save_pending_order(order, strategy="paper_probe")
+
+    pend = sup.status()["pending_orders"]
+
+    assert len(pend) == 1
+    assert pend[0]["strategy"] == "paper_probe"
+    assert pend[0]["symbol"] == "BTC/USD"
+    assert pend[0]["side"] == "buy"
+    assert pend[0]["client_order_id"] == "cid-1"

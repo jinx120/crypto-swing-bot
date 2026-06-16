@@ -18,6 +18,7 @@ from swingbot.data.market import (
 )
 from swingbot.graduation import can_go_live
 from swingbot.journal import TradeJournal
+from swingbot.managed_profiles import managed_meta
 from swingbot.metrics import compute_metrics
 from swingbot.orchestrator import Orchestrator
 from swingbot.portfolio_risk import PortfolioRiskManager, PortfolioSettings
@@ -502,6 +503,14 @@ class PortfolioSupervisor:
         }
 
     # ---- status + control surface (consumed by Phase 2 web layer) ----
+    def _probe_complete(self, name: str, kind: str):
+        if kind != "probe" or self._probe_marker is None:
+            return None
+        try:
+            return bool(self._probe_marker.is_complete(name))
+        except Exception:
+            return None
+
     @_state_locked
     def status(self) -> dict:
         strategies = []
@@ -510,10 +519,13 @@ class PortfolioSupervisor:
                 s = self._strategies[name]
                 pos = s["view"].load_position()
                 rs = s["orch"].risk.state
+                meta = managed_meta(name)
                 strategies.append({
                     "name": name, "symbol": s["profile"].symbol,
                     "running": self._running,
                     "live_eligible": self.profiles.is_live_eligible(name),
+                    "kind": meta["kind"], "label": meta["label"],
+                    "probe_complete": self._probe_complete(name, meta["kind"]),
                     "snapshot": s["snapshot"],
                     "position": _pos_dict(pos),
                     "risk": {"kill_switch": {"active": rs.kill_switch_active,
@@ -526,14 +538,24 @@ class PortfolioSupervisor:
                 name = f["name"]
                 pdict = self.profiles.get(name)
                 symbol = (pdict or {}).get("symbol", "")
+                meta = managed_meta(name)
                 strategies.append({
                     "name": name, "symbol": symbol,
                     "running": False,
                     "live_eligible": f["live_eligible"],
+                    "kind": meta["kind"], "label": meta["label"],
+                    "probe_complete": self._probe_complete(name, meta["kind"]),
                     "snapshot": {}, "position": None, "risk": None,
                 })
+        pending = []
+        if self._store is not None:
+            try:
+                for strategy, order in self._store.load_all_pending_orders().items():
+                    pending.append(_pending_dict(strategy, order))
+            except Exception:
+                pending = []
         return {"portfolio": self._summary or {"mode": self.mode, "running": self._running},
-                "strategies": strategies}
+                "strategies": strategies, "pending_orders": pending}
 
     def lifecycle_state(self) -> dict:
         with self._lifecycle_lock:
@@ -799,6 +821,18 @@ def _pos_dict(pos):
             "stop": pos.stop, "tp": pos.tp,
             "max_hold_until": pos.max_hold_until.isoformat(),
             "entry_ts": pos.entry_ts.isoformat()}
+
+
+def _pending_dict(strategy, order):
+    return {
+        "strategy": strategy,
+        "symbol": order.symbol,
+        "side": order.side.value,
+        "requested_qty": order.requested_qty,
+        "submitted_at": order.submitted_at.isoformat(),
+        "client_order_id": order.client_order_id,
+        "broker_order_id": order.broker_order_id,
+    }
 
 
 def _trade_dict(t):
