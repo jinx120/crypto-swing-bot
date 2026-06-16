@@ -390,7 +390,7 @@ git commit -m "test(phase6): broker failure stays truthful — no false-flat, no
 
 Spec step 1 requires backing up the data directory before a live acceptance run. There is no bash test runner in this project; verify by running it.
 
-- [ ] **Step 1: Write the script**
+- [x] **Step 1: Write the script**
 
 ```bash
 #!/usr/bin/env bash
@@ -421,13 +421,13 @@ echo "backed up $DATA_DIR -> $ARCHIVE"
 ls -lh "$ARCHIVE"
 ```
 
-- [ ] **Step 2: Make it executable**
+- [x] **Step 2: Make it executable**
 
 ```bash
 chmod +x scripts/backup-data-dir.sh
 ```
 
-- [ ] **Step 3: Verify with a real run against a throwaway dir**
+- [x] **Step 3: Verify with a real run against a throwaway dir**
 
 ```bash
 mkdir -p /tmp/phase6-bk/sub && echo hi > /tmp/phase6-bk/sub/x.txt
@@ -437,7 +437,7 @@ tar -tzf /tmp/phase6-bk-out/swingbot-data-*.tar.gz
 
 Expected: prints `backed up ... -> ...tar.gz`, and the tar listing shows `phase6-bk/sub/x.txt`. Confirm a second run produces a *distinct* timestamped file (run it twice; two archives present). Clean up: `rm -rf /tmp/phase6-bk /tmp/phase6-bk-out`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add scripts/backup-data-dir.sh
@@ -453,7 +453,7 @@ git commit -m "feat(phase6): data-dir backup script for live acceptance"
 
 This is the **authoritative** acceptance artifact. It must contain exact commands and an explicit pass/fail check per spec step. Leave the "Observed" / "Result" cells empty — Task 7 fills them from a real run.
 
-- [ ] **Step 1: Write the runbook**
+- [x] **Step 1: Write the runbook**
 
 ````markdown
 # Phase 6 — Live Acceptance Runbook (real Alpaca paper)
@@ -488,11 +488,11 @@ This is the **authoritative** acceptance artifact. It must contain exact command
 **Acceptance result:** _<PASS/FAIL — date — operator>_
 ````
 
-- [ ] **Step 2: Sanity-check the doc**
+- [x] **Step 2: Sanity-check the doc**
 
 Confirm every spec §Phase 6 step (1–7) has a row and a concrete pass check. No "TBD"/"verify appropriately" — each check names the exact field/observation.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add docs/PHASE6_LIVE_ACCEPTANCE.md
