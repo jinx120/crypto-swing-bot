@@ -171,12 +171,33 @@ rebuilt + container recreated with the `runtime: runc` override (host daemon lac
 `running_actual:true`, `startup_error:null`, and the full reliability key set. Already on `origin`; not
 re-pushed.
 
-**NEXT ACTION — Phase 6 (live acceptance).** Per spec §Phase 6: run acceptance in paper mode. Back up
-the data dir; start from a managed-canvas/probe config; rebuild without pressing Start; verify desired
-vs actual state, fresh closed bars, cycle records, and decision reasons; if probe is enabled, verify an
-Alpaca-confirmed fill, durable position, chart marker, and persisted completion marker; restart and
-verify no duplicate probe/order; then simulate credential/network failure and verify the UI stays
-available without clearing positions or duplicating orders.
+**Phase 6 Tasks 1–6 DONE (2026-06-16), pushed to `origin/master` (`bc268f0`→`9310e81`).** Plan:
+`docs/superpowers/plans/2026-06-16-visible-autonomous-entry-phase-6.md`. Shipped: the deterministic,
+Alpaca-free acceptance harness `tests/test_phase6_acceptance.py` (4 tests — auto-resume without Start;
+probe fill→broker-confirmed position→durable completion marker + cycle record; restart does not
+re-enter a completed flat probe; broker failure stays truthful with no false-flat/duplicate);
+`scripts/backup-data-dir.sh` (timestamped tarball, real-run verified); and the operator runbook
+`docs/PHASE6_LIVE_ACCEPTANCE.md` (exact commands + a concrete pass check per spec step 1–7).
+
+**Real defect found & fixed (issue #2, closed).** Task 4 exposed a genuine `src/` gap exactly as the
+plan anticipated: `tick_all` fetched the broker account *outside* the per-strategy try/except, so a
+total broker/credential/network outage raised straight out of the cycle (no telemetry, no truthful
+health). Fixed via TDD as its own focused task in `1553eba`: the account fetch is now wrapped — on
+failure the daily-counter reset is skipped (never fabricate equity), every strategy's cycle is recorded
+as a failed broker cycle (no entries, the open position is preserved rather than read as flat), and the
+last-known-good summary is retained. Regression-guarded by
+`tests/test_phase3_integration.py::test_account_fetch_failure_records_failed_cycle_without_clearing_or_duplicating`.
+Gate: **561 passed, 6 skipped**, ruff clean; container rebuilt + live-verified on `:8000` (readiness
+answers, 7 armed strategies).
+
+**NEXT ACTION — Phase 6 Tasks 7–8 (operator + close-out).** Tasks 1–6 are done; what remains is the
+*authoritative* live run and the final close-out, both intentionally left for an operator session:
+- **Task 7 (operator, needs real Alpaca paper creds):** execute `docs/PHASE6_LIVE_ACCEPTANCE.md`
+  end-to-end against the live container in paper mode and record Observed/Result + the final verdict.
+  If no live creds are available, mark steps 5–6 DEFERRED (no fills fabricated) and complete 1–4 + 7.
+- **Task 8 (close-out):** run the full gate (`.venv/bin/python -m pytest -q`, `ruff check src/ tests/`,
+  `cd frontend && npm run build`), rebuild the container, then update this file to mark the
+  "visible autonomous entry" sub-project COMPLETE and add the Phase 6 summary paragraph.
 
 **Codex handoff decision (resolved this session):** do NOT write a separate `PHASE4_CODEX_HANDOFF.md`.
 The Phase 3 handoff (`docs/PHASE3_CODEX_HANDOFF.md`, 210 lines) overlapped heavily with the 773-line
