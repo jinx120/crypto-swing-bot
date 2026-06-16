@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import json
+import os
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+
 # Bump when the managed definitions below change in a way that should re-seed.
 MANAGED_VERSION = 1
 
@@ -64,3 +69,81 @@ def managed_definitions(enable_probe: bool) -> dict[str, dict]:
     if enable_probe:
         defs["paper_probe"] = _probe_profile()
     return defs
+
+
+@dataclass
+class ReconcileReport:
+    seeded: list[str] = field(default_factory=list)
+    upgraded: list[str] = field(default_factory=list)
+    removed: list[str] = field(default_factory=list)
+    preserved_user: list[str] = field(default_factory=list)
+    backup_path: str | None = None
+    version_from: int | None = None
+    version_to: int = MANAGED_VERSION
+
+
+def backup_profiles(store, backup_dir: str, now: datetime | None = None) -> str:
+    """Dump the full profile set and armed flags before managed mutation."""
+    now = now or datetime.now(timezone.utc)
+    os.makedirs(backup_dir, exist_ok=True)
+    snapshot = {
+        "ts": now.isoformat(),
+        "profiles": {name: store.get(name) for name in store.list()},
+        "armed": list(store.list_armed()),
+    }
+    path = os.path.join(backup_dir, f"profiles-{now.strftime('%Y%m%dT%H%M%S%f')}.json")
+    with open(path, "w") as f:
+        json.dump(snapshot, f, indent=2)
+    return path
+
+
+def reconcile_managed_profiles(
+    store, *, enable_probe: bool, mode: str, backup_dir: str, now: datetime | None = None
+) -> ReconcileReport:
+    """Seed or upgrade managed profiles while preserving user profiles."""
+    import swingbot.managed_profiles as _self
+
+    prev_version = store.get_meta("managed_version")
+    prev_version_int = int(prev_version) if prev_version is not None else None
+    prev_names = set(json.loads(store.get_meta("managed_names") or "[]"))
+
+    target = _self.managed_definitions(enable_probe and mode == "paper")
+    target_names = set(target)
+
+    seeded: list[str] = []
+    upgraded: list[str] = []
+    for name, pdict in target.items():
+        existing = store.get(name)
+        if existing is None:
+            seeded.append(name)
+        elif existing != pdict:
+            upgraded.append(name)
+
+    removed = sorted(prev_names - target_names)
+    version_changed = prev_version_int != _self.MANAGED_VERSION
+    changed = bool(seeded or upgraded or removed or version_changed)
+
+    report = ReconcileReport(
+        seeded=sorted(seeded),
+        upgraded=sorted(upgraded),
+        removed=removed,
+        preserved_user=sorted(set(store.list()) - prev_names - target_names),
+        version_from=prev_version_int,
+        version_to=_self.MANAGED_VERSION,
+    )
+    if not changed:
+        return report
+
+    report.backup_path = backup_profiles(store, backup_dir, now)
+
+    for name, pdict in target.items():
+        store.save(name, pdict)
+        store.arm(name)
+    for name in removed:
+        if store.is_armed(name):
+            store.disarm(name)
+        store.delete(name)
+
+    store.set_meta("managed_version", str(_self.MANAGED_VERSION))
+    store.set_meta("managed_names", json.dumps(sorted(target_names)))
+    return report
