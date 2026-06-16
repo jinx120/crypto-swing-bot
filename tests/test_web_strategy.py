@@ -68,3 +68,35 @@ def test_backtest_single_profile():
     r = c.post("/api/strategy/backtest", json={"profile": profile}, headers={"X-Token": "t"})
     assert r.status_code == 200
     assert "n_trades" in r.json()["metrics"]
+
+
+def test_strategies_carry_kind_and_label():
+    class FakeProfiles:
+        def list(self):
+            return ["btc_trend", "paper_probe", "my_custom"]
+
+        def get(self, name):
+            return {
+                "symbol": {
+                    "btc_trend": "BTC/USD",
+                    "paper_probe": "BTC/USD",
+                    "my_custom": "ETH/USD",
+                }[name],
+            }
+
+        def armed_with_flags(self):
+            return [{"name": "btc_trend", "live_eligible": True}]
+
+    app = create_app(
+        _Ctl(), profiles=FakeProfiles(), creds=None, token="t",
+        store=None, market=FakeMarket(),
+    )
+    rows = {r["name"]: r for r in TestClient(app).get("/api/strategies").json()}
+    assert rows["btc_trend"]["kind"] == "strategy"
+    assert rows["btc_trend"]["label"] == "BTC Trend (EMA)"
+    assert rows["paper_probe"]["kind"] == "probe"
+    assert rows["paper_probe"]["label"] == "proof-of-life probe"
+    assert rows["my_custom"]["kind"] == "user"
+    assert rows["my_custom"]["label"] == "my_custom"
+    assert rows["btc_trend"]["armed"] is True
+    assert rows["my_custom"]["armed"] is False

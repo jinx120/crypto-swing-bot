@@ -20,6 +20,11 @@ MANAGED_LABELS = {
 }
 
 
+def managed_meta(name: str) -> dict:
+    """UI metadata for a profile: kind (strategy|probe|user) and display label."""
+    return MANAGED_LABELS.get(name, {"kind": "user", "label": name})
+
+
 def _trend_profile(symbol: str) -> dict:
     return {
         "symbol": symbol,

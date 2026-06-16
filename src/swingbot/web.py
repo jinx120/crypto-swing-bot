@@ -18,6 +18,7 @@ import swingbot.discovery as discovery_mod
 from swingbot.strategy_search import backtest_profile, search as run_strategy_search
 from swingbot.universe import fallback_universe
 from swingbot.broker.alpaca import AlpacaBroker
+from swingbot.managed_profiles import managed_meta
 from swingbot.supervisor import LifecycleError
 
 _DIST = str(pathlib.Path(__file__).parent.parent.parent / "frontend" / "dist")
@@ -169,8 +170,10 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         out = []
         for name in profiles.list():
             p = profiles.get(name) or {}
+            meta = managed_meta(name)
             out.append({"name": name, "symbol": p.get("symbol"),
-                        "armed": name in flags, "live_eligible": flags.get(name, False)})
+                        "armed": name in flags, "live_eligible": flags.get(name, False),
+                        "kind": meta["kind"], "label": meta["label"]})
         return out
 
     @app.post("/api/strategies/arm")
