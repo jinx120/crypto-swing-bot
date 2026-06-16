@@ -28,6 +28,7 @@ export default function App(){
   const [state, setState] = useState(null)
   const [trades, setTrades] = useState([])
   const [metrics, setMetrics] = useState(null)
+  const [health, setHealth] = useState(null)
   const [err, setErr] = useState('')
   const [unreachable, setUnreachable] = useState(false)
 
@@ -35,6 +36,7 @@ export default function App(){
     try {
       const s = await api.state(); setState(s); setErr(''); setUnreachable(false)
       setTrades(await api.journal()); setMetrics(await api.metrics())
+      try { setHealth(await api.tradingHealth()) } catch { /* keep last */ }
     } catch(e){ setErr(e.message); setUnreachable(!!e.network) }
   }, [])
 
@@ -46,6 +48,7 @@ export default function App(){
     }, 3000)
     const slow = setInterval(async()=>{
       try { setTrades(await api.journal()); setMetrics(await api.metrics()) } catch {}
+      try { setHealth(await api.tradingHealth()) } catch {}
     }, 10000)
     return ()=>{ clearInterval(fast); clearInterval(slow) }
   }, [refresh])
@@ -76,7 +79,7 @@ export default function App(){
       {tab==='dashboard' && <PortfolioBanner portfolio={state?.portfolio} />}
       {err && !unreachable && <div className="err" style={{padding:'8px 20px'}}>{err}</div>}
       {tab==='dashboard' && <>
-        <Dashboard state={state} trades={trades} metrics={metrics} onChange={refresh} />
+        <Dashboard state={state} trades={trades} metrics={metrics} health={health} onChange={refresh} />
         <div className="wrap"><ControlBar portfolio={state?.portfolio} onChange={refresh} /></div>
       </>}
       {tab==='strategy' && <Strategy />}

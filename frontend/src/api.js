@@ -26,6 +26,7 @@ export const api = {
   state: () => req('GET', '/api/state'),
   journal: (strategy) => req('GET', strategy ? `/api/journal?strategy=${encodeURIComponent(strategy)}` : '/api/journal'),
   metrics: (strategy) => req('GET', strategy ? `/api/metrics?strategy=${encodeURIComponent(strategy)}` : '/api/metrics'),
+  tradingHealth: () => req('GET', '/api/health/trading'),
   listProfiles: () => req('GET', '/api/profiles'),
   getProfile: (name) => req('GET', `/api/profiles/${name}`),
   saveProfile: (name, profile) => req('POST', '/api/profiles', { name, profile }),
