@@ -7,12 +7,23 @@ the live paper run recorded in docs/PHASE6_LIVE_ACCEPTANCE.md; this suite is the
 reproducible, Alpaca-free support for it.
 """
 
+from datetime import timedelta
+
 from swingbot.managed_profiles import reconcile_managed_profiles
 from swingbot.probe_marker import ProbeMarkerStore
 from swingbot.profiles import ProfileStore
 from swingbot.runtime_state import RuntimeStateStore
 from swingbot.supervisor import PortfolioSupervisor
-from tests.test_supervisor import FakeBroker, FakeMarket, _bars
+from swingbot.types import (
+    BrokerOrder,
+    DecisionCode,
+    DecisionResult,
+    OrderSide,
+    OrderStatus,
+    PendingOrder,
+    Regime,
+)
+from tests.test_supervisor import FakeBroker, FakeMarket, T0, _bars
 
 
 def _wire(tmp_path, *, enable_probe, broker=None, desired=False):
@@ -68,3 +79,68 @@ def test_managed_canvas_seeds_and_auto_resumes_without_start(tmp_path):
     assert life["running_actual"] is True
     assert life["startup_error"] is None
     sup2.request_stop()
+
+
+def test_probe_entry_confirmed_promotes_position_marks_complete_and_records_cycle(
+    tmp_path,
+):
+    broker = FakeBroker()
+    sup, broker, marker, profiles = _wire(
+        tmp_path, enable_probe=True, broker=broker
+    )
+    assert "paper_probe" in set(profiles.list_armed())
+
+    # A probe entry was submitted last cycle: a pending buy is on the books.
+    pending = PendingOrder(
+        client_order_id="probe-coid",
+        broker_order_id="probe-coid",
+        symbol="BTC/USD",
+        side=OrderSide.BUY,
+        submitted_at=T0,
+        requested_qty=1.0,
+        stop=None,
+        tp=None,
+        max_hold_until=T0 + timedelta(hours=8),
+        score_at_entry=1.0,
+        regime_at_entry=Regime.UPTREND,
+        exit_reason=None,
+        observed_exit_price=None,
+    )
+    sup._store.save_pending_order(pending, strategy="paper_probe")
+
+    # Broker confirms the fill and reports the resulting position (broker truth).
+    broker.order = BrokerOrder(
+        "probe-1",
+        "BTC/USD",
+        OrderSide.BUY,
+        OrderStatus.FILLED,
+        1.0,
+        1.0,
+        100.0,
+        "probe-coid",
+    )
+    broker.positions["BTC/USD"] = {
+        "symbol": "BTC/USD",
+        "qty": 1.0,
+        "avg_entry_price": 100.0,
+        "market_value": 100.0,
+    }
+
+    sup.tick_all(T0)
+
+    # Broker-confirmed position is now durable and visible.
+    st = sup.status()
+    probe_row = next(s for s in st["strategies"] if s["name"] == "paper_probe")
+    assert probe_row["position"] is not None
+    assert probe_row["position"]["qty"] == 1.0
+
+    # The probe is durably marked complete (fire-once promise).
+    sup.note_managed_decision(
+        "paper_probe", DecisionResult(DecisionCode.ENTERED, "probe filled")
+    )
+    assert marker.is_complete("paper_probe") is True
+
+    # A cycle record exists with a bar timestamp and a stable terminal decision code.
+    row = sup._telemetry.recent(strategy="paper_probe")[0]
+    assert row.bar_ts is not None
+    assert isinstance(row.decision_code, DecisionCode)
