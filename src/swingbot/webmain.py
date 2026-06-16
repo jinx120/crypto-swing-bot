@@ -46,10 +46,24 @@ def main() -> None:
     backfiller = Backfiller(store, provider=archive_provider)
     market = MarketData(store, creds)
     runtime_state = RuntimeStateStore(os.path.join(DATA_DIR, "swingbot.db"))
+
+    from swingbot.managed_profiles import reconcile_managed_profiles
+    from swingbot.probe_marker import ProbeMarkerStore
+
+    probe_marker = ProbeMarkerStore(os.path.join(DATA_DIR, "probe_markers.db"))
+    enable_probe = os.environ.get("SWINGBOT_ENABLE_PAPER_PROBE") == "1"
+    backup_dir = os.path.join(DATA_DIR, "backups")
+
+    def _reconcile_managed():
+        reconcile_managed_profiles(
+            profiles, enable_probe=enable_probe, mode="paper", backup_dir=backup_dir
+        )
+
     supervisor = PortfolioSupervisor(
         profiles=profiles, creds=creds,
         state_db=os.path.join(DATA_DIR, "swingbot.db"), market=market,
-        runtime_state=runtime_state)
+        runtime_state=runtime_state,
+        reconcile=_reconcile_managed, probe_marker=probe_marker)
     poller = CandlePoller(market, profiles)        # lifespan owns start/stop
     discovery = DiscoveryEngine(market)
 

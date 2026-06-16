@@ -121,13 +121,15 @@ class PortfolioSupervisor:
 
     def __init__(self, profiles: ProfileStore, creds, state_db: str,
                  market: MarketData | None = None, broker=None, mode: str = "paper",
-                 runtime_state=None):
+                 runtime_state=None, reconcile=None, probe_marker=None):
         self.profiles = profiles
         self.creds = creds
         self.state_db = state_db
         self.market = market
         self.mode = mode
         self.runtime_state = runtime_state    # durable running_desired flag (may be None)
+        self._reconcile = reconcile
+        self._probe_marker = probe_marker
         self.startup_error: str | None = None  # most recent auto-start outcome
         self._broker = broker
         self.paused = False
@@ -244,6 +246,8 @@ class PortfolioSupervisor:
     # ---- construction ----
     @_state_locked
     def build(self) -> None:
+        if self._reconcile is not None:
+            self._reconcile()
         if self.market is None:
             raise RuntimeError("market must be provided (webmain wires MarketData)")
         if self._broker is None:
@@ -309,6 +313,13 @@ class PortfolioSupervisor:
             self._store.save_portfolio_risk_state(self._portfolio_risk.state)
         return on_close
 
+    def note_managed_decision(self, name: str, decision) -> None:
+        """Record the durable proof-of-life marker after the probe completes."""
+        if self._probe_marker is None or name != "paper_probe":
+            return
+        if decision.code in (DecisionCode.ENTERED, DecisionCode.EXITED):
+            self._probe_marker.mark_complete("paper_probe")
+
     # ---- the loop ----
     @_state_locked
     def tick_all(self, now: datetime | None = None) -> None:
@@ -355,6 +366,7 @@ class PortfolioSupervisor:
                     decision = orch.tick(now)
                     if not isinstance(decision, DecisionResult):
                         raise TypeError("orchestrator tick returned no DecisionResult")
+                    self.note_managed_decision(name, decision)
                     stages[required_stage] = "ok"
                 except Exception as exc:
                     stages[required_stage] = "failed"
