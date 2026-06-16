@@ -99,16 +99,25 @@ flat; idempotent via `client_order_id`); health read-models are local-only (no n
 this host: **521 passed, 6 skipped**, ruff clean. No blocking issues. Merged, not re-pushed (already
 on origin).
 
-**NEXT ACTION — write the Phase 4 plan.** Phase: PLAN. Load `superpowers:writing-plans` (design is
-settled in the reviewed spec §5 Phase 4 — only load `superpowers:brainstorming` if a real design
-fork surfaces). Read `specs/2026-06-13-visible-autonomous-entry-design-reviewed.md` §5 Phase 4 + §6
-test matrix. Scope (5 items): (1) add EMA indicator with tests; (2) honest trend strategy
-signal/profile definitions; (3) versioned managed-profile reconciliation that NEVER deletes/overwrites
-user profiles (back up first); (4) opt-in paper proof-of-life probe, kept strictly separate from
-strategy behavior — OR formally remove the bounded-entry acceptance; (5) server-side managed-canvas
-enforcement only if that mode is actually intended. Exit criterion: managed profile defs are
-reproducible, existing data preserved/backed-up, proof behavior separated from strategy behavior.
-Write the plan to `docs/superpowers/plans/2026-06-16-visible-autonomous-entry-phase-4.md`.
+**Phase 4 plan WRITTEN (2026-06-16) and pushed to `origin/master`.** Phase: EXECUTE.
+Plan: `docs/superpowers/plans/2026-06-16-visible-autonomous-entry-phase-4.md` (8 tasks, TDD,
+self-contained with a "Context for a cold code-gen agent" preamble — it IS the Codex handoff).
+Both design forks resolved in the plan: (#4) implement the **opt-in `paper_probe`** (spec §3.4
+recommended; preserves success criterion #10; default off, `SWINGBOT_ENABLE_PAPER_PROBE=1` to
+enable); (#5) **managed-canvas server-side enforcement is OUT OF SCOPE** (spec makes it conditional
+on a mode we are not adopting) — the reconciler's user-profile preservation is the safety guarantee.
+
+Tasks: (1) EMA indicator; (2) `EmaTrendSignal` + registry; (3) managed definitions
+(`btc_trend`/`eth_trend`/`paper_probe`) + labels; (4) probe signal + `ProbeMarkerStore` +
+`probe_should_fire`; (5) `ProfileStore.get_meta/set_meta`; (6) versioned `reconcile_managed_profiles`
+(backup-before-write, never deletes/overwrites user profiles); (7) supervisor `build()` reconcile
+hook + `note_managed_decision` probe-complete-on-entry + webmain wiring; (8) regression gate
+(`pytest -q`, `ruff check src/`, `npm run build`).
+
+**NEXT ACTION — Phase 4 is being code-generated externally by Codex** from the pushed plan. When
+Codex's commits land on `origin/master`, fetch + review against the plan/spec (same protocol used
+for Phase 3): contracts, user-profile preservation, probe gating, fire-once marker; re-run
+`.venv/bin/python -m pytest -q` + `ruff check src/`. Then resume to Phase 5 (dashboard).
 
 **Codex handoff decision (resolved this session):** do NOT write a separate `PHASE4_CODEX_HANDOFF.md`.
 The Phase 3 handoff (`docs/PHASE3_CODEX_HANDOFF.md`, 210 lines) overlapped heavily with the 773-line
