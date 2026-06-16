@@ -1,6 +1,7 @@
 import pandas as pd
 
 from swingbot.types import MarketContext
+from swingbot.signals.ema_trend import EmaTrendSignal
 from swingbot.signals.oversold import OversoldSignal
 from swingbot.signals.vwap import VwapSignal
 from swingbot.signals.relative_strength import RelativeStrengthSignal
@@ -50,6 +51,43 @@ def test_relative_strength_high_when_outperforming():
 def test_relative_strength_neutral_without_benchmark():
     ctx = MarketContext(candles=_df([100.0, 110.0]), benchmark=None)
     assert RelativeStrengthSignal(weight=0.3, band=0.05, lookback=1).evaluate(ctx).score == 0.5
+
+
+def _ctx(closes):
+    df = pd.DataFrame({
+        "ts": pd.date_range("2026-01-01", periods=len(closes), freq="15min", tz="UTC"),
+        "open": closes,
+        "high": closes,
+        "low": closes,
+        "close": closes,
+        "volume": [1.0] * len(closes),
+    })
+    return MarketContext(candles=df)
+
+
+def test_ema_trend_strong_uptrend_scores_high():
+    closes = [float(x) for x in range(1, 61)]
+    sig = EmaTrendSignal(weight=1.0, fast=12, slow=26, band=0.01)
+    r = sig.evaluate(_ctx(closes))
+    assert r.name == "ema_trend"
+    assert r.score >= 0.9
+    assert r.meta["spread"] > 0
+
+
+def test_ema_trend_downtrend_scores_zero():
+    closes = [float(x) for x in range(60, 0, -1)]
+    sig = EmaTrendSignal(weight=1.0, fast=12, slow=26, band=0.01)
+    r = sig.evaluate(_ctx(closes))
+    assert r.score == 0.0
+
+
+def test_ema_trend_warmup_scores_zero():
+    closes = [10.0, 11.0, 12.0]
+    sig = EmaTrendSignal(weight=1.0, fast=12, slow=26, band=0.01)
+    r = sig.evaluate(_ctx(closes))
+    assert r.score == 0.0
+    assert r.meta["ema_fast"] is None
+
 
 # --- FVG (ICT fair value gap) ---------------------------------------------
 # A bullish FVG is a 3-candle imbalance: low[3] > high[1], leaving an
