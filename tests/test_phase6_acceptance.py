@@ -24,6 +24,7 @@ from swingbot.types import (
     Regime,
 )
 from tests.test_supervisor import FakeBroker, FakeMarket, T0, _bars
+from tests.test_supervisor_telemetry import _position
 
 
 def _wire(tmp_path, *, enable_probe, broker=None, desired=False):
@@ -169,3 +170,41 @@ def test_restart_does_not_reenter_completed_flat_probe(tmp_path):
     assert broker.buys == before
     row = sup2._telemetry.recent(strategy="paper_probe")[0]
     assert row.decision_code is DecisionCode.PROBE_COMPLETE
+
+
+class FailingBroker(FakeBroker):
+    """A broker whose queries raise — simulates expired creds / network loss."""
+
+    def get_account(self):
+        raise ConnectionError("alpaca unreachable")
+
+    def get_position(self, s):
+        raise ConnectionError("alpaca unreachable")
+
+    def get_order(self, order_id=None, client_order_id=None):
+        raise ConnectionError("alpaca unreachable")
+
+
+def test_broker_failure_does_not_false_flat_or_duplicate(tmp_path):
+    broker = FailingBroker()
+    sup, broker, _marker, _profiles = _wire(
+        tmp_path, enable_probe=False, broker=broker
+    )
+
+    # A broker-confirmed position is already on the books for a managed strategy.
+    sup._store.save_position(_position(), strategy="btc_trend")
+    before_buys = list(broker.buys)
+
+    # A cycle under total broker failure must not raise out of tick_all...
+    sup.tick_all(T0)
+
+    # ...the position is NOT cleared by an error being mistaken for "flat"...
+    assert sup._store.load_position("btc_trend") is not None
+    # ...and no order was placed off the back of a failed reconcile.
+    assert broker.buys == before_buys
+
+    # readiness()/trading_health() are local-only and stay answerable (never raise).
+    ready = sup.readiness()
+    assert isinstance(ready["ready"], bool)
+    health = sup.trading_health()
+    assert health["status"] in {"active", "inactive", "unhealthy"}
