@@ -349,8 +349,20 @@ class PortfolioSupervisor:
         if self._provider is not None:
             self._provider.cycle_now = now
         ingest = self._warm(now)
-        acct = self._broker.get_account()
-        self._portfolio_risk.start_day(now, acct["equity"])
+        # The account fetch is a broker round-trip. If it fails (expired creds /
+        # network loss) the whole broker is unreachable for this cycle: degrade
+        # truthfully instead of letting the exception escape tick_all. We skip the
+        # daily-counter reset (never fabricate equity), force every strategy's cycle
+        # to a failed-broker outcome below (no entries, positions preserved), and
+        # keep the last-known-good summary.
+        acct = None
+        broker_error: Exception | None = None
+        try:
+            acct = self._broker.get_account()
+            self._portfolio_risk.start_day(now, acct["equity"])
+        except Exception as exc:
+            broker_error = exc
+            print(f"[supervisor] account fetch failed; cycle degraded: {exc}")
         for name in sorted(self._strategies):                 # deterministic priority
             s = self._strategies[name]
             orch = s["orch"]
@@ -366,17 +378,24 @@ class PortfolioSupervisor:
             }
             decision = DecisionResult(DecisionCode.ERROR, "cycle did not complete")
             reconcile_ok = True
-            try:
-                orch.reconcile(
-                    now,
-                    adopt_broker_position=not self._symbol_owned_by_other_strategy(
-                        name, s["profile"].symbol
-                    ),
-                )
-            except Exception as exc:
+            if broker_error is not None:
+                # Broker unreachable this cycle: do not touch it (a failed lookup
+                # must never be read as "position closed"), record a failed cycle.
                 reconcile_ok = False
                 stages["reconcile"] = "failed"
-                decision = self._error_decision("reconcile", exc)
+                decision = self._error_decision("account", broker_error)
+            else:
+                try:
+                    orch.reconcile(
+                        now,
+                        adopt_broker_position=not self._symbol_owned_by_other_strategy(
+                            name, s["profile"].symbol
+                        ),
+                    )
+                except Exception as exc:
+                    reconcile_ok = False
+                    stages["reconcile"] = "failed"
+                    decision = self._error_decision("reconcile", exc)
 
             position_exists = s["view"].load_position() is not None
             required_stage = "manage" if position_exists else "decide"
@@ -427,7 +446,8 @@ class PortfolioSupervisor:
                 decision_details=decision.details,
             ))
             s["snapshot"] = self._snapshot(s["profile"])
-        self._summary = self._build_summary(acct)
+        if acct is not None:
+            self._summary = self._build_summary(acct)
 
     def _warm(self, now: datetime) -> dict[str, dict]:
         by_tf: dict = {}

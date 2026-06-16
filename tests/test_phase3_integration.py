@@ -7,6 +7,7 @@ from swingbot.profiles import ProfileStore
 from swingbot.supervisor import PortfolioSupervisor
 from swingbot.types import (
     BrokerOrder,
+    DecisionCode,
     ExitReason,
     OpenPosition,
     OrderSide,
@@ -24,10 +25,13 @@ class Broker:
         self.order = None
         self.lookup_error = None
         self.position_error = None
+        self.account_error = None
         self.buys = []
         self.sells = []
 
     def get_account(self):
+        if self.account_error is not None:
+            raise self.account_error
         return {"equity": 1000.0, "cash": 1000.0, "buying_power": 1000.0}
 
     def get_position(self, symbol):
@@ -179,6 +183,29 @@ def test_broker_errors_record_failed_reconcile_without_clearing_position(tmp_pat
     row = sup._telemetry.recent(strategy="btc")[0]
     assert row.reconcile == "failed"
     assert sup._store.load_position("btc") == position
+
+
+def test_account_fetch_failure_records_failed_cycle_without_clearing_or_duplicating(tmp_path):
+    # A total broker/credential/network outage that fails the account lookup must not
+    # escape tick_all: the cycle is recorded as failed, the open position is preserved
+    # (an error is not "flat"), no order is placed, and the local-only health surfaces
+    # stay answerable. Regression guard for issue #2 (account fetch was outside the
+    # per-strategy failure handling).
+    broker = Broker()
+    sup = _supervisor(tmp_path, broker)
+    position = _position()
+    sup._store.save_position(position, strategy="btc")
+    broker.account_error = ConnectionError("alpaca unreachable")
+    before_buys = list(broker.buys)
+
+    sup.tick_all(T0)  # must not raise
+
+    assert sup._store.load_position("btc") == position
+    assert broker.buys == before_buys
+    row = sup._telemetry.recent(strategy="btc")[0]
+    assert row.decision_code is DecisionCode.ERROR
+    assert isinstance(sup.readiness()["ready"], bool)
+    assert sup.trading_health()["status"] in {"active", "inactive", "unhealthy"}
 
 
 def test_health_reliability_uses_exactly_latest_200_completed_cycles(tmp_path):
