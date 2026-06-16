@@ -144,3 +144,28 @@ def test_probe_entry_confirmed_promotes_position_marks_complete_and_records_cycl
     row = sup._telemetry.recent(strategy="paper_probe")[0]
     assert row.bar_ts is not None
     assert isinstance(row.decision_code, DecisionCode)
+
+
+def test_restart_does_not_reenter_completed_flat_probe(tmp_path):
+    # Boot 1: probe enabled, marked complete, and flat (no position).
+    sup, broker, marker, _profiles = _wire(tmp_path, enable_probe=True)
+    marker.mark_complete("paper_probe")
+
+    # Boot 2: container restart with fresh supervisor over the same on-disk state.
+    sup2 = PortfolioSupervisor(
+        profiles=sup.profiles,
+        creds=None,
+        state_db=str(tmp_path / "swingbot.db"),
+        market=sup.market,
+        broker=broker,
+        mode="paper",
+        probe_marker=ProbeMarkerStore(str(tmp_path / "probe_markers.db")),
+    )
+    sup2.build()
+    before = list(broker.buys)
+
+    sup2.tick_all(T0)
+
+    assert broker.buys == before
+    row = sup2._telemetry.recent(strategy="paper_probe")[0]
+    assert row.decision_code is DecisionCode.PROBE_COMPLETE
