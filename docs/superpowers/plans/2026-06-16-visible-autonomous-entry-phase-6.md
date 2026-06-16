@@ -315,7 +315,9 @@ git commit -m "test(phase6): restart does not re-enter a completed flat probe"
 
 Runbook step 7: a credential/network failure must keep the UI surfaces available and truthful — readiness/health reflect the failure, the open position is **not** cleared, and no duplicate order is placed. The shipped `FakeBroker` has no error injection, so subclass it.
 
-- [ ] **Step 1: Write the failing test**
+> **Real defect found & fixed (issue #2).** As the plan anticipated, the Task 4 scenario exposed a genuine `src/` gap: `tick_all` fetched the broker account *outside* the per-strategy try/except, so a total broker outage raised straight out of the cycle (no telemetry, no truthful health). Fixed as its own focused TDD task in `1553eba` (`fix(supervisor): keep tick_all truthful when broker account fetch fails`): the account fetch is now wrapped — on failure the daily reset is skipped, every strategy's cycle is recorded as a failed broker cycle (no entries, position preserved, never read as flat), and the last-known-good summary is retained. Regression-guarded by `tests/test_phase3_integration.py::test_account_fetch_failure_records_failed_cycle_without_clearing_or_duplicating`. This acceptance test then passes with no further product change.
+
+- [x] **Step 1: Write the failing test**
 
 ```python
 class FailingBroker(FakeBroker):
@@ -351,7 +353,7 @@ def test_broker_failure_does_not_false_flat_or_duplicate(tmp_path):
     assert health["status"] in {"active", "inactive", "unhealthy"}
 ```
 
-- [ ] **Step 2: Run it and confirm it fails**
+- [x] **Step 2: Run it and confirm it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_phase6_acceptance.py::test_broker_failure_does_not_false_flat_or_duplicate -q`
 Expected: FAIL. Resolve real method names: confirm `save_position`/`load_position` signatures.
@@ -362,16 +364,16 @@ grep -n "def save_position\|def load_position\|def load_all_positions" src/swing
 
 If the loader is named differently (e.g. `get_position(strategy=...)` or `load_all_positions()`), adjust the assertion to read the same position back by strategy. Do not change the *intent*: position present after a failed cycle.
 
-- [ ] **Step 3: Make it pass**
+- [x] **Step 3: Make it pass**
 
 Expected to pass with **no product change** — `tests/test_phase3_integration.py::test_broker_errors_record_failed_reconcile_without_clearing_position` already proves the broker-error-≠-flat contract. If `tick_all` instead *raises* out under a fully-failing broker, that is a real Phase 6 finding: **stop, do not swallow it in the test** — open a separate hardening task (mirroring the Phase 3 reconcile try/except) and reference it here. The acceptance test asserts the truthful-failure contract; it must not paper over a regression.
 
-- [ ] **Step 4: Run it and confirm it passes**
+- [x] **Step 4: Run it and confirm it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_phase6_acceptance.py -q`
 Expected: PASS (four tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 .venv/bin/ruff check tests/test_phase6_acceptance.py
