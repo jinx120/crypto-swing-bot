@@ -4,7 +4,7 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-06-15
+**Last updated:** 2026-06-16
 
 ---
 
@@ -90,10 +90,37 @@ untouched. `python3 -m graphify update .` was attempted but this clean host has 
 module (and PyPI has no matching distribution); no tracked graph artifacts exist in this clone.
 No live Alpaca/container acceptance is claimed; that remains Phase 6.
 
-**NEXT ACTION — write the Phase 4 plan.** Scope: managed strategy definitions plus the optional
-paper proof-of-life probe from spec §5 Phase 4, using
-`specs/2026-06-13-visible-autonomous-entry-design-reviewed.md` as the basis. Use
-`superpowers:brainstorming` only if design forks remain, then `superpowers:writing-plans`.
+**Phase 3 independently reviewed & APPROVED (2026-06-16).** Codex's 8 commits (`ffa7377`→`2430de5`)
+were fetched, fast-forwarded onto local `master`, and reviewed against spec §Phase 3 by a fresh
+session: contracts clean (`types.py`); crash-safe order intent (pending row persisted with
+`client_order_id` *before* the broker call; submit-exception leaves it for reconcile); broker-
+confirmed promotion (buy→position only after `FILLED` + `get_position`; sell→trade only after broker
+flat; idempotent via `client_order_id`); health read-models are local-only (no network). Re-ran on
+this host: **521 passed, 6 skipped**, ruff clean. No blocking issues. Merged, not re-pushed (already
+on origin).
+
+**NEXT ACTION — write the Phase 4 plan.** Phase: PLAN. Load `superpowers:writing-plans` (design is
+settled in the reviewed spec §5 Phase 4 — only load `superpowers:brainstorming` if a real design
+fork surfaces). Read `specs/2026-06-13-visible-autonomous-entry-design-reviewed.md` §5 Phase 4 + §6
+test matrix. Scope (5 items): (1) add EMA indicator with tests; (2) honest trend strategy
+signal/profile definitions; (3) versioned managed-profile reconciliation that NEVER deletes/overwrites
+user profiles (back up first); (4) opt-in paper proof-of-life probe, kept strictly separate from
+strategy behavior — OR formally remove the bounded-entry acceptance; (5) server-side managed-canvas
+enforcement only if that mode is actually intended. Exit criterion: managed profile defs are
+reproducible, existing data preserved/backed-up, proof behavior separated from strategy behavior.
+Write the plan to `docs/superpowers/plans/2026-06-16-visible-autonomous-entry-phase-4.md`.
+
+**Codex handoff decision (resolved this session):** do NOT write a separate `PHASE4_CODEX_HANDOFF.md`.
+The Phase 3 handoff (`docs/PHASE3_CODEX_HANDOFF.md`, 210 lines) overlapped heavily with the 773-line
+plan — its only additive value over a good plan is cold-agent orientation (build-on-this vs gaps),
+verbatim spec excerpts, and house rules (venv `.venv/bin/python`, TDD, "don't touch unrelated
+uncommitted FVG/presets work"). So author the Phase 4 **plan to be self-contained for a cold agent**
+— add a short "## Context for a cold code-gen agent" preamble (current-code state, component
+boundaries, env/house rules, success criteria) at its top. That one plan file IS the Codex handoff;
+paste it whole. The ready-to-paste Codex prompt lives in the session that resolved this (re-derivable:
+"You are implementing Phase 4 from this plan verbatim, TDD task-by-task, tick each `- [ ]` and commit
+per task; do not touch files outside the plan's File Structure; run `.venv/bin/python -m pytest -q`
+and `ruff check src/` before each commit").
 
 ---
 
