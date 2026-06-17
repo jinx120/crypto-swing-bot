@@ -1,0 +1,16 @@
+[project]
+name = "core-engine"
+version = "0.0.1"
+description = "Isolated autonomous BTC/USD trade-execution engine (experiment)"
+requires-python = ">=3.11"
+dependencies = ["pandas", "swingbot"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

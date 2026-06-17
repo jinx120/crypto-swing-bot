@@ -90,14 +90,14 @@ These are the exact interfaces this plan relies on (verified in `src/swingbot/`)
 - Consumes: the local `swingbot` package (editable-installed in the same venv).
 - Produces: an importable `core_engine` package and a working `pytest` run under `lab/core-engine/`.
 
-- [ ] **Step 1: Create the branch**
+- [x] **Step 1: Create the branch**
 
 ```bash
 cd /home/redji/crypto-swing-bot
 git checkout master && git checkout -b core-engine
 ```
 
-- [ ] **Step 2: Write `pyproject.toml`**
+- [x] **Step 2: Write `pyproject.toml`**
 
 ```toml
 [project]
@@ -118,14 +118,14 @@ where = ["src"]
 testpaths = ["tests"]
 ```
 
-- [ ] **Step 3: Write `src/core_engine/__init__.py`**
+- [x] **Step 3: Write `src/core_engine/__init__.py`**
 
 ```python
 """Autonomous BTC/USD core engine — isolated experiment."""
 __all__ = []
 ```
 
-- [ ] **Step 4: Write the smoke test `tests/test_smoke.py`**
+- [x] **Step 4: Write the smoke test `tests/test_smoke.py`**
 
 ```python
 def test_package_imports():
@@ -138,7 +138,7 @@ def test_swingbot_reuse_available():
     from swingbot.exits import exit_decision  # noqa: F401
 ```
 
-- [ ] **Step 5: Write `README.md`**
+- [x] **Step 5: Write `README.md`**
 
 ```markdown
 # core-engine (experiment)
@@ -151,12 +151,12 @@ Report: `python -m core_engine report`
 Backtest: `python -m core_engine backtest --from <iso> --to <iso>`
 ```
 
-- [ ] **Step 6: Install editable and run the smoke test**
+- [x] **Step 6: Install editable and run the smoke test**
 
 Run: `cd lab/core-engine && pip install -e . && pytest tests/test_smoke.py -v`
 Expected: 2 passed. (If `swingbot` is not importable, run `pip install -e ../..` first.)
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 cd /home/redji/crypto-swing-bot
