@@ -897,7 +897,7 @@ git commit -m "feat(core-engine): MarketContext builder over candle store"
     - `.exit(position: EnginePosition, price: float, reason: str) -> float | None` — submit market sell; return realized pnl on confirmed fill, else `None`.
     - `.reconcile(position: EnginePosition | None) -> EnginePosition | None` — pull broker truth (`get_position`) and correct/clear local position.
 
-- [ ] **Step 1: Add `FakeBroker` to `tests/conftest.py`**
+- [x] **Step 1: Add `FakeBroker` to `tests/conftest.py`**
 
 ```python
 class FakeBroker:
@@ -933,7 +933,7 @@ class FakeBroker:
         return 10_000.0
 ```
 
-- [ ] **Step 2: Write the failing test `tests/test_executor.py`**
+- [x] **Step 2: Write the failing test `tests/test_executor.py`**
 
 ```python
 from datetime import datetime, timezone
@@ -968,12 +968,12 @@ def test_exit_returns_realized_pnl():
     assert round(pnl, 2) == round((105.0 - 100.0) * 0.01, 2)
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [x] **Step 3: Run test to verify it fails**
 
 Run: `pytest tests/test_executor.py -v`
 Expected: FAIL with "No module named 'core_engine.executor'".
 
-- [ ] **Step 4: Write `executor.py`**
+- [x] **Step 4: Write `executor.py`**
 
 ```python
 from __future__ import annotations
@@ -1019,12 +1019,12 @@ class Executor:
 
 > Implementer note: confirm the live `swingbot.broker.alpaca` order dict keys (`status`, `filled_avg_price`, `filled_qty`) and `get_position` keys against `src/swingbot/broker/alpaca.py`. The `pending_new` truthfulness contract is the whole point of this task — keep `_is_filled` strict.
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `pytest tests/test_executor.py -v`
 Expected: 3 passed.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lab/core-engine/src/core_engine/executor.py lab/core-engine/tests/test_executor.py lab/core-engine/tests/conftest.py
