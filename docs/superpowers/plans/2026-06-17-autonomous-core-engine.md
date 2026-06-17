@@ -182,7 +182,7 @@ git commit -m "feat(core-engine): isolated package scaffold + branch"
   - `JournalEvent(ts, kind: str, symbol: str, reason: str, payload: dict)` — frozen; `kind` ∈ {"decision","order","fill","exit","pnl","killswitch","error"}.
   - `config.SYMBOL`, `config.TIMEFRAME`, `config.LOOP_SECONDS`, `config.PROFILE` (a `StrategyProfile`), `config.CANDLE_DB`, `config.STATE_DB`, `config.JOURNAL_DB`.
 
-- [ ] **Step 1: Write the failing test `tests/test_contracts.py`**
+- [x] **Step 1: Write the failing test `tests/test_contracts.py`**
 
 ```python
 from datetime import datetime, timezone
@@ -216,12 +216,12 @@ def test_journal_event_kinds():
     assert ev.kind == "decision"
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_contracts.py -v`
 Expected: FAIL with "No module named 'core_engine.contracts'".
 
-- [ ] **Step 3: Write `contracts.py`**
+- [x] **Step 3: Write `contracts.py`**
 
 ```python
 from __future__ import annotations
@@ -275,7 +275,7 @@ class JournalEvent:
     payload: dict = field(default_factory=dict)
 ```
 
-- [ ] **Step 4: Write `config.py`**
+- [x] **Step 4: Write `config.py`**
 
 ```python
 from __future__ import annotations
@@ -299,12 +299,12 @@ PROFILE = StrategyProfile.btc_default() if hasattr(StrategyProfile, "btc_default
 
 > Implementer note: open `src/swingbot/profile.py:9` and construct `PROFILE` with the real required fields (risk fraction ~1%, ATR stop/tp mults, max-hold, confluence threshold, regime params). If a convenience constructor exists, use it; otherwise pass explicit values. Do not invent fields.
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `pytest tests/test_contracts.py -v`
 Expected: 4 passed.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lab/core-engine/src/core_engine/contracts.py lab/core-engine/src/core_engine/config.py lab/core-engine/tests/test_contracts.py
