@@ -789,7 +789,7 @@ git commit -m "feat(core-engine): backtest harness over shared decide/exit path"
   - `build_context(store: CandleStore, lookback: int = 300) -> MarketContext` — read the last `lookback` bars into a DataFrame with the columns the v1 signals expect and wrap in `MarketContext`.
   - `latest_price(store) -> float`, `latest_atr(store, n: int = 14) -> float`.
 
-- [ ] **Step 1: Write the failing test `tests/test_market.py`**
+- [x] **Step 1: Write the failing test `tests/test_market.py`**
 
 ```python
 import pandas as pd
@@ -821,12 +821,12 @@ def test_latest_price(tmp_path):
     assert latest_price(store) > 100
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_market.py -v`
 Expected: FAIL with "No module named 'core_engine.market'".
 
-- [ ] **Step 3: Write `market.py`**
+- [x] **Step 3: Write `market.py`**
 
 ```python
 from __future__ import annotations
@@ -868,12 +868,12 @@ def latest_atr(store, n: int = 14) -> float:
 
 > Implementer note: confirm `CandleStore.get` row keys (`ts`/`open`/...) against `src/swingbot/data/store.py:63`. If `ts` comes back as a string, parse to datetime here. Confirm the `swingbot.data.alpaca` fetch entrypoint signature and adapt `refresh_candles`'s `fetcher.fetch(...)` call to it.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `pytest tests/test_market.py -v`
 Expected: 2 passed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lab/core-engine/src/core_engine/market.py lab/core-engine/tests/test_market.py
