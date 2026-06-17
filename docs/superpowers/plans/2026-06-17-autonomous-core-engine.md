@@ -571,7 +571,7 @@ git commit -m "feat(core-engine): pure decision brain (regime+confluence+kronos)
 - Consumes: `Decision`, `Action`, `OrderIntent` (Task 2); `swingbot.risk.{RiskManager,RiskState,RiskDecision}`, `swingbot.exits.bracket_levels`.
 - Produces: `build_order_intent(decision, *, symbol, now, equity, entry_price, atr, risk: RiskManager, profile) -> OrderIntent | None`. Returns `None` (vetoed) when the decision is not `ENTER_LONG` or a risk gate blocks; the caller journals the veto reason from `risk.check_can_enter`.
 
-- [ ] **Step 1: Write the failing test `tests/test_risk_gate.py`**
+- [x] **Step 1: Write the failing test `tests/test_risk_gate.py`**
 
 ```python
 from datetime import datetime, timezone
@@ -605,12 +605,12 @@ def test_entry_decision_sizes_and_brackets():
     assert oi.qty > 0 and oi.stop < oi.entry_price < oi.tp
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_risk_gate.py -v`
 Expected: FAIL with "No module named 'core_engine.risk_gate'".
 
-- [ ] **Step 3: Write `risk_gate.py`**
+- [x] **Step 3: Write `risk_gate.py`**
 
 ```python
 from __future__ import annotations
@@ -643,12 +643,12 @@ def build_order_intent(decision: Decision, *, symbol: str, now: datetime,
 
 > Implementer note: confirm `RiskDecision`'s allow flag name (`allowed`/`ok`/`can_enter`) in `src/swingbot/risk.py`, and the profile field names (`stop_atr_mult`, `tp_atr_mult`, `max_hold_minutes`) in `src/swingbot/profile.py`. Adjust the attribute names to match; do not invent them.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `pytest tests/test_risk_gate.py -v`
 Expected: 2 passed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lab/core-engine/src/core_engine/risk_gate.py lab/core-engine/tests/test_risk_gate.py
