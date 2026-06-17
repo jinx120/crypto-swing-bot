@@ -1,5 +1,6 @@
 import pandas as pd
 from swingbot.data.store import CandleStore
+from core_engine.config import SYMBOL, TIMEFRAME
 from core_engine.market import build_context, latest_price
 
 
@@ -10,7 +11,7 @@ def _seed(store):
         "open": closes, "high": [c + 0.2 for c in closes],
         "low": [c - 0.2 for c in closes], "close": closes, "volume": [5.0] * 50,
     })
-    store.upsert_df("BTC/USD", "5Min", df)
+    store.upsert_df(SYMBOL, TIMEFRAME, df)
 
 
 def test_build_context_returns_dataframe(tmp_path):

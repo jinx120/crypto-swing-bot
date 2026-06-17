@@ -3,7 +3,11 @@ import os
 from swingbot.profile import StrategyProfile
 
 SYMBOL = "BTC/USD"
-TIMEFRAME = "5Min"
+# swingbot-native timeframe string: swingbot.data.alpaca.parse_timeframe requires
+# the "<n><m|h|d>" form ("5m"), NOT "5Min" (which raises). This value is the
+# CandleStore key, the profile timeframe, AND what we pass to the live fetcher,
+# so it must speak swingbot's dialect.
+TIMEFRAME = "5m"
 LOOP_SECONDS = 300
 
 _DATA_DIR = os.environ.get("CORE_ENGINE_DATA", os.path.expanduser("~/.core-engine"))

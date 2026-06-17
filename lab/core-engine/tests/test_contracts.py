@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from core_engine.contracts import Action, Decision, OrderIntent, EnginePosition, JournalEvent
+from core_engine.contracts import Action, Decision, OrderIntent, JournalEvent
 
 
 def test_action_values():

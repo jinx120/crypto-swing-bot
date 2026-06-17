@@ -4,7 +4,7 @@ from swingbot.data.store import CandleStore
 from swingbot.risk import RiskManager, RiskState
 from core_engine.journal import EngineJournal
 from core_engine.loop import Engine
-from core_engine.config import PROFILE
+from core_engine.config import PROFILE, SYMBOL, TIMEFRAME
 from tests.conftest import FakeBroker, FakeKronos
 
 
@@ -25,7 +25,7 @@ def _seed(store):
         "open": closes, "high": [c + 0.4 for c in closes],
         "low": [c - 0.4 for c in closes], "close": closes, "volume": [9.0] * 80,
     })
-    store.upsert_df("BTC/USD", "5Min", df)
+    store.upsert_df(SYMBOL, TIMEFRAME, df)
 
 
 def test_one_tick_never_raises_and_journals(tmp_path):
