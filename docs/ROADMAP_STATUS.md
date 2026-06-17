@@ -10,7 +10,18 @@
 
 ## ▶ NEXT ACTION
 
-**Usage Agent: 1 drift finding(s) pending — see docs/SELFTEST_REPORT.md §Drift Findings and the Health tab.**
+**Usage Agent drift finding (s6-guide "Start bot") RESOLVED at source (2026-06-17).** It was a
+false positive: the Start/Stop control (`ControlBar.jsx`) is one toggle that renders "Stop bot"
+while the bot is running, so the s6 probe — which runs against the live bot left running + desired —
+never saw "Start bot" and flagged it missing. Fixed the detector, not the docs: `GUIDE_AFFORDANCES`
+now declares the toggle as `"Start bot | Stop bot"` and `GuideReconciliationSession` accepts any
+" | "-separated alternative as satisfying the affordance (`expectations.py`, `sessions.py`). Added
+`test_s6_start_toggle_satisfied_by_stop_label`. Full suite **573 passed, 6 skipped**, ruff clean.
+No live re-run of the nightly selftest was possible here (no swingbot container on this host, only
+`xray-reality`); the next nightly run will reconcile s6 drift to 0. NB: this fix landed on the
+`core-engine` branch (current checkout), not `master` — cherry-pick/merge to `master` when the
+branches are reconciled.
+
 
 **Visible Autonomous Entry — Phase 2 (persisted desire + paper auto-resume) is DONE (2026-06-13).**
 Plan `plans/2026-06-13-visible-autonomous-entry-phase-2.md` executed end-to-end; all 6 tasks

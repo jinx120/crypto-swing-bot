@@ -82,6 +82,15 @@ def test_s6_flags_missing_affordance():
     assert bad[0].expectation_key == "s6.affordance-exists"
 
 
+def test_s6_start_toggle_satisfied_by_stop_label():
+    # The Start/Stop control is one toggle: when the bot is running it renders
+    # "Stop bot" (not "Start bot"). Either label must satisfy the affordance.
+    present = ["text=Save profile", "text=Arm", "text=Save credentials",
+               "text=Stop bot", "text=HALT", "text=Flatten"]
+    trace = GuideReconciliationSession().run(FakePage(present), _ctx())
+    assert trace.session == "s6-guide" and trace.ok
+
+
 def test_registries_partition_by_tier():
     assert [s.name for s in LIVE_SESSIONS] == ["s1-tabs", "s6-guide"]
     assert all(s.tier == "live" for s in LIVE_SESSIONS)

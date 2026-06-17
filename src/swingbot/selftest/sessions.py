@@ -140,10 +140,14 @@ class GuideReconciliationSession:
     def run(self, page, ctx: SessionContext) -> SessionTrace:
         rec = SessionRecorder(self.name)
         for text, route, section in GUIDE_AFFORDANCES:
+            # A " | "-separated text means the Guide names a single toggle
+            # control whose rendered label depends on state (e.g. the
+            # Start/Stop bot button): any alternative present satisfies it.
+            labels = [t.strip() for t in text.split("|")]
             try:
                 page.goto(f"{ctx.base_url.rstrip('/')}{route}",
                           wait_until="networkidle")
-                found = page.locator(f"text={text}").count() > 0
+                found = any(page.locator(f"text={t}").count() > 0 for t in labels)
             except Exception:
                 found = False
             rec.step(f"Guide names {text!r} on {route}", "assert", found,
@@ -151,7 +155,7 @@ class GuideReconciliationSession:
                              f"Guide {section} names {text!r} but {route} has no "
                              f"such element"),
                      expectation_key="" if found else "s6.affordance-exists",
-                     screenshot_path="" if found else _shoot(page, ctx, "s6-" + text.lower().replace(" ", "-")))
+                     screenshot_path="" if found else _shoot(page, ctx, "s6-" + labels[0].lower().replace(" ", "-")))
         return rec.finish()
 
 

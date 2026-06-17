@@ -77,7 +77,8 @@ GUIDE_AFFORDANCES: list[tuple[str, str, str]] = [
     ("Save profile",     "/#/strategy",  '§"Step 3 — Build a strategy profile"'),
     ("Arm",              "/#/strategy",  '§"Step 4 — Arm the profile"'),
     ("Save credentials", "/#/settings",  '§"Step 2 — Connect your Alpaca account (paper)"'),
-    ("Start bot",        "/#/dashboard", '§"Step 5 — Start the bot"'),
+    # Start/Stop is one toggle button; its label depends on running state.
+    ("Start bot | Stop bot", "/#/dashboard", '§"Step 5 — Start the bot"'),
     ("HALT",             "/#/dashboard", '§"Controls reference"'),
     ("Flatten",          "/#/dashboard", '§"Controls reference"'),
 ]
