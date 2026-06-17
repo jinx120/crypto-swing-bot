@@ -1045,7 +1045,7 @@ git commit -m "feat(core-engine): executor with truthful pending_new handling"
   - `Engine(*, store, fetcher, broker, journal, risk, runtime_state, profile, kronos)` with `.tick(now) -> None` (one full pipeline pass; **never raises** — all stage errors are caught + journaled) and `.run_forever()` (sleep-loop on `config.LOOP_SECONDS`, gated by `runtime_state.get_running_desired()`).
   - State held in `Engine.position: EnginePosition | None`.
 
-- [ ] **Step 1: Write the failing test `tests/test_loop.py`**
+- [x] **Step 1: Write the failing test `tests/test_loop.py`**
 
 ```python
 from datetime import datetime, timezone
@@ -1099,12 +1099,12 @@ def test_tick_swallows_stage_errors(tmp_path):
     assert any(e.kind == "error" for e in journal.events())
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_loop.py -v`
 Expected: FAIL with "No module named 'core_engine.loop'".
 
-- [ ] **Step 3: Write `loop.py`**
+- [x] **Step 3: Write `loop.py`**
 
 ```python
 from __future__ import annotations
@@ -1189,17 +1189,17 @@ class Engine:
             time.sleep(LOOP_SECONDS)
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `pytest tests/test_loop.py -v`
 Expected: 2 passed.
 
-- [ ] **Step 5: Run the full suite**
+- [x] **Step 5: Run the full suite**
 
 Run: `cd lab/core-engine && pytest -v`
 Expected: all tests pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lab/core-engine/src/core_engine/loop.py lab/core-engine/tests/test_loop.py
