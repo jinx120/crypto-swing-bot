@@ -1219,7 +1219,7 @@ git commit -m "feat(core-engine): failure-tolerant tick loop + auto-resume"
 - Consumes: everything above; wires real `swingbot.broker.alpaca`, `swingbot.signals.kronos_forecast.KronosForecastSignal`, `swingbot.data.alpaca` fetcher, `RuntimeStateStore(config.STATE_DB)`, `EngineJournal(config.JOURNAL_DB)`, `CandleStore(config.CANDLE_DB)`.
 - Produces: `python -m core_engine {run|report|backtest}`.
 
-- [ ] **Step 1: Write `__main__.py`**
+- [x] **Step 1: Write `__main__.py`**
 
 ```python
 from __future__ import annotations
@@ -1285,7 +1285,7 @@ if __name__ == "__main__":
 
 > Implementer note: confirm the real Alpaca broker class + constructor (`AlpacaBroker.from_env()` is a guess) in `src/swingbot/broker/alpaca.py`, the `KronosForecastSignal.__init__` required args in `src/swingbot/signals/kronos_forecast.py`, and the `swingbot.data.alpaca` fetch entrypoint. Wire the real names.
 
-- [ ] **Step 2: Write `Dockerfile`**
+- [x] **Step 2: Write `Dockerfile`**
 
 ```dockerfile
 FROM python:3.11-slim
@@ -1298,7 +1298,7 @@ VOLUME /data
 CMD ["python", "-m", "core_engine", "run"]
 ```
 
-- [ ] **Step 3: Write `docs/LIVE_ACCEPTANCE.md`** (the manual runbook)
+- [x] **Step 3: Write `docs/LIVE_ACCEPTANCE.md`** (the manual runbook)
 
 ```markdown
 # Live acceptance — core-engine
@@ -1312,7 +1312,7 @@ CMD ["python", "-m", "core_engine", "run"]
 6. Confirm: a stalled (pending_new) BUY is reported as "entry pending", NOT as an open position.
 ```
 
-- [ ] **Step 4: Build the isolated image and smoke-run report**
+- [ ] **Step 4: Build the isolated image and smoke-run report** — handed to Claude
 
 Run (from repo root):
 ```bash
@@ -1321,12 +1321,12 @@ docker run --rm -v core_engine_data:/data core-engine:dev python -m core_engine 
 ```
 Expected: report prints (zeros on a fresh volume), no traceback.
 
-- [ ] **Step 5: Live acceptance (Claude-only, real paper)**
+- [ ] **Step 5: Live acceptance (Claude-only, real paper)** — handed to Claude
 
 Follow `docs/LIVE_ACCEPTANCE.md` against Alpaca paper. Record the outcome of each step.
 Do NOT claim success until `report` shows a real decision/journal entry from a live tick.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lab/core-engine/src/core_engine/__main__.py lab/core-engine/Dockerfile lab/core-engine/docs/LIVE_ACCEPTANCE.md
