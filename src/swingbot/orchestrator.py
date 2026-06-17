@@ -221,14 +221,21 @@ class Orchestrator:
         if pending.broker_order_id is None:
             pending = replace(pending, broker_order_id=order.order_id)
             self.state.save_pending_order(pending)
+        if pending.side is OrderSide.BUY:
+            if order.status is not OrderStatus.FILLED:
+                broker_pos = self.broker.get_position(pending.symbol)
+                if broker_pos is None:
+                    return self._pending_result(pending)
+                return self._promote_filled_buy(pending, order, now, broker_pos=broker_pos)
+            return self._promote_filled_buy(pending, order, now)
         if order.status is not OrderStatus.FILLED:
             return self._pending_result(pending)
-        if pending.side is OrderSide.BUY:
-            return self._promote_filled_buy(pending, order, now)
         return self._complete_filled_sell(pending, order, now)
 
-    def _promote_filled_buy(self, pending: PendingOrder, order, now: datetime) -> DecisionResult:
-        broker_pos = self.broker.get_position(pending.symbol)
+    def _promote_filled_buy(
+        self, pending: PendingOrder, order, now: datetime, *, broker_pos: dict | None = None
+    ) -> DecisionResult:
+        broker_pos = broker_pos or self.broker.get_position(pending.symbol)
         if broker_pos is None:
             return self._pending_result(pending)
         self.state.save_position(OpenPosition(

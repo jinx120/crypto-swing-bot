@@ -80,6 +80,7 @@ class OrderStatus(str, Enum):
     REJECTED = "rejected"
     CANCELED = "canceled"
     EXPIRED = "expired"
+    PENDING_REVIEW = "pending_review"
 
 
 @dataclass(frozen=True)

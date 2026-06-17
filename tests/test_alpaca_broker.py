@@ -201,7 +201,7 @@ def test_get_order_propagates_non_404_errors(error):
 
 
 def test_get_order_rejects_unknown_status():
-    broker = _broker_with_client(_OrderClient(_alpaca_order("pending_review")))
+    broker = _broker_with_client(_OrderClient(_alpaca_order("not_a_real_status")))
     with pytest.raises(ValueError, match="unknown Alpaca order status"):
         broker.get_order(order_id="broker-1")
 

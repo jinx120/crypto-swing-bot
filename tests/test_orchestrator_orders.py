@@ -332,6 +332,31 @@ def test_filled_buy_waits_for_position_then_promotes_broker_truth(tmp_path):
     assert state.load_pending_order() is None
 
 
+def test_pending_new_buy_promotes_when_broker_position_exists(tmp_path):
+    state = StateStore(str(tmp_path / "state.db"))
+    state.save_pending_order(_pending_buy("buy-1"))
+    broker = ScriptedBroker()
+    broker.order = _order(
+        OrderSide.BUY,
+        OrderStatus.PENDING_NEW,
+        order_id="buy-1",
+        filled_qty=0.0,
+    )
+    broker.position = {
+        "symbol": "TRX/USD", "qty": 1.75, "avg_entry_price": 102.0, "market_value": 178.5,
+    }
+    orch = _orch(tmp_path, broker=broker, state=state)
+
+    result = orch.reconcile(T0)
+
+    position = state.load_position()
+    assert result.code is DecisionCode.ENTERED
+    assert position.qty == 1.75
+    assert position.entry_price == 102.0
+    assert position.entry_order_id == "buy-1"
+    assert state.load_pending_order() is None
+
+
 def test_rejected_buy_clears_pending_and_returns_failed(tmp_path):
     state = StateStore(str(tmp_path / "state.db"))
     state.save_pending_order(_pending_buy("buy-1"))
