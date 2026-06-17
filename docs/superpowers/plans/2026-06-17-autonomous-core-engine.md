@@ -667,7 +667,7 @@ git commit -m "feat(core-engine): risk gate builds sized, bracketed order intent
 - Consumes: `decide` (Task 4), `build_order_intent` (Task 5), `swingbot.exits.exit_decision`, `EnginePosition`, `Action`.
 - Produces: `run_backtest(candles: pd.DataFrame, *, profile, kronos, equity0: float = 10_000.0) -> BacktestResult` where `BacktestResult(trades: list[dict], final_equity: float, wins: int, losses: int)`. Walks bars front-to-back, opening/closing one position at a time using the **same** `decide`/exit logic the live loop uses.
 
-- [ ] **Step 1: Write the failing test `tests/test_backtest.py`**
+- [x] **Step 1: Write the failing test `tests/test_backtest.py`**
 
 ```python
 import pandas as pd
@@ -688,12 +688,12 @@ def test_backtest_runs_and_returns_result():
     assert res.wins + res.losses == len(res.trades)
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_backtest.py -v`
 Expected: FAIL with "No module named 'core_engine.backtest'".
 
-- [ ] **Step 3: Write `backtest.py`**
+- [x] **Step 3: Write `backtest.py`**
 
 ```python
 from __future__ import annotations
@@ -760,12 +760,12 @@ def run_backtest(candles: pd.DataFrame, *, profile, kronos,
                           wins=wins, losses=len(trades) - wins)
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `pytest tests/test_backtest.py -v`
 Expected: 1 passed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lab/core-engine/src/core_engine/backtest.py lab/core-engine/tests/test_backtest.py
