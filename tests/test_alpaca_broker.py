@@ -130,6 +130,19 @@ def _alpaca_order(status="new", side="buy", filled_avg_price=None):
     ("rejected", OrderStatus.REJECTED),
     ("canceled", OrderStatus.CANCELED),
     ("expired", OrderStatus.EXPIRED),
+    # Full Alpaca order lifecycle — a pending/transient status must never crash
+    # serialization (a live `pending_new` order once took the whole bot down on
+    # auto-start reconcile). See docs.alpaca.markets order lifecycle.
+    ("pending_new", OrderStatus.PENDING_NEW),
+    ("accepted_for_bidding", OrderStatus.ACCEPTED_FOR_BIDDING),
+    ("pending_cancel", OrderStatus.PENDING_CANCEL),
+    ("pending_replace", OrderStatus.PENDING_REPLACE),
+    ("replaced", OrderStatus.REPLACED),
+    ("done_for_day", OrderStatus.DONE_FOR_DAY),
+    ("stopped", OrderStatus.STOPPED),
+    ("suspended", OrderStatus.SUSPENDED),
+    ("calculated", OrderStatus.CALCULATED),
+    ("held", OrderStatus.HELD),
 ])
 def test_get_order_serializes_known_statuses(alpaca_status, normalized):
     client = _OrderClient(_alpaca_order(alpaca_status, filled_avg_price="101.5"))

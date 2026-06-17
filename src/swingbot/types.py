@@ -55,10 +55,28 @@ class OrderSide(str, Enum):
 
 
 class OrderStatus(str, Enum):
+    # Full Alpaca order lifecycle. Every status Alpaca can return must be a member
+    # here: the broker serializer raises on any unknown status, and that exception
+    # propagates through pending-order reconcile into auto-start — a single live
+    # order sitting in a transient state (e.g. `pending_new`, which Alpaca paper
+    # crypto buys can hold for hours) would otherwise take the whole bot down.
+    # Only REJECTED/CANCELED/EXPIRED are treated as terminal failures
+    # (see orchestrator._FAILED_ORDER_STATUSES); every other non-FILLED status is
+    # treated as "still pending" and re-reconciled next cycle.
     NEW = "new"
     ACCEPTED = "accepted"
+    PENDING_NEW = "pending_new"
+    ACCEPTED_FOR_BIDDING = "accepted_for_bidding"
     PARTIALLY_FILLED = "partially_filled"
     FILLED = "filled"
+    DONE_FOR_DAY = "done_for_day"
+    REPLACED = "replaced"
+    PENDING_CANCEL = "pending_cancel"
+    PENDING_REPLACE = "pending_replace"
+    STOPPED = "stopped"
+    SUSPENDED = "suspended"
+    CALCULATED = "calculated"
+    HELD = "held"
     REJECTED = "rejected"
     CANCELED = "canceled"
     EXPIRED = "expired"
