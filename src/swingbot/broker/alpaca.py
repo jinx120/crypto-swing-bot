@@ -31,7 +31,7 @@ class AlpacaBroker:
     def get_position(self, symbol: str) -> dict | None:
         """Return None only when Alpaca confirms that no position exists."""
         try:
-            p = self._client.get_open_position(normalize_symbol(symbol))
+            p = self._client.get_open_position(normalize_symbol(symbol).replace("/", ""))
         except APIError as exc:
             if exc.status_code == 404:
                 return None

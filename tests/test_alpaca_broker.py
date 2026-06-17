@@ -33,8 +33,10 @@ class _PositionClient:
     def __init__(self, result=None, error=None):
         self.result = result
         self.error = error
+        self.calls = []
 
     def get_open_position(self, symbol):
+        self.calls.append(symbol)
         if self.error is not None:
             raise self.error
         return self.result
@@ -78,8 +80,10 @@ def _broker_with_client(client):
 
 
 def test_get_position_returns_none_only_for_confirmed_404():
-    broker = _broker_with_client(_PositionClient(error=_api_error(404)))
+    client = _PositionClient(error=_api_error(404))
+    broker = _broker_with_client(client)
     assert broker.get_position("BTC/USD") is None
+    assert client.calls == ["BTCUSD"]
 
 
 def test_get_position_propagates_non_404_api_error():
@@ -100,13 +104,15 @@ def test_get_position_serializes_confirmed_position():
         "avg_entry_price": "50000",
         "market_value": "12500",
     })()
-    broker = _broker_with_client(_PositionClient(result=position))
+    client = _PositionClient(result=position)
+    broker = _broker_with_client(client)
     assert broker.get_position("BTC/USD") == {
         "symbol": "BTC/USD",
         "qty": 0.25,
         "avg_entry_price": 50000.0,
         "market_value": 12500.0,
     }
+    assert client.calls == ["BTCUSD"]
 
 
 def _alpaca_order(status="new", side="buy", filled_avg_price=None):
