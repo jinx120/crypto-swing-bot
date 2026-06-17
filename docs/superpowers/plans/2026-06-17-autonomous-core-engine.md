@@ -327,7 +327,7 @@ git commit -m "feat(core-engine): typed contracts + single-instrument config"
   - `EngineJournal(db_path: str)`: `.log(event: JournalEvent) -> None`, `.events(kind: str | None = None, limit: int = 200) -> list[JournalEvent]`, `.closed_trades() -> list[dict]`.
   - `EngineJournal.report() -> Report` where `Report` is a frozen dataclass `(open_position: dict | None, realized_pnl: float, unrealized_pnl: float, wins: int, losses: int, closed: list[dict])`.
 
-- [ ] **Step 1: Write the failing test `tests/test_journal.py`**
+- [x] **Step 1: Write the failing test `tests/test_journal.py`**
 
 ```python
 from datetime import datetime, timezone
@@ -357,12 +357,12 @@ def test_report_counts_wins_losses(tmp_path):
     assert round(r.realized_pnl, 2) == 7.0
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_journal.py -v`
 Expected: FAIL with "No module named 'core_engine.journal'".
 
-- [ ] **Step 3: Write `journal.py`**
+- [x] **Step 3: Write `journal.py`**
 
 ```python
 from __future__ import annotations
@@ -431,12 +431,12 @@ class EngineJournal:
                       unrealized_pnl=unrealized, wins=wins, losses=losses, closed=pnls)
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `pytest tests/test_journal.py -v`
 Expected: 2 passed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lab/core-engine/src/core_engine/journal.py lab/core-engine/tests/test_journal.py
