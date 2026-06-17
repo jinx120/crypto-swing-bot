@@ -456,7 +456,7 @@ git commit -m "feat(core-engine): durable journal + report"
 - Consumes: `Action`, `Decision` (Task 2); `swingbot.regime.RegimeFilter`, `swingbot.confluence.{build_signals,ConfluenceEngine}`, `swingbot.types.MarketContext`, `StrategyProfile`.
 - Produces: `decide(ctx: MarketContext, has_position: bool, *, profile: StrategyProfile, kronos) -> Decision`. **Pure**: no I/O, no globals, no clock. `kronos` is an object with `.evaluate(ctx) -> SignalResult` (the real `KronosForecastSignal` in prod, a fake in tests).
 
-- [ ] **Step 1: Add fakes to `tests/conftest.py`**
+- [x] **Step 1: Add fakes to `tests/conftest.py`**
 
 ```python
 import pandas as pd
@@ -482,7 +482,7 @@ def uptrend_window():
     })
 ```
 
-- [ ] **Step 2: Write the failing test `tests/test_brain.py`**
+- [x] **Step 2: Write the failing test `tests/test_brain.py`**
 
 ```python
 from swingbot.types import MarketContext
@@ -507,12 +507,12 @@ def test_decide_is_pure_no_side_effects(uptrend_window, monkeypatch):
     assert d1.action in (Action.ENTER_LONG, Action.HOLD)
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [x] **Step 3: Run test to verify it fails**
 
 Run: `pytest tests/test_brain.py -v`
 Expected: FAIL with "No module named 'core_engine.brain'".
 
-- [ ] **Step 4: Write `brain.py`**
+- [x] **Step 4: Write `brain.py`**
 
 ```python
 from __future__ import annotations
@@ -547,12 +547,12 @@ def decide(ctx: MarketContext, has_position: bool, *, profile, kronos) -> Decisi
 
 > Implementer note: confirm `RegimeFilter.permits_entry` / `ConfluenceResult.passed` semantics against `src/swingbot/regime.py` and `src/swingbot/confluence.py`. If `build_signals` already includes the Kronos signal for this profile, drop the separate `kronos` blend and read it from `conf.signals["kronos"]` instead — do not double-count.
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `pytest tests/test_brain.py -v`
 Expected: 2 passed.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lab/core-engine/src/core_engine/brain.py lab/core-engine/tests/test_brain.py lab/core-engine/tests/conftest.py
