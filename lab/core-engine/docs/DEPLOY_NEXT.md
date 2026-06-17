@@ -1,5 +1,13 @@
 # Deploy handoff — core-engine autonomous loop (NEXT SESSION)
 
+> **✅ DEPLOYED 2026-06-17.** The steps below were executed: container `core-engine` is running
+> (`--restart unless-stopped`, `core_engine_data:/data` volume). First autonomous tick verified —
+> 300 candles self-backfilled, journal `decision` = BTC/USD HOLD ("regime gate blocks entry:
+> Regime.DOWNTREND", confluence-only), `running_desired=1`. NB: no `PYTHONUNBUFFERED` in the image,
+> so `docker logs` stays empty until the buffer flushes — use `docker exec core-engine python -m
+> core_engine report` or read `/data/journal.db`. Open forks: promote `core-engine`→`master`? add
+> Kronos/torch for full-signal decisions? The runbook below is retained for rebuild/reference.
+
 > **Single-read resume for the deploy task.** Everything below is current as of 2026-06-17.
 > The engine is built, fully fixed, and live-paper-validated. The ONLY remaining work is
 > deploying it as a persistent autonomous loop. Do this on a clean/fresh session.
