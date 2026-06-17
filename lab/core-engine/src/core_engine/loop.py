@@ -31,7 +31,9 @@ class Engine:
     def tick(self, now: datetime) -> None:
         try:
             refresh_candles(self._store, self._fetcher)
-            self.position = self._exec.reconcile(self.position)
+            self.position = self._exec.reconcile(
+                self.position, profile=self._profile, atr=latest_atr(self._store), now=now
+            )
 
             if self.position is not None:
                 price = latest_price(self._store)

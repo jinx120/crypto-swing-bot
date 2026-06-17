@@ -1,4 +1,7 @@
 from __future__ import annotations
+from datetime import timedelta
+from swingbot.exits import bracket_levels
+from core_engine.config import LOOP_SECONDS
 from core_engine.contracts import EnginePosition, OrderIntent
 
 
@@ -46,13 +49,28 @@ class Executor:
         qty = float(_field(order, "filled_qty", position.qty) or position.qty)
         return (fill - position.entry_price) * qty
 
-    def reconcile(self, position: EnginePosition | None) -> EnginePosition | None:
+    def reconcile(
+        self,
+        position: EnginePosition | None,
+        *,
+        profile=None,
+        atr: float | None = None,
+        now=None,
+    ) -> EnginePosition | None:
         truth = self._broker.get_position(position.symbol if position else "BTC/USD")
         if truth is None:
             return None
         if position is None:
+            if profile is None or atr is None or now is None:
+                raise ValueError("profile, atr, and now are required to adopt a position")
+            entry_price = float(truth["avg_entry_price"])
+            stop, tp = bracket_levels(
+                entry_price, atr, profile.stop_atr_mult, profile.take_profit_atr_mult
+            )
             return EnginePosition(symbol=truth["symbol"], entry_ts=None,
-                                  entry_price=float(truth["avg_entry_price"]),
-                                  qty=float(truth["qty"]), stop=0.0, tp=0.0,
-                                  max_hold_until=None)
+                                  entry_price=entry_price, qty=float(truth["qty"]),
+                                  stop=stop, tp=tp,
+                                  max_hold_until=now + timedelta(
+                                      seconds=profile.max_hold_bars * LOOP_SECONDS
+                                  ))
         return position

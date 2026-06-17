@@ -24,9 +24,9 @@ def uptrend_window():
 
 class FakeBroker:
     """Models the Alpaca paper crypto BUY pending_new stall + instant SELL fill."""
-    def __init__(self, buy_stalls: bool = False):
+    def __init__(self, buy_stalls: bool = False, position=None):
         self.buy_stalls = buy_stalls
-        self._position = None
+        self._position = position
         self.orders = {}
 
     def submit_market_buy(self, symbol, qty, **kw):

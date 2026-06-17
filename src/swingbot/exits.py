@@ -15,7 +15,7 @@ def bracket_levels(
 
 
 def exit_decision(
-    stop: float, tp: float, max_hold_until: datetime,
+    stop: float, tp: float, max_hold_until: datetime | None,
     high: float, low: float, close: float, now: datetime,
 ) -> tuple[ExitReason, float] | None:
     """Decide whether a long position exits, and a reference exit price.
@@ -28,6 +28,6 @@ def exit_decision(
         return (ExitReason.STOP, stop)
     if high >= tp:
         return (ExitReason.TAKE_PROFIT, tp)
-    if now >= max_hold_until:
+    if max_hold_until is not None and now >= max_hold_until:
         return (ExitReason.TIME_CAP, close)
     return None

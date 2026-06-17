@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 import pandas as pd
 from swingbot.data.store import CandleStore
+from swingbot.exits import exit_decision
 from swingbot.risk import RiskManager, RiskState
 from core_engine.journal import EngineJournal
 from core_engine.loop import Engine
@@ -47,3 +48,34 @@ def test_tick_swallows_stage_errors(tmp_path):
                  runtime_state=_RT(), profile=PROFILE, kronos=FakeKronos(0.1))
     eng.tick(datetime(2026, 6, 17, 12, 0, tzinfo=timezone.utc))  # must not raise
     assert any(e.kind == "error" for e in journal.events())
+
+
+def test_tick_adopts_live_position_without_immediate_exit(tmp_path):
+    store = CandleStore(str(tmp_path / "c.db")); _seed(store)
+    journal = EngineJournal(str(tmp_path / "j.db"))
+    broker = FakeBroker(position={
+        "symbol": SYMBOL,
+        "qty": 0.02,
+        "avg_entry_price": 139.5,
+    })
+    eng = Engine(store=store, fetcher=_Fetcher(), broker=broker,
+                 journal=journal, risk=RiskManager(PROFILE, RiskState()),
+                 runtime_state=_RT(), profile=PROFILE, kronos=FakeKronos(0.1))
+
+    eng.tick(datetime(2026, 6, 17, 12, 0, tzinfo=timezone.utc))
+
+    assert eng.position is not None
+    assert broker.get_position(SYMBOL) is not None
+    assert not [order for order in broker.orders if order.startswith("sell-")]
+
+
+def test_exit_decision_ignores_missing_time_cap():
+    assert exit_decision(
+        stop=95.0,
+        tp=105.0,
+        max_hold_until=None,
+        high=100.0,
+        low=100.0,
+        close=100.0,
+        now=datetime(2026, 6, 17, 12, 0, tzinfo=timezone.utc),
+    ) is None

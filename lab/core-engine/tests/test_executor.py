@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from core_engine.config import LOOP_SECONDS, PROFILE
 from core_engine.contracts import OrderIntent
 from core_engine.executor import Executor
 from tests.conftest import FakeBroker
@@ -28,3 +29,22 @@ def test_exit_returns_realized_pnl():
     pos = ex.enter(_intent(), now=datetime(2026, 6, 17, tzinfo=timezone.utc))
     pnl = ex.exit(pos, price=105.0, reason="take_profit")
     assert round(pnl, 2) == round((105.0 - 100.0) * 0.01, 2)
+
+
+def test_reconcile_adopts_broker_position_with_live_management_levels():
+    now = datetime(2026, 6, 17, 12, 0, tzinfo=timezone.utc)
+    broker = FakeBroker(position={
+        "symbol": "BTC/USD",
+        "qty": 0.02,
+        "avg_entry_price": 100.0,
+    })
+
+    pos = Executor(broker).reconcile(None, profile=PROFILE, atr=2.0, now=now)
+
+    assert pos is not None
+    assert pos.stop == 97.0
+    assert pos.entry_price == 100.0
+    assert pos.tp == 104.0
+    assert pos.max_hold_until == now + timedelta(
+        seconds=PROFILE.max_hold_bars * LOOP_SECONDS
+    )
