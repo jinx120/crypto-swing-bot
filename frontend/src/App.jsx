@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { api } from './api.js'
 import Dashboard from './pages/Dashboard.jsx'
+import AutoDashboard from './pages/AutoDashboard.jsx'
 import Strategy from './pages/Strategy.jsx'
 import Discover from './pages/Discover.jsx'
 import Brain from './pages/Brain.jsx'
@@ -11,7 +12,7 @@ import PortfolioBanner from './components/PortfolioBanner.jsx'
 import ControlBar from './components/ControlBar.jsx'
 import Hint from './components/Hint.jsx'
 
-const TABS = ['dashboard', 'strategy', 'discover', 'brain', 'settings', 'health', 'guide']
+const TABS = ['dashboard', 'auto', 'strategy', 'discover', 'brain', 'settings', 'health', 'guide']
 const tabFromHash = () => {
   const h = window.location.hash.replace(/^#\/?/, '')
   return TABS.includes(h) ? h : 'dashboard'
@@ -59,6 +60,7 @@ export default function App(){
       <div className="nav">
         <span className="brand">⚡ SwingBot</span>
         <button className={tab==='dashboard'?'active':''} onClick={()=>setTab('dashboard')}>Dashboard</button>
+        <button className={tab==='auto'?'active':''} onClick={()=>setTab('auto')}>Autonomous</button>
         <button className={tab==='strategy'?'active':''} onClick={()=>setTab('strategy')}>Strategy</button>
         <button className={tab==='discover'?'active':''} onClick={()=>setTab('discover')}>Discover</button>
         <button className={tab==='brain'?'active':''} onClick={()=>setTab('brain')}>Brain</button>
@@ -82,6 +84,7 @@ export default function App(){
         <Dashboard state={state} trades={trades} metrics={metrics} health={health} onChange={refresh} />
         <div className="wrap"><ControlBar portfolio={state?.portfolio} onChange={refresh} /></div>
       </>}
+      {tab==='auto' && <AutoDashboard />}
       {tab==='strategy' && <Strategy />}
       {tab==='discover' && <Discover />}
       {tab==='brain' && <Brain />}
