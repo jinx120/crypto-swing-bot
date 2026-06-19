@@ -155,6 +155,27 @@ class ProfileStore:
             (json.dumps(merged),))
         self._conn.commit()
 
+    def get_rebalance_settings(self) -> dict:
+        raw = self.get_meta("rebalance_settings")
+        return json.loads(raw) if raw else {}
+
+    def set_rebalance_settings(self, settings: dict) -> None:
+        merged = self.get_rebalance_settings()
+        merged.update(settings)
+        self.set_meta("rebalance_settings", json.dumps(merged))
+
+    def get_rebalance_targets(self) -> dict:
+        raw = self.get_meta("rebalance_targets")
+        return json.loads(raw) if raw else {}
+
+    def set_rebalance_targets(self, targets: dict) -> None:
+        for name, weight in targets.items():
+            if not (0.0 <= float(weight) <= 1.0):
+                raise ValueError(f"weight for {name} out of [0,1]: {weight}")
+        if sum(float(w) for w in targets.values()) > 1.0 + 1e-9:
+            raise ValueError("target weights sum to more than 1.0")
+        self.set_meta("rebalance_targets", json.dumps(targets))
+
     def get_watchlist(self) -> list[str]:
         row = self._conn.execute(
             "SELECT value FROM meta WHERE key='watchlist'").fetchone()
