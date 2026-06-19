@@ -4,7 +4,7 @@ import json
 import threading
 import traceback
 from dataclasses import asdict, fields, replace
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from uuid import uuid4
 
@@ -684,6 +684,67 @@ class PortfolioSupervisor:
             "deployed_frac": (deployed / equity) if equity else 0.0,
             "open_positions": len(positions), "day_pnl": prs.realized_pnl_today,
             "kill_switch": {"active": prs.kill_switch_active, "reason": prs.kill_switch_reason},
+        }
+
+    @_state_locked
+    def rebalance_status(self) -> dict:
+        last = self._telemetry.recent_rebalance(1)
+        last_state = self._rebalancer.state if self._rebalancer is not None else None
+        last_rebalance_at = last_state.last_rebalance_at if last_state is not None else ""
+        next_eligible_at = ""
+        if last_rebalance_at:
+            next_eligible_at = (
+                datetime.fromisoformat(last_rebalance_at)
+                + timedelta(minutes=self._rebalance_settings.min_interval_minutes)
+            ).isoformat()
+        allocations = []
+        try:
+            acct = self._broker.get_account()
+            deployed = {
+                name: self._strategy_deployed_value(name)
+                for name in sorted(self._strategies)
+            }
+            symbols = {
+                name: strategy["profile"].symbol
+                for name, strategy in self._strategies.items()
+            }
+            if self._rebalancer is not None:
+                allocations = [
+                    asdict(a)
+                    for a in self._rebalancer.evaluate(
+                        now=datetime.now(timezone.utc),
+                        total_equity=acct["equity"],
+                        deployed=deployed,
+                        symbols=symbols,
+                        targets=self._rebalance_targets,
+                        prices={},
+                        returns_by_symbol={},
+                    ).allocations
+                ]
+        except Exception:
+            allocations = []
+        return {
+            "enabled": self._rebalance_settings.enabled,
+            "mode": self._rebalance_settings.mode,
+            "allocations": allocations,
+            "last_rebalance_at": last_rebalance_at,
+            "next_eligible_at": next_eligible_at,
+            "last_skip_reason": last[0]["skipped_reason"] if last else "",
+        }
+
+    @_state_locked
+    def run_rebalance_now(self) -> dict:
+        if self._broker is None:
+            raise RuntimeError("broker is not configured")
+        res = self._run_rebalance(datetime.now(timezone.utc), self._broker.get_account())
+        if res is None:
+            return self.rebalance_status()
+        return {
+            "ran": res.ran,
+            "skipped_reason": res.skipped_reason,
+            "allocations": [asdict(a) for a in res.allocations],
+            "trims": [asdict(t) for t in res.trims],
+            "mode": res.mode,
         }
 
     # ---- status + control surface (consumed by Phase 2 web layer) ----

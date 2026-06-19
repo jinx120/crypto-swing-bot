@@ -5,6 +5,7 @@ import pathlib
 import threading
 import time
 from contextlib import asynccontextmanager
+from dataclasses import asdict
 from datetime import datetime, timezone
 
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -20,6 +21,7 @@ from swingbot.universe import fallback_universe
 from swingbot.broker.alpaca import AlpacaBroker
 from swingbot.managed_profiles import managed_meta
 from swingbot.supervisor import LifecycleError
+from swingbot.rebalance import RebalanceSettings
 
 _DIST = str(pathlib.Path(__file__).parent.parent.parent / "frontend" / "dist")
 
@@ -221,6 +223,38 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
             raise HTTPException(status_code=400, detail=str(e))
         controller.reload()
         return profiles.get_portfolio_settings()
+
+    # ---- rebalance settings ----
+    @app.get("/api/rebalance/settings")
+    def get_rebalance_settings():
+        return {**asdict(RebalanceSettings()), **profiles.get_rebalance_settings()}
+
+    @app.post("/api/rebalance/settings")
+    def set_rebalance_settings(body: dict, _=Depends(require_token)):
+        profiles.set_rebalance_settings(body)
+        controller.reload()
+        return {"ok": True}
+
+    @app.get("/api/rebalance/targets")
+    def get_rebalance_targets():
+        return {"targets": profiles.get_rebalance_targets()}
+
+    @app.post("/api/rebalance/targets")
+    def set_rebalance_targets(body: dict, _=Depends(require_token)):
+        try:
+            profiles.set_rebalance_targets(body.get("targets", {}))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        controller.reload()
+        return {"ok": True}
+
+    @app.get("/api/rebalance/status")
+    def rebalance_status():
+        return controller.rebalance_status()
+
+    @app.post("/api/rebalance/run")
+    def rebalance_run(_=Depends(require_token)):
+        return controller.run_rebalance_now()
 
     # ---- universe / watchlist ----
     _universe_cache: dict = {}
