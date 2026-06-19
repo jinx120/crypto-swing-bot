@@ -6,6 +6,7 @@ def test_default_resolves_core_engine_db_paths():
     cfg = AutoDashConfig.default()
     assert cfg.symbol == "BTC/USD"
     assert cfg.timeframe == "5m"
+    assert cfg.backtest_timeframe == "15m"
     assert cfg.journal_db.endswith("/journal.db")
     assert cfg.state_db.endswith("/state.db")
     assert cfg.candle_db.endswith("/candles.db")

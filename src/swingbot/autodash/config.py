@@ -9,7 +9,8 @@ class AutoDashConfig:
     core_engine_data: str
     history_db: str
     symbol: str = "BTC/USD"
-    timeframe: str = "5m"
+    timeframe: str = "5m"          # live core-engine candle timeframe (chart + live reads)
+    backtest_timeframe: str = "15m"  # timeframe available for BTC/USD in the swingbot archive
     backtest_limit: int = 5000
     equity0: float = 10_000.0
 

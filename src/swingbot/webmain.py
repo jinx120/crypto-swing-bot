@@ -104,7 +104,7 @@ def main() -> None:
         backtest_ok=_backtest_ok)
 
     from swingbot.autodash import AutoDashConfig, AutoDashboardService
-    auto_dashboard = AutoDashboardService(AutoDashConfig.default())
+    auto_dashboard = AutoDashboardService(AutoDashConfig.default(), prewarm=True)
 
     app = create_app(controller=supervisor, profiles=profiles, creds=creds,
                      token=token, store=store, market=market, backfiller=backfiller,
