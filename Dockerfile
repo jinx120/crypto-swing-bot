@@ -23,6 +23,12 @@ COPY pyproject.toml ./
 COPY src/ ./src/
 RUN pip install --no-cache-dir -e ".[kronos]"
 
+# Install the isolated core-engine package — autodash reuses core_engine.backtest
+# and core_engine.config for the EMA-vs-Kronos comparison. Its only deps (pandas,
+# swingbot) are already present, so --no-deps avoids re-resolving them.
+COPY lab/core-engine/ ./lab/core-engine/
+RUN pip install --no-cache-dir --no-deps -e ./lab/core-engine
+
 # Clone Kronos repo (not pip-installable; model/ directory used directly)
 RUN git clone --depth 1 https://github.com/shiyu-coder/Kronos.git /kronos && \
     pip install --no-cache-dir matplotlib
