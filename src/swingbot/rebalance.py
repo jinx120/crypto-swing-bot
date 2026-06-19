@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 
 import pandas as pd
 
@@ -184,3 +185,53 @@ def plan_trims(
             )
         )
     return trims, skips
+
+
+class Rebalancer:
+    """Pure rebalancing logic over a mutable RebalanceState. No IO."""
+
+    def __init__(self, settings: RebalanceSettings, state: RebalanceState):
+        self.settings = settings
+        self.state = state
+
+    def _interval_ok(self, now: datetime) -> bool:
+        if not self.state.last_rebalance_at:
+            return True
+        last = datetime.fromisoformat(self.state.last_rebalance_at)
+        return now - last >= timedelta(minutes=self.settings.min_interval_minutes)
+
+    def mark_ran(self, now: datetime) -> None:
+        self.state.last_rebalance_at = now.isoformat()
+
+    def evaluate(
+        self,
+        *,
+        now,
+        total_equity,
+        deployed,
+        symbols,
+        targets,
+        prices,
+        returns_by_symbol,
+    ) -> RebalanceResult:
+        allocations = compute_allocations(deployed, symbols, targets, total_equity)
+        if not self._interval_ok(now):
+            return RebalanceResult(
+                False,
+                "min interval not elapsed",
+                allocations,
+                [],
+                self.settings.mode,
+            )
+        if self.settings.mode != "hard":
+            return RebalanceResult(True, "", allocations, [], "soft")
+        drifted = detect_drift(allocations, self.settings.drift_threshold)
+        trims, _skips = plan_trims(
+            drifted,
+            allocations,
+            prices,
+            total_equity,
+            self.settings,
+            returns_by_symbol,
+        )
+        return RebalanceResult(True, "", allocations, trims, "hard")

@@ -1,5 +1,9 @@
+from datetime import datetime, timedelta, timezone
+
 from swingbot.rebalance import (
+    RebalanceState,
     RebalanceSettings,
+    Rebalancer,
     StrategyAllocation,
     allocated_equity,
     compute_allocations,
@@ -105,3 +109,67 @@ def test_plan_trims_skips_when_below_min_notional():
     trims, skips = plan_trims([a], [a], {"BTC/USD": 100.0}, 10_000.0, s, rets)
     assert trims == []
     assert any("fee" in r for r in skips)
+
+
+def _now():
+    return datetime(2026, 6, 19, 12, 0, tzinfo=timezone.utc)
+
+
+def test_evaluate_min_interval_skips():
+    st = RebalanceState(last_rebalance_at=_now().isoformat())
+    r = Rebalancer(
+        RebalanceSettings(enabled=True, mode="hard", min_interval_minutes=60),
+        st,
+    )
+    res = r.evaluate(
+        now=_now() + timedelta(minutes=30),
+        total_equity=10_000.0,
+        deployed={"a": 5_000.0},
+        symbols={"a": "BTC/USD"},
+        targets={"a": 0.3},
+        prices={"BTC/USD": 100.0},
+        returns_by_symbol={},
+    )
+    assert res.ran is False
+    assert "interval" in res.skipped_reason
+
+
+def test_evaluate_soft_mode_returns_no_trims():
+    r = Rebalancer(RebalanceSettings(enabled=True, mode="soft"), RebalanceState())
+    res = r.evaluate(
+        now=_now(),
+        total_equity=10_000.0,
+        deployed={"a": 5_000.0},
+        symbols={"a": "BTC/USD"},
+        targets={"a": 0.3},
+        prices={"BTC/USD": 100.0},
+        returns_by_symbol={},
+    )
+    assert res.ran is True
+    assert res.trims == []
+    assert res.mode == "soft"
+
+
+def test_evaluate_hard_mode_emits_trim():
+    rets = {"BTC/USD": pd.Series([1, 2, 3, 4, 5]).pct_change().dropna()}
+    r = Rebalancer(
+        RebalanceSettings(
+            enabled=True,
+            mode="hard",
+            vol_skip_threshold=1.0,
+            fee_rate=0.0,
+            benefit_factor=0.0,
+        ),
+        RebalanceState(),
+    )
+    res = r.evaluate(
+        now=_now(),
+        total_equity=10_000.0,
+        deployed={"a": 5_000.0},
+        symbols={"a": "BTC/USD"},
+        targets={"a": 0.3},
+        prices={"BTC/USD": 100.0},
+        returns_by_symbol=rets,
+    )
+    assert res.ran is True
+    assert len(res.trims) == 1
