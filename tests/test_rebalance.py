@@ -8,6 +8,7 @@ from swingbot.rebalance import (
 import pandas as pd
 
 from swingbot.rebalance import correlation_clusters, detect_drift, recent_volatility
+from swingbot.rebalance import plan_trims
 
 
 def test_allocated_equity_uses_target_times_total():
@@ -57,3 +58,50 @@ def test_correlation_clusters_groups_correlated_symbols():
     }
     clusters = correlation_clusters(returns, threshold=0.8)
     assert any({"A", "B"} <= c for c in clusters)
+
+
+def _alloc(name, sym, target, deployed, total):
+    return compute_allocations({name: deployed}, {name: sym}, {name: target}, total)[0]
+
+
+def test_plan_trims_minimal_trim_to_just_under_band():
+    a = _alloc("a", "BTC/USD", 0.3, 5_000.0, 10_000.0)
+    s = RebalanceSettings(
+        drift_threshold=0.05,
+        vol_skip_threshold=1.0,
+        fee_rate=0.0,
+        benefit_factor=0.0,
+    )
+    rets = {"BTC/USD": pd.Series([1, 2, 3, 4, 5]).pct_change().dropna()}
+    trims, skips = plan_trims([a], [a], {"BTC/USD": 100.0}, 10_000.0, s, rets)
+    assert len(trims) == 1
+    assert round(trims[0].value, 2) == 1_500.0
+    assert round(trims[0].qty, 4) == 15.0
+
+
+def test_plan_trims_skips_on_high_volatility():
+    a = _alloc("a", "BTC/USD", 0.3, 5_000.0, 10_000.0)
+    s = RebalanceSettings(
+        drift_threshold=0.05,
+        vol_skip_threshold=0.0001,
+        fee_rate=0.0,
+        benefit_factor=0.0,
+    )
+    rets = {"BTC/USD": pd.Series([1, 5, 2, 9, 3]).pct_change().dropna()}
+    trims, skips = plan_trims([a], [a], {"BTC/USD": 100.0}, 10_000.0, s, rets)
+    assert trims == []
+    assert any("volatil" in r for r in skips)
+
+
+def test_plan_trims_skips_when_below_min_notional():
+    a = _alloc("a", "BTC/USD", 0.3, 3_600.0, 10_000.0)
+    s = RebalanceSettings(
+        drift_threshold=0.05,
+        vol_skip_threshold=1.0,
+        fee_rate=0.0025,
+        benefit_factor=10.0,
+    )
+    rets = {"BTC/USD": pd.Series([1, 2, 3, 4, 5]).pct_change().dropna()}
+    trims, skips = plan_trims([a], [a], {"BTC/USD": 100.0}, 10_000.0, s, rets)
+    assert trims == []
+    assert any("fee" in r for r in skips)

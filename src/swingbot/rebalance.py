@@ -121,3 +121,66 @@ def correlation_clusters(
         if not placed:
             clusters.append({symbol})
     return clusters
+
+
+def plan_trims(
+    drifted: list[StrategyAllocation],
+    all_allocations: list[StrategyAllocation],
+    prices: dict,
+    total_equity: float,
+    settings: RebalanceSettings,
+    returns_by_symbol: dict,
+) -> tuple[list[TrimAction], list[str]]:
+    trims: list[TrimAction] = []
+    skips: list[str] = []
+    min_trim_notional = (
+        settings.benefit_factor * 2 * settings.fee_rate * total_equity
+    )
+
+    clusters = correlation_clusters(returns_by_symbol, settings.correlation_threshold)
+    under_by_symbol = {a.symbol: a for a in all_allocations if a.drift < 0}
+
+    for allocation in drifted:
+        returns = returns_by_symbol.get(allocation.symbol)
+        if (
+            returns is not None
+            and recent_volatility(returns) > settings.vol_skip_threshold
+        ):
+            skips.append(f"{allocation.name}: high volatility")
+            continue
+
+        ceiling = (
+            allocation.target_weight + settings.drift_threshold
+        ) * total_equity
+        trim_value = allocation.deployed_value - ceiling
+
+        cluster = next(
+            (c for c in clusters if allocation.symbol in c),
+            {allocation.symbol},
+        )
+        offset = sum(
+            -under_by_symbol[s].drift * total_equity
+            for s in cluster
+            if s in under_by_symbol
+        )
+        trim_value = max(0.0, trim_value - offset)
+
+        if trim_value < min_trim_notional or trim_value <= 0:
+            skips.append(f"{allocation.name}: below fee/benefit floor")
+            continue
+
+        price = prices.get(allocation.symbol, 0.0)
+        if price <= 0:
+            skips.append(f"{allocation.name}: no price")
+            continue
+
+        trims.append(
+            TrimAction(
+                name=allocation.name,
+                symbol=allocation.symbol,
+                qty=trim_value / price,
+                value=trim_value,
+                reason=f"drift {allocation.drift:.3f} > {settings.drift_threshold}",
+            )
+        )
+    return trims, skips
