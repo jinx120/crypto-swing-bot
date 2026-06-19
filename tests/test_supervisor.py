@@ -1,8 +1,11 @@
 from datetime import datetime, timezone
 import numpy as np
+import pytest
 
 from swingbot.supervisor import PortfolioSupervisor, _bars_to_df
 from swingbot.profiles import ProfileStore
+from swingbot.state import StateStore
+from swingbot.types import OpenPosition, Regime, Side
 from swingbot.types import BrokerOrder, OrderSide, OrderStatus
 
 T0 = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
@@ -32,8 +35,14 @@ class FakeMarket:
 
 
 class FakeBroker:
-    def __init__(self): self.positions = {}; self.order = None; self.buys = []; self.sells = []
-    def get_account(self): return {"equity": 1000.0, "cash": 1000.0, "buying_power": 1000.0}
+    def __init__(self, equity=1000.0):
+        self._equity = equity
+        self.positions = {}
+        self.order = None
+        self.buys = []
+        self.sells = []
+    def get_account(self): return {"equity": self._equity, "cash": self._equity,
+                                   "buying_power": self._equity}
     def get_position(self, s): return self.positions.get(s)
     def get_order(self, order_id=None, client_order_id=None): return self.order
     def submit_market_buy(self, s, q, client_order_id):
@@ -73,6 +82,39 @@ def _supervisor(tmp_path, symbols):
     return sup, broker, market
 
 
+@pytest.fixture
+def built_supervisor_two_strats(tmp_path):
+    def build(
+        *,
+        enabled,
+        mode="soft",
+        targets=None,
+        equity=10_000.0,
+    ):
+        profiles = ProfileStore(str(tmp_path / "p.db"))
+        profiles.save("a", _profile("BTC/USD"))
+        profiles.save("b", _profile("ETH/USD"))
+        profiles.arm("a")
+        profiles.arm("b")
+        profiles.set_rebalance_settings({"enabled": enabled, "mode": mode})
+        if targets is not None:
+            profiles.set_rebalance_targets(targets)
+        market = FakeMarket({"BTC/USD": _bars(100.0), "ETH/USD": _bars(110.0)})
+        broker = FakeBroker(equity=equity)
+        sup = PortfolioSupervisor(
+            profiles=profiles,
+            creds=None,
+            state_db=str(tmp_path / "s.db"),
+            market=market,
+            broker=broker,
+            mode="paper",
+        )
+        sup.build()
+        return sup
+
+    return build
+
+
 def test_bars_to_df_shape():
     df = _bars_to_df(_bars(100.0, 5))
     assert list(df.columns) == ["ts", "open", "high", "low", "close", "volume"]
@@ -106,3 +148,69 @@ def test_max_concurrent_caps_open_positions(tmp_path):
     sup.tick_all(now=T0)
     assert len(broker.positions) == 1             # portfolio cap allowed only one entry
     assert len(sup._store.load_all_pending_orders()) == 1
+
+
+def test_soft_sizing_passes_allocated_equity(built_supervisor_two_strats):
+    sup = built_supervisor_two_strats(
+        enabled=True,
+        mode="soft",
+        targets={"a": 0.3, "b": 0.3},
+        equity=10_000.0,
+    )
+    captured = {}
+    for name, strategy in sup._strategies.items():
+        strategy["orch"].tick = lambda now=None, sizing_equity=None, _n=name: (
+            captured.__setitem__(_n, sizing_equity)
+        )
+    sup.tick_all(now=T0)
+    assert captured["a"] == 3_000.0
+    assert captured["b"] == 3_000.0
+
+
+def test_soft_sizing_disabled_passes_none(built_supervisor_two_strats):
+    sup = built_supervisor_two_strats(enabled=False, targets={}, equity=10_000.0)
+    captured = {}
+    for name, strategy in sup._strategies.items():
+        strategy["orch"].tick = lambda now=None, sizing_equity=None, _n=name: (
+            captured.__setitem__(_n, sizing_equity)
+        )
+    sup.tick_all(now=T0)
+    assert captured["a"] is None and captured["b"] is None
+
+
+def test_soft_cap_blocks_strategy_above_allocated_equity(tmp_path):
+    profiles = ProfileStore(str(tmp_path / "p.db"))
+    profiles.save("a", _profile("BTC/USD"))
+    profiles.arm("a")
+    profiles.set_rebalance_settings({"enabled": True, "mode": "soft"})
+    profiles.set_rebalance_targets({"a": 0.3})
+    market = FakeMarket({"BTC/USD": _bars(100.0)})
+    broker = FakeBroker(equity=10_000.0)
+    sup = PortfolioSupervisor(
+        profiles=profiles,
+        creds=None,
+        state_db=str(tmp_path / "s.db"),
+        market=market,
+        broker=broker,
+        mode="paper",
+    )
+    sup.build()
+    state = StateStore(str(tmp_path / "s.db"))
+    state.save_position(
+        OpenPosition(
+            symbol="BTC/USD",
+            entry_ts=T0,
+            entry_price=100.0,
+            qty=40.0,
+            stop=90.0,
+            tp=120.0,
+            max_hold_until=T0,
+            score_at_entry=0.7,
+            regime_at_entry=Regime.UPTREND,
+            side=Side.LONG,
+        ),
+        strategy="a",
+    )
+    decision = sup._make_gate("a")("BTC/USD", 1.0)
+    assert decision.approved is False
+    assert "rebalance soft cap" in decision.reason

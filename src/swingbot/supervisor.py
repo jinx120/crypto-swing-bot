@@ -21,10 +21,11 @@ from swingbot.journal import TradeJournal
 from swingbot.managed_profiles import managed_meta
 from swingbot.metrics import compute_metrics
 from swingbot.orchestrator import Orchestrator
-from swingbot.portfolio_risk import PortfolioRiskManager, PortfolioSettings
+from swingbot.portfolio_risk import PortfolioDecision, PortfolioRiskManager, PortfolioSettings
 from swingbot.profile import StrategyProfile
 from swingbot.probe_marker import probe_should_fire
 from swingbot.profiles import ProfileStore
+from swingbot.rebalance import Rebalancer, RebalanceSettings, allocated_equity
 from swingbot.risk import RiskManager
 from swingbot.snapshot import signal_snapshot
 from swingbot.state import StateStore, StrategyStateView
@@ -141,6 +142,9 @@ class PortfolioSupervisor:
         self._timeframes: dict = {}
         self._strategies: dict = {}          # name -> {profile, orch, view, journal, snapshot}
         self._portfolio_risk: PortfolioRiskManager | None = None
+        self._rebalance_settings = RebalanceSettings()
+        self._rebalance_targets: dict = {}
+        self._rebalancer: Rebalancer | None = None
         self._store: StateStore | None = None
         self._telemetry = TelemetryStore(state_db)
         self._trade_store = TradeStore(state_db)
@@ -267,6 +271,14 @@ class PortfolioSupervisor:
             if k in _risk_keys})
         self._portfolio_risk = PortfolioRiskManager(
             settings, self._store.load_portfolio_risk_state())
+        self._rebalance_settings = RebalanceSettings(
+            **self.profiles.get_rebalance_settings()
+        )
+        self._rebalance_targets = self.profiles.get_rebalance_targets()
+        self._rebalancer = Rebalancer(
+            self._rebalance_settings,
+            self._store.load_rebalance_state(),
+        )
 
         provider = CachedProvider(self.market, self._latest_prices, self._timeframes)
         self._provider = provider
@@ -284,12 +296,24 @@ class PortfolioSupervisor:
             orch = Orchestrator(
                 profile=profile, data=provider, broker=self._broker, state=view,
                 risk=risk, journal=TradeJournal(store=self._trade_store, strategy=name),
-                portfolio_gate=self._make_gate(profile),
+                portfolio_gate=self._make_gate(name),
                 portfolio_on_close=self._make_on_close())
             self._strategies[name] = {"profile": profile, "orch": orch,
                                       "view": view, "snapshot": {}}
 
-    def _make_gate(self, profile: StrategyProfile):
+    def _strategy_deployed_value(self, name: str) -> float:
+        deployed = 0.0
+        pos = self._store.load_position(name)
+        if pos is not None:
+            price = self._latest_prices.get(pos.symbol, pos.entry_price)
+            deployed += pos.qty * price
+        pending = self._store.load_pending_order(name)
+        if pending is not None and pending.side is OrderSide.BUY:
+            price = self._latest_prices.get(pending.symbol, 0.0)
+            deployed += pending.requested_qty * price
+        return deployed
+
+    def _make_gate(self, name: str):
         def gate(symbol: str, prospective_value: float):
             positions = self._store.load_all_positions()
             pending_buys = [
@@ -304,9 +328,26 @@ class PortfolioSupervisor:
                 price = self._latest_prices.get(order.symbol, 0.0)
                 deployed += order.requested_qty * price
             equity = self._broker.get_account()["equity"]
-            return self._portfolio_risk.check_can_enter(
+            decision = self._portfolio_risk.check_can_enter(
                 equity=equity, open_position_count=len(positions) + len(pending_buys),
                 deployed_value=deployed, prospective_value=prospective_value)
+            if not decision.approved:
+                return decision
+            if self._rebalance_settings.enabled:
+                alloc = allocated_equity(
+                    name,
+                    self._rebalance_targets,
+                    equity,
+                    len(self._strategies),
+                )
+                strategy_value = self._strategy_deployed_value(name)
+                if strategy_value + prospective_value > alloc:
+                    return PortfolioDecision(
+                        False,
+                        "rebalance soft cap: "
+                        f"{strategy_value + prospective_value:.2f} > allocated {alloc:.2f}",
+                    )
+            return decision
         return gate
 
     def _make_on_close(self):
@@ -415,7 +456,15 @@ class PortfolioSupervisor:
                 stages[required_stage] = "ok"
             else:
                 try:
-                    decision = orch.tick(now)
+                    sizing_equity = None
+                    if self._rebalance_settings.enabled and acct is not None:
+                        sizing_equity = allocated_equity(
+                            name,
+                            self._rebalance_targets,
+                            acct["equity"],
+                            len(self._strategies),
+                        )
+                    decision = orch.tick(now=now, sizing_equity=sizing_equity)
                     if not isinstance(decision, DecisionResult):
                         raise TypeError("orchestrator tick returned no DecisionResult")
                     self.note_managed_decision(name, decision)
