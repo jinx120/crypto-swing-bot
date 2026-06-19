@@ -8,9 +8,17 @@ services:
       - SWINGBOT_HOST=0.0.0.0
       - SWINGBOT_DATA_DIR=/data
       - HF_HOME=/hf-cache
+      # autodash reads the live core-engine SQLite DBs (journal/state/candles)
+      - CORE_ENGINE_DATA=/core-engine-data
     ports:
       - "8000:8000"
     volumes:
       - ${HOME}/.swingbot:/data
       - ${HOME}/.cache/huggingface:/hf-cache
+      # the live autonomous core-engine persists into this named volume
+      - core_engine_data:/core-engine-data
     restart: unless-stopped
+
+volumes:
+  core_engine_data:
+    external: true

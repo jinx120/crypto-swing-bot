@@ -20,3 +20,4 @@ frontend/dist/
 graphify-out/
 docs/selftest-artifacts/
 docs/SELFTEST_REPORT.md
+docker-compose.override.yml
