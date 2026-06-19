@@ -20,5 +20,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  # Created by the core-engine stack; must already exist (docker compose up fails otherwise).
+  # Mounted read-mostly here so the dashboard can read the live bot's journal/state/candles.
   core_engine_data:
     external: true

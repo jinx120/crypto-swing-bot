@@ -103,8 +103,14 @@ def main() -> None:
         get_discovery=lambda: {},                    # rebound to app.state below
         backtest_ok=_backtest_ok)
 
-    from swingbot.autodash import AutoDashConfig, AutoDashboardService
-    auto_dashboard = AutoDashboardService(AutoDashConfig.default(), prewarm=True)
+    # The dashboard reuses core_engine.backtest; if that package is ever unavailable,
+    # degrade gracefully (autodash routes 404) rather than taking the whole app down.
+    try:
+        from swingbot.autodash import AutoDashConfig, AutoDashboardService
+        auto_dashboard = AutoDashboardService(AutoDashConfig.default(), prewarm=True)
+    except Exception as exc:
+        print(f"[swingbot-web] autodash disabled ({type(exc).__name__}: {exc})")
+        auto_dashboard = None
 
     app = create_app(controller=supervisor, profiles=profiles, creds=creds,
                      token=token, store=store, market=market, backfiller=backfiller,
