@@ -10,10 +10,11 @@
 
 ## ▶ NEXT ACTION
 
-**✅ PORTFOLIO REBALANCING LAYER — CODE COMPLETE (2026-06-19).** Plan
-`docs/superpowers/plans/2026-06-19-portfolio-rebalancing-implementation.md` executed through Task 13
-except the Docker rebuild/live curl verification, which must run on clawd's live `swingbot` +
-Alpaca paper environment. Shipped off by default: `RebalanceSettings(enabled=False, mode="soft")`.
+**✅ PORTFOLIO REBALANCING LAYER — COMPLETE & LIVE (2026-06-19).** Plan
+`docs/superpowers/plans/2026-06-19-portfolio-rebalancing-implementation.md` executed end-to-end
+(all 13 TDD tasks) via the Codex VM bridge (Codex implemented + committed 1–13, pushed to
+`origin/core-engine` @ `14a2090`); clawd pulled, re-ran the gate, and completed the Docker
+rebuild + live verification. Shipped off by default: `RebalanceSettings(enabled=False, mode="soft")`.
 
 Shipped: pure `swingbot.rebalance` allocation/drift/trim logic with interval, volatility,
 correlation, and fee guards; ProfileStore target/settings persistence; StateStore
@@ -25,10 +26,13 @@ run.
 
 Safety state: disabled behavior remains unchanged when `enabled=false`; trims are sells only, never
 entries; portfolio kill switch suppresses all trims; per-strategy kill switch excludes that
-strategy; paper/live routing uses the existing broker sell path. Local gates before Docker handoff:
-backend pytest passed (**626 passed, 6 skipped**) and ruff clean after the final import cleanup;
-frontend `npm run build` green. **NEXT:** clawd should rebuild/restart the live Docker `swingbot`
-container and verify `/api/rebalance/settings` returns `enabled:false` plus dashboard render.
+strategy; paper/live routing uses the existing broker sell path. Gates (re-run by clawd on the live
+host): backend pytest **626 passed, 6 skipped**, ruff clean; frontend `npm run build` green.
+**Live-verified on `:8000`:** container healthy; `GET /api/rebalance/settings` → `enabled:false`
+(+ all defaults), `/status` and `/targets` correct; POST routes correctly auth-gated (`X-Token`);
+dashboard served (HTTP 200). Feature is dormant until a user sets targets and flips `enabled`/`hard`.
+**NEXT:** optional — exercise soft mode live (set targets + `enabled=true, mode=soft`) and watch the
+allocation table populate; then opt into `hard` when comfortable.
 
 **✅ AUTONOMOUS TRADING DASHBOARD — COMPLETE & LIVE (2026-06-19).** Plan
 `docs/superpowers/plans/2026-06-19-autonomous-dashboard-implementation.md` executed end-to-end
