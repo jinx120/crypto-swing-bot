@@ -7,6 +7,7 @@ from swingbot.runtime_state import RuntimeStateStore
 from swingbot.risk import RiskManager, RiskState
 from core_engine.config import CANDLE_DB, STATE_DB, JOURNAL_DB, PROFILE, SYMBOL, TIMEFRAME
 from core_engine.journal import EngineJournal
+from core_engine.position_store import PositionStore
 
 
 def _kronos_or_none():
@@ -37,7 +38,8 @@ def _build_engine():
                   broker=AlpacaBroker(creds.key_id, creds.secret_key, paper=creds.paper),
                   journal=journal, risk=RiskManager(PROFILE, RiskState()),
                   runtime_state=RuntimeStateStore(STATE_DB), profile=PROFILE,
-                  kronos=_kronos_or_none())
+                  kronos=_kronos_or_none(),
+                  position_store=PositionStore(STATE_DB))
 
 
 def _cmd_report():

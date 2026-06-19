@@ -12,7 +12,7 @@ from core_engine.market import build_context, refresh_candles, latest_price, lat
 
 class Engine:
     def __init__(self, *, store, fetcher, broker, journal, risk, runtime_state,
-                 profile, kronos):
+                 profile, kronos, position_store=None):
         self._store = store
         self._fetcher = fetcher
         self._broker = broker
@@ -22,7 +22,16 @@ class Engine:
         self._profile = profile
         self._kronos = kronos
         self._exec = Executor(broker)
+        self._position_store = position_store
         self.position = None
+
+    def _persist_position(self) -> None:
+        if self._position_store is None:
+            return
+        if self.position is None:
+            self._position_store.clear()
+        else:
+            self._position_store.set(self.position)
 
     def _log(self, kind, reason, **payload):
         self._journal.log(JournalEvent(ts=datetime.now(timezone.utc), kind=kind,
@@ -34,6 +43,7 @@ class Engine:
             self.position = self._exec.reconcile(
                 self.position, profile=self._profile, atr=latest_atr(self._store), now=now
             )
+            self._persist_position()
 
             if self.position is not None:
                 price = latest_price(self._store)
@@ -47,6 +57,7 @@ class Engine:
                     else:
                         self._log("pnl", f"closed: {reason}", realized=pnl, won=pnl > 0)
                         self.position = None
+                        self._persist_position()
                 return
 
             ctx = build_context(self._store)
@@ -70,6 +81,7 @@ class Engine:
                 self._log("order", "entry pending / unfilled", qty=intent.qty)
             else:
                 self.position = pos
+                self._persist_position()
                 self._log("order", "entry filled", open=True, qty=pos.qty,
                           entry=pos.entry_price)
         except Exception as exc:
