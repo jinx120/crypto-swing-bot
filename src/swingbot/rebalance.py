@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import pandas as pd
+
 
 @dataclass(frozen=True)
 class RebalanceSettings:
@@ -85,3 +87,37 @@ def compute_allocations(
             )
         )
     return out
+
+
+def detect_drift(
+    allocations: list[StrategyAllocation],
+    threshold: float,
+) -> list[StrategyAllocation]:
+    return [a for a in allocations if a.drift > threshold]
+
+
+def recent_volatility(prices: pd.Series) -> float:
+    rets = prices.pct_change().dropna()
+    if len(rets) < 2:
+        return 0.0
+    return float(rets.std())
+
+
+def correlation_clusters(
+    returns_by_symbol: dict[str, pd.Series],
+    threshold: float,
+) -> list[set[str]]:
+    symbols = sorted(returns_by_symbol)
+    clusters: list[set[str]] = []
+    for symbol in symbols:
+        placed = False
+        for cluster in clusters:
+            rep = next(iter(cluster))
+            corr = returns_by_symbol[symbol].corr(returns_by_symbol[rep])
+            if pd.notna(corr) and corr >= threshold:
+                cluster.add(symbol)
+                placed = True
+                break
+        if not placed:
+            clusters.append({symbol})
+    return clusters

@@ -5,6 +5,10 @@ from swingbot.rebalance import (
     compute_allocations,
 )
 
+import pandas as pd
+
+from swingbot.rebalance import correlation_clusters, detect_drift, recent_volatility
+
 
 def test_allocated_equity_uses_target_times_total():
     assert allocated_equity("a", {"a": 0.3}, 10_000, n_strategies=2) == 3_000.0
@@ -25,3 +29,31 @@ def test_compute_allocations_actual_and_drift():
     assert by["a"].actual_weight == 0.4
     assert round(by["a"].drift, 4) == 0.1
     assert round(by["b"].drift, 4) == -0.2
+
+
+def test_detect_drift_returns_only_overweight_beyond_threshold():
+    allocs = compute_allocations(
+        deployed={"a": 4_000.0, "b": 2_000.0},
+        symbols={"a": "X", "b": "Y"},
+        targets={"a": 0.3, "b": 0.3},
+        total_equity=10_000.0,
+    )
+    drifted = detect_drift(allocs, threshold=0.05)
+    assert [d.name for d in drifted] == ["a"]
+
+
+def test_recent_volatility_is_stdev_of_returns():
+    s = pd.Series([100, 110, 105, 115, 120], dtype=float)
+    rets = s.pct_change().dropna()
+    assert abs(recent_volatility(s) - rets.std()) < 1e-9
+
+
+def test_correlation_clusters_groups_correlated_symbols():
+    base = pd.Series([1, 2, 3, 4, 5], dtype=float)
+    returns = {
+        "A": base.pct_change().dropna(),
+        "B": (base * 2).pct_change().dropna(),
+        "C": pd.Series([5, 1, 6, 2, 7]).pct_change().dropna(),
+    }
+    clusters = correlation_clusters(returns, threshold=0.8)
+    assert any({"A", "B"} <= c for c in clusters)
