@@ -94,7 +94,8 @@ class WebhookBody(BaseModel):
 
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
                backfiller=None, discovery=None, discovery_cache_path=None,
-               brain=None, agent_dir=None, poller=None) -> FastAPI:
+               brain=None, agent_dir=None, poller=None,
+               auto_dashboard=None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
         try:
@@ -115,6 +116,10 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
                     poller.stop()
 
     app = FastAPI(title="swingbot", lifespan=lifespan)
+
+    if auto_dashboard is not None:
+        from swingbot.autodash.router import build_auto_router
+        app.include_router(build_auto_router(auto_dashboard))
 
     def require_token(x_token: str | None = Header(default=None)):
         if x_token != token:

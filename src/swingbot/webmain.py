@@ -103,12 +103,15 @@ def main() -> None:
         get_discovery=lambda: {},                    # rebound to app.state below
         backtest_ok=_backtest_ok)
 
+    from swingbot.autodash import AutoDashConfig, AutoDashboardService
+    auto_dashboard = AutoDashboardService(AutoDashConfig.default())
+
     app = create_app(controller=supervisor, profiles=profiles, creds=creds,
                      token=token, store=store, market=market, backfiller=backfiller,
                      discovery=discovery,
                      discovery_cache_path=os.path.join(DATA_DIR, "discovery.json"),
                      brain=brain, agent_dir=os.path.join(DATA_DIR, "agent"),
-                     poller=poller)
+                     poller=poller, auto_dashboard=auto_dashboard)
     brain.get_discovery = lambda: app.state.discovery
     app.state.archive_config = archive_cfg
     print(f"[swingbot-web] token: {token}")
