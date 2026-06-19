@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import json
 import threading
 import traceback
-from dataclasses import asdict, fields
+from dataclasses import asdict, fields, replace
 from datetime import datetime, timezone
 from functools import wraps
 from uuid import uuid4
@@ -31,7 +32,7 @@ from swingbot.snapshot import signal_snapshot
 from swingbot.state import StateStore, StrategyStateView
 from swingbot.telemetry import CycleRecord, TelemetryStore
 from swingbot.trade_store import TradeStore
-from swingbot.types import DecisionCode, DecisionResult, MarketContext, OrderSide
+from swingbot.types import DecisionCode, DecisionResult, MarketContext, OrderSide, OrderStatus
 
 class LifecycleError(RuntimeError):
     """An explicit operator lifecycle command (start/stop) did not fully succeed.
@@ -495,8 +496,106 @@ class PortfolioSupervisor:
                 decision_details=decision.details,
             ))
             s["snapshot"] = self._snapshot(s["profile"])
+        if acct is not None and self._rebalance_settings.enabled:
+            self._run_rebalance(now, acct)
         if acct is not None:
             self._summary = self._build_summary(acct)
+
+    def _run_rebalance(self, now: datetime, acct: dict):
+        if self._portfolio_risk.state.kill_switch_active:
+            self._telemetry.record_rebalance(
+                ts=now.isoformat(),
+                mode=self._rebalance_settings.mode,
+                ran=False,
+                skipped_reason=(
+                    "portfolio kill switch: "
+                    f"{self._portfolio_risk.state.kill_switch_reason}"
+                ),
+                allocations_json="[]",
+                trims_json="[]",
+            )
+            return None
+
+        deployed: dict[str, float] = {}
+        symbols: dict[str, str] = {}
+        prices: dict[str, float] = {}
+        returns: dict[str, pd.Series] = {}
+        for name in sorted(self._strategies):
+            if self._strategy_kill_active(name):
+                continue
+            profile = self._strategies[name]["profile"]
+            deployed[name] = self._strategy_deployed_value(name)
+            symbols[name] = profile.symbol
+            prices[profile.symbol] = self._price_for(profile.symbol, profile.timeframe)
+            returns[profile.symbol] = self._recent_returns(
+                profile.symbol,
+                profile.timeframe,
+                self._rebalance_settings.vol_lookback,
+            )
+
+        res = self._rebalancer.evaluate(
+            now=now,
+            total_equity=acct["equity"],
+            deployed=deployed,
+            symbols=symbols,
+            targets=self._rebalance_targets,
+            prices=prices,
+            returns_by_symbol=returns,
+        )
+        if res.ran and res.mode == "hard":
+            for trim in res.trims:
+                order = self._broker.submit_market_sell(
+                    trim.symbol,
+                    trim.qty,
+                    f"rebalance-{trim.symbol.replace('/', '-').lower()}-{uuid4().hex}",
+                )
+                if order.status not in {OrderStatus.REJECTED, OrderStatus.CANCELED, OrderStatus.EXPIRED}:
+                    self._reduce_stored_position(trim.name, trim.qty)
+            self._rebalancer.mark_ran(now)
+            self._store.save_rebalance_state(self._rebalancer.state)
+
+        self._telemetry.record_rebalance(
+            ts=now.isoformat(),
+            mode=res.mode,
+            ran=res.ran,
+            skipped_reason=res.skipped_reason,
+            allocations_json=json.dumps([asdict(a) for a in res.allocations]),
+            trims_json=json.dumps([asdict(t) for t in res.trims]),
+        )
+        return res
+
+    def _strategy_kill_active(self, name: str) -> bool:
+        return bool(self._strategies[name]["orch"].risk.state.kill_switch_active)
+
+    def _price_for(self, symbol: str, timeframe: str) -> float:
+        price = self._latest_prices.get(symbol)
+        if price is not None:
+            return float(price)
+        if self._provider is not None:
+            return float(self._provider.get_latest_price(symbol))
+        bars = self.market.get(symbol, timeframe, 1, max_age=None)
+        if not bars:
+            return 0.0
+        return float(bars[-1]["close"])
+
+    def _recent_returns(self, symbol: str, timeframe: str, lookback: int) -> pd.Series:
+        try:
+            bars = self.market.get(symbol, timeframe, lookback + 1, max_age=None)
+        except Exception:
+            return pd.Series(dtype=float)
+        if not bars:
+            return pd.Series(dtype=float)
+        return pd.Series([float(bar["close"]) for bar in bars], dtype=float)
+
+    def _reduce_stored_position(self, name: str, qty: float) -> None:
+        pos = self._store.load_position(name)
+        if pos is None:
+            return
+        remaining = pos.qty - qty
+        if remaining <= 1e-12:
+            self._store.clear_position(name)
+            return
+        self._store.save_position(replace(pos, qty=remaining), name)
 
     def _warm(self, now: datetime) -> dict[str, dict]:
         by_tf: dict = {}

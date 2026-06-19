@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from datetime import timedelta
 import numpy as np
 import pytest
 
@@ -21,6 +22,13 @@ def _bars(symbol_base=100.0, n=120):
              "close": c, "volume": 100.0} for i, c in enumerate(closes)]
 
 
+def _low_vol_bars(symbol_base=100.0, n=120, slope=0.001):
+    t0 = int(T0.timestamp()) - (n - 1) * 900
+    closes = [symbol_base * (1.0 + slope * i) for i in range(n)]
+    return [{"time": t0 + i * 900, "open": c, "high": c * 1.001, "low": c * 0.999,
+             "close": c, "volume": 100.0} for i, c in enumerate(closes)]
+
+
 class FakeMarket:
     """Stands in for MarketData: serves preloaded bars, records refresh calls."""
     def __init__(self, bars_by_symbol):
@@ -35,12 +43,12 @@ class FakeMarket:
 
 
 class FakeBroker:
-    def __init__(self, equity=1000.0):
+    def __init__(self, equity=1000.0, sells=None):
         self._equity = equity
         self.positions = {}
         self.order = None
         self.buys = []
-        self.sells = []
+        self.sells = sells if sells is not None else []
     def get_account(self): return {"equity": self._equity, "cash": self._equity,
                                    "buying_power": self._equity}
     def get_position(self, s): return self.positions.get(s)
@@ -83,24 +91,50 @@ def _supervisor(tmp_path, symbols):
 
 
 @pytest.fixture
-def built_supervisor_two_strats(tmp_path):
+def fake_sells():
+    return []
+
+
+@pytest.fixture
+def built_supervisor_two_strats(tmp_path, fake_sells):
     def build(
         *,
         enabled,
         mode="soft",
         targets=None,
         equity=10_000.0,
+        deployed=None,
+        prices=None,
+        low_vol=False,
+        fee_rate=None,
     ):
         profiles = ProfileStore(str(tmp_path / "p.db"))
         profiles.save("a", _profile("BTC/USD"))
         profiles.save("b", _profile("ETH/USD"))
         profiles.arm("a")
         profiles.arm("b")
-        profiles.set_rebalance_settings({"enabled": enabled, "mode": mode})
+        settings = {"enabled": enabled, "mode": mode}
+        if low_vol:
+            settings["vol_skip_threshold"] = 1.0
+        if fee_rate is not None:
+            settings["fee_rate"] = fee_rate
+            settings["benefit_factor"] = 0.0
+        profiles.set_rebalance_settings(settings)
         if targets is not None:
             profiles.set_rebalance_targets(targets)
-        market = FakeMarket({"BTC/USD": _bars(100.0), "ETH/USD": _bars(110.0)})
-        broker = FakeBroker(equity=equity)
+        prices = prices or {"BTC/USD": 100.0, "ETH/USD": 100.0}
+        if low_vol:
+            bars_by_symbol = {
+                "BTC/USD": _low_vol_bars(prices["BTC/USD"], slope=0.001),
+                "ETH/USD": _low_vol_bars(prices.get("ETH/USD", 100.0), slope=0.0),
+            }
+        else:
+            bars_by_symbol = {
+                "BTC/USD": _bars(prices["BTC/USD"]),
+                "ETH/USD": _bars(prices.get("ETH/USD", 100.0)),
+            }
+        market = FakeMarket(bars_by_symbol)
+        broker = FakeBroker(equity=equity, sells=fake_sells)
         sup = PortfolioSupervisor(
             profiles=profiles,
             creds=None,
@@ -110,6 +144,34 @@ def built_supervisor_two_strats(tmp_path):
             mode="paper",
         )
         sup.build()
+        sup._latest_prices.update(prices)
+        for name, value in (deployed or {}).items():
+            if value <= 0:
+                continue
+            symbol = sup._strategies[name]["profile"].symbol
+            price = prices[symbol]
+            qty = value / price
+            sup._store.save_position(
+                OpenPosition(
+                    symbol=symbol,
+                    entry_ts=T0,
+                    entry_price=price,
+                    qty=qty,
+                    stop=price * 0.9,
+                    tp=price * 2.0,
+                    max_hold_until=T0 + timedelta(days=1),
+                    score_at_entry=0.7,
+                    regime_at_entry=Regime.UPTREND,
+                    side=Side.LONG,
+                ),
+                strategy=name,
+            )
+            broker.positions[symbol] = {
+                "symbol": symbol,
+                "qty": qty,
+                "avg_entry_price": price,
+                "market_value": value,
+            }
         return sup
 
     return build
@@ -203,8 +265,8 @@ def test_soft_cap_blocks_strategy_above_allocated_equity(tmp_path):
             entry_price=100.0,
             qty=40.0,
             stop=90.0,
-            tp=120.0,
-            max_hold_until=T0,
+            tp=200.0,
+            max_hold_until=T0 + timedelta(days=1),
             score_at_entry=0.7,
             regime_at_entry=Regime.UPTREND,
             side=Side.LONG,
@@ -214,3 +276,43 @@ def test_soft_cap_blocks_strategy_above_allocated_equity(tmp_path):
     decision = sup._make_gate("a")("BTC/USD", 1.0)
     assert decision.approved is False
     assert "rebalance soft cap" in decision.reason
+
+
+def test_hard_mode_trims_overweight_and_records(
+    built_supervisor_two_strats,
+    fake_sells,
+):
+    sup = built_supervisor_two_strats(
+        enabled=True,
+        mode="hard",
+        targets={"a": 0.3, "b": 0.3},
+        equity=10_000.0,
+        deployed={"a": 5_000.0, "b": 0.0},
+        prices={"BTC/USD": 100.0, "ETH/USD": 100.0},
+        low_vol=True,
+        fee_rate=0.0,
+    )
+    sup.tick_all(now=T0)
+    assert fake_sells, "expected a reduce-only sell for overweight strat a"
+    assert sup._telemetry.recent_rebalance(10)[0]["mode"] == "hard"
+
+
+def test_portfolio_kill_switch_suppresses_all_trims(
+    built_supervisor_two_strats,
+    fake_sells,
+):
+    sup = built_supervisor_two_strats(
+        enabled=True,
+        mode="hard",
+        targets={"a": 0.3},
+        equity=10_000.0,
+        deployed={"a": 5_000.0},
+        prices={"BTC/USD": 100.0, "ETH/USD": 100.0},
+        low_vol=True,
+        fee_rate=0.0,
+    )
+    sup._portfolio_risk.state.kill_switch_active = True
+    sup._portfolio_risk.state.kill_switch_reason = "test"
+    sup.tick_all(now=T0)
+    assert fake_sells == []
+    assert "kill switch" in sup._telemetry.recent_rebalance(10)[0]["skipped_reason"]
