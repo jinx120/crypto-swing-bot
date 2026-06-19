@@ -78,7 +78,11 @@ class Orchestrator:
             return DecisionResult(DecisionCode.EXITED, "cleared position after broker confirmed flat")
         return DecisionResult(DecisionCode.MANAGED_NO_EXIT, "broker confirmed flat")
 
-    def tick(self, now: datetime | None = None) -> DecisionResult:
+    def tick(
+        self,
+        now: datetime | None = None,
+        sizing_equity: float | None = None,
+    ) -> DecisionResult:
         now = now or datetime.now(timezone.utc)
         acct = self.broker.get_account()
         self.risk.start_day(now=now, equity=acct["equity"])
@@ -90,7 +94,7 @@ class Orchestrator:
         pos = self.state.load_position()
         if pos is not None:
             return self._manage_open(pos, now)
-        return self._maybe_enter(now, acct["equity"])
+        return self._maybe_enter(now, acct["equity"], sizing_equity)
 
     def _manage_open(self, pos: OpenPosition, now: datetime) -> DecisionResult:
         price = self.data.get_latest_price(self.profile.symbol)
@@ -118,7 +122,12 @@ class Orchestrator:
         price = self.data.get_latest_price(self.profile.symbol)
         return self._submit_exit(pos, now, ExitReason.END_OF_DATA, price)
 
-    def _maybe_enter(self, now: datetime, equity: float) -> DecisionResult:
+    def _maybe_enter(
+        self,
+        now: datetime,
+        equity: float,
+        sizing_equity: float | None = None,
+    ) -> DecisionResult:
         if self.paused:
             return DecisionResult(DecisionCode.PAUSED, "operator paused new entries")
         if self.halted:
@@ -162,7 +171,11 @@ class Orchestrator:
             return DecisionResult(DecisionCode.ATR_INVALID, "ATR is not positive", {"atr": a})
         stop, tp = bracket_levels(price, a, self.profile.stop_atr_mult,
                                   self.profile.take_profit_atr_mult)
-        qty = self.risk.size(equity=equity, entry_price=price, stop_price=stop)
+        qty = self.risk.size(
+            equity=sizing_equity if sizing_equity is not None else equity,
+            entry_price=price,
+            stop_price=stop,
+        )
         if qty <= 0:
             return DecisionResult(DecisionCode.SIZE_ZERO, "risk sizing returned zero")
         if self.portfolio_gate is not None:

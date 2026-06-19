@@ -182,3 +182,21 @@ def test_stop_exit_updates_risk_state(tmp_path):
     orch.reconcile(now=T0 + timedelta(minutes=1))
     assert orch.risk.state.consecutive_losses == 1
     assert "TRX/USD" in orch.risk.state.cooldown_until
+
+
+def test_sizing_equity_override_scales_position(tmp_path):
+    df = _dip_and_recover()
+    data = FakeData(df, price=float(df["close"].iloc[-1]))
+    full_path = tmp_path / "full"
+    half_path = tmp_path / "half"
+    full_path.mkdir()
+    half_path.mkdir()
+    full_broker = FakeBroker(equity=10_000.0)
+    full = _orch(data, full_broker, full_path)
+    full.tick(now=T0)
+
+    half_broker = FakeBroker(equity=10_000.0)
+    half = _orch(data, half_broker, half_path)
+    half.tick(now=T0, sizing_equity=5_000.0)
+
+    assert half_broker.buys[0][1] == full_broker.buys[0][1] / 2
