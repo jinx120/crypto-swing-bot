@@ -131,3 +131,18 @@ def test_sanitize_text_removes_control_chars_and_caps_at_500():
     assert "\n" not in result
     assert "\0" not in result
     assert len(result) == 500
+
+
+def test_record_and_read_rebalance_event(tmp_path):
+    store = TelemetryStore(str(tmp_path / "state.db"))
+    store.record_rebalance(
+        ts="2026-06-19T12:00:00+00:00",
+        mode="hard",
+        ran=True,
+        skipped_reason="",
+        allocations_json="[]",
+        trims_json="[]",
+    )
+    rows = store.recent_rebalance(limit=10)
+    assert len(rows) == 1
+    assert rows[0]["mode"] == "hard" and rows[0]["ran"] is True

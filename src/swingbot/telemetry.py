@@ -87,6 +87,19 @@ class TelemetryStore:
                 ON cycle_records(strategy, completed_at DESC, cycle_id DESC)
                 """
             )
+            self._conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS rebalance_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ts TEXT,
+                    mode TEXT,
+                    ran INTEGER,
+                    skipped_reason TEXT,
+                    allocations TEXT,
+                    trims TEXT
+                )
+                """
+            )
 
     def record(self, record: CycleRecord) -> None:
         details = json.dumps(_sanitize_json(record.decision_details), sort_keys=True)
@@ -128,6 +141,67 @@ class TelemetryStore:
                 """,
                 (record.strategy, record.strategy, self.retention),
             )
+
+    def record_rebalance(
+        self,
+        *,
+        ts,
+        mode,
+        ran,
+        skipped_reason,
+        allocations_json,
+        trims_json,
+    ) -> None:
+        with self._lock, self._conn:
+            self._conn.execute(
+                """
+                INSERT INTO rebalance_events (
+                    ts, mode, ran, skipped_reason, allocations, trims
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    ts,
+                    mode,
+                    1 if ran else 0,
+                    skipped_reason,
+                    allocations_json,
+                    trims_json,
+                ),
+            )
+            self._conn.execute(
+                """
+                DELETE FROM rebalance_events
+                WHERE id NOT IN (
+                    SELECT id FROM rebalance_events
+                    ORDER BY id DESC
+                    LIMIT ?
+                )
+                """,
+                (self.retention,),
+            )
+
+    def recent_rebalance(self, limit: int = 50) -> list[dict]:
+        with self._lock:
+            rows = self._conn.execute(
+                """
+                SELECT ts, mode, ran, skipped_reason, allocations, trims
+                FROM rebalance_events
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [
+            {
+                "ts": row[0],
+                "mode": row[1],
+                "ran": bool(row[2]),
+                "skipped_reason": row[3],
+                "allocations": row[4],
+                "trims": row[5],
+            }
+            for row in rows
+        ]
 
     def recent(self, limit: int = 200, strategy: str | None = None) -> list[CycleRecord]:
         query = "SELECT * FROM cycle_records"
