@@ -10,6 +10,43 @@
 
 ## ▶ NEXT ACTION
 
+**✅ AUTONOMOUS TRADING DASHBOARD — COMPLETE & LIVE (2026-06-19).** Plan
+`docs/superpowers/plans/2026-06-19-autonomous-dashboard-implementation.md` executed end-to-end
+(all 23 tasks ticked) via subagent-driven development + the Codex VM bridge (Codex implemented the
+backend Python over the tmux bridge with SFTP file transfer; local subagents did core-engine +
+frontend; each task individually reviewed clean). New read-only dashboard at **`http://localhost:8000/#/auto`**.
+
+Shipped: `swingbot.autodash` package (config, backtest_runner with EMA-vs-Kronos `run_comparison`
+reusing `core_engine.backtest`, GPU-preferring kronos_factory, read-only sqlite queries, cached
+service, 6-route APIRouter mounted in `web.py`); core-engine `PositionStore` write-through; React
+`AutoDashboard.jsx` page with 6 polling panels (chart, position, live stats, EMA-vs-Kronos backtest,
+recent trades, decision journal) reusing lightweight-charts v5. Gates: **598 passed, 6 skipped**,
+ruff clean, `npm run build` green. Playwright smoke PASS (`docs/autodash-smoke.png`) — all 6 panels
+render with **live** core-engine data (journal streaming fresh decisions, real backtest numbers).
+
+**Integration fixes found during live container verification (not in the original plan):**
+- Dockerfile now packages `core-engine` into the swingbot image (autodash imports `core_engine.backtest`;
+  was crash-looping `ModuleNotFoundError`).
+- `docker-compose.yml` mounts the live `core_engine_data` named volume into swingbot (`CORE_ENGINE_DATA=/core-engine-data`)
+  so the dashboard reads the **real running-bot** DBs (the live data lives in that volume, not host `~/.core-engine`).
+- Backtest uses `backtest_timeframe="15m"` (the archive has BTC/USD at 15m/1d, not the live 5m) and the candle
+  loader aliases epoch `time`→tz-aware `ts` Timestamp (the Kronos adapter requires it).
+- **Kronos is gated to real CUDA only.** This Docker daemon lacks the `nvidia` runtime (runs `runc` via an
+  untracked `docker-compose.override.yml`), so on CPU the comparison falls back to the deterministic EMA
+  baseline (Kronos column mirrors EMA — documented). A real EMA-vs-Kronos comparison needs the nvidia Docker
+  runtime fixed; bar-by-bar CPU Kronos is ~40 min/run, so a startup background prewarm + non-blocking pending
+  placeholder is in place for the GPU path.
+
+**Deployment state:** `swingbot` container rebuilt + live on `:8000` (serves the dashboard); `core-engine`
+container rebuilt from repo-root context + swapped, PositionStore deployed, bot auto-resumed and trading.
+Branch `feat/autodash-dashboard` (not yet merged to master at time of writing — see finish step).
+
+**Follow-ups (optional):** (a) fix the host Docker `nvidia` runtime to enable a real GPU Kronos backtest;
+(b) surface a "Kronos: GPU required" badge in `BacktestComparisonPanel` when degraded; (c) backfill BTC/USD
+5m into the archive if a 5m backtest is wanted.
+
+---
+
 **Usage Agent drift finding (s6-guide "Start bot") RESOLVED at source (2026-06-17).** It was a
 false positive: the Start/Stop control (`ControlBar.jsx`) is one toggle that renders "Stop bot"
 while the bot is running, so the s6 probe — which runs against the live bot left running + desired —
