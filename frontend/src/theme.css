@@ -89,6 +89,7 @@ body::after{width:520px;height:520px;right:-160px;top:8%;
 .full{grid-column:1 / -1}
 .row{display:flex;justify-content:space-between;padding:4px 0;font-variant-numeric:tabular-nums}
 .pos{color:var(--green)} .neg{color:var(--red)}
+.muted-cell{display:block;color:var(--muted);font-size:11px;margin-top:2px}
 .chip{display:inline-block;padding:2px 9px;border-radius:6px;font-weight:700;color:#fff;
   background:linear-gradient(180deg,rgba(31,111,67,.95),rgba(31,111,67,.6));
   border:1px solid rgba(54,209,122,.3)}
@@ -207,6 +208,20 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
 .builder-row .act{margin:0}
 tr.rec{background:rgba(108,123,242,0.12)}
 tr.rec td{font-weight:600}
+
+/* ── Rebalance panel ── */
+.rebalance-grid{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(420px,1.2fr);gap:18px}
+.rebalance-controls{display:grid;grid-template-columns:repeat(5,minmax(96px,1fr));gap:10px;margin-bottom:12px}
+.rebalance-controls label{margin:0}
+.rebalance-panel td input{min-width:72px;padding:6px 7px}
+.rebalance-over{background:rgba(245,166,35,.08)}
+.drift-bar{width:72px;height:7px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.drift-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--amber))}
+button.act:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;border-color:var(--glass-border)}
+@media (max-width:980px){
+  .rebalance-grid{grid-template-columns:1fr}
+  .rebalance-controls{grid-template-columns:repeat(2,minmax(120px,1fr))}
+}
 
 /* ── Per-strategy cards ── */
 .strategy-card .card-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}

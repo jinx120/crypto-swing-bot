@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../api.js'
 import TokenGate from '../components/TokenGate.jsx'
 import Hint from '../components/Hint.jsx'
+import RebalancePanel from '../components/RebalancePanel.jsx'
 
 export default function Settings(){
   const [st, setSt] = useState(null); const [err,setErr]=useState(''); const [msg,setMsg]=useState('')
@@ -29,6 +30,7 @@ export default function Settings(){
         <label><input type="checkbox" style={{width:'auto'}} checked={paper} onChange={e=>setPaper(e.target.checked)} /> Paper endpoint<Hint text="Checked = connect to Alpaca’s paper (simulated) server with your paper keys. Uncheck only when you intend to trade real money with live keys." /></label>
         <button className="act" style={{marginTop:10}} onClick={save}>Save credentials</button>
       </div>
+      <RebalancePanel />
       <TokenGate onSet={()=>load().catch(()=>{})} />
     </div>
   )

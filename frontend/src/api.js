@@ -53,6 +53,12 @@ export const api = {
   setLiveEligible: (name, eligible) => req('POST', '/api/strategies/live-eligible', { name, eligible }),
   portfolioSettings: () => req('GET', '/api/portfolio/settings'),
   setPortfolioSettings: (patch) => req('PUT', '/api/portfolio/settings', patch),
+  getRebalanceStatus: () => req('GET', '/api/rebalance/status'),
+  getRebalanceSettings: () => req('GET', '/api/rebalance/settings'),
+  setRebalanceSettings: (body) => req('POST', '/api/rebalance/settings', body),
+  getRebalanceTargets: () => req('GET', '/api/rebalance/targets'),
+  setRebalanceTargets: (body) => req('POST', '/api/rebalance/targets', body),
+  runRebalance: () => req('POST', '/api/rebalance/run', {}),
   // --- universe / watchlist ---
   universe: () => req('GET', '/api/universe'),
   watchlist: () => req('GET', '/api/watchlist'),
