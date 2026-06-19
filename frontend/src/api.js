@@ -74,4 +74,12 @@ export const api = {
   // --- usage agent ---
   agentRuns: () => req('GET', '/api/agent/runs'),
   agentLatest: () => req('GET', '/api/agent/runs/latest'),
+  auto: {
+    backtestEma: () => req('GET', '/api/backtest/ema'),
+    backtestKronos: () => req('GET', '/api/backtest/kronos'),
+    position: () => req('GET', '/api/live/position'),
+    trades: () => req('GET', '/api/live/trades'),
+    journal: () => req('GET', '/api/live/journal'),
+    candles: () => req('GET', '/api/live/candles'),
+  },
 }
