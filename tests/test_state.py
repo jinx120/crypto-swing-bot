@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from swingbot.state import StateStore
+from swingbot.rebalance import RebalanceState
 from swingbot.types import OpenPosition, Regime, Side
 from swingbot.risk import RiskState
 
@@ -48,3 +49,17 @@ def test_persistence_across_instances(tmp_path):
     now = datetime(2026, 1, 1, tzinfo=timezone.utc)
     StateStore(path).save_position(_pos(now))
     assert StateStore(path).load_position().symbol == "TRX/USD"
+
+
+def test_rebalance_state_round_trip(tmp_path):
+    s = StateStore(str(tmp_path / "s.db"))
+    s.save_rebalance_state(
+        RebalanceState(last_rebalance_at="2026-06-19T12:00:00+00:00")
+    )
+    got = s.load_rebalance_state()
+    assert got.last_rebalance_at == "2026-06-19T12:00:00+00:00"
+
+
+def test_rebalance_state_default_when_empty(tmp_path):
+    s = StateStore(str(tmp_path / "s.db"))
+    assert s.load_rebalance_state().last_rebalance_at == ""

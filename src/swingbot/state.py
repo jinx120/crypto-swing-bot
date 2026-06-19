@@ -3,9 +3,11 @@ from __future__ import annotations
 import json
 import sqlite3
 import threading
+from dataclasses import asdict
 from datetime import datetime
 
 from swingbot.portfolio_risk import PortfolioRiskState
+from swingbot.rebalance import RebalanceState
 from swingbot.risk import RiskState
 from swingbot.types import ExitReason, OpenPosition, OrderSide, PendingOrder, Regime, Side
 
@@ -35,6 +37,8 @@ class StateStore:
                 "CREATE TABLE IF NOT EXISTS risk_states (strategy TEXT PRIMARY KEY, data TEXT)")
             self._conn.execute(
                 "CREATE TABLE IF NOT EXISTS portfolio_risk (id INTEGER PRIMARY KEY, data TEXT)")
+            self._conn.execute(
+                "CREATE TABLE IF NOT EXISTS rebalance_state (id INTEGER PRIMARY KEY, data TEXT)")
         self._migrate_legacy()
 
     def _migrate_legacy(self) -> None:
@@ -206,6 +210,21 @@ class StateStore:
             kill_switch_reason=d["kill_switch_reason"], day=d["day"],
             realized_pnl_today=d["realized_pnl_today"],
             day_start_equity=d["day_start_equity"])
+
+    # --- rebalance state (single row) ---
+    def save_rebalance_state(self, rs: RebalanceState) -> None:
+        with self._lock, self._conn:
+            self._conn.execute(
+                "INSERT OR REPLACE INTO rebalance_state (id, data) VALUES (1, ?)",
+                (json.dumps(asdict(rs)),),
+            )
+
+    def load_rebalance_state(self) -> RebalanceState:
+        with self._lock:
+            row = self._conn.execute("SELECT data FROM rebalance_state WHERE id=1").fetchone()
+        if row is None:
+            return RebalanceState()
+        return RebalanceState(**json.loads(row[0]))
 
 
 class StrategyStateView:
