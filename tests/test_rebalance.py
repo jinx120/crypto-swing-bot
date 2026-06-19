@@ -4,7 +4,6 @@ from swingbot.rebalance import (
     RebalanceState,
     RebalanceSettings,
     Rebalancer,
-    StrategyAllocation,
     allocated_equity,
     compute_allocations,
 )

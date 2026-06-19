@@ -4,11 +4,31 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-06-17
+**Last updated:** 2026-06-19
 
 ---
 
 ## ▶ NEXT ACTION
+
+**✅ PORTFOLIO REBALANCING LAYER — CODE COMPLETE (2026-06-19).** Plan
+`docs/superpowers/plans/2026-06-19-portfolio-rebalancing-implementation.md` executed through Task 13
+except the Docker rebuild/live curl verification, which must run on clawd's live `swingbot` +
+Alpaca paper environment. Shipped off by default: `RebalanceSettings(enabled=False, mode="soft")`.
+
+Shipped: pure `swingbot.rebalance` allocation/drift/trim logic with interval, volatility,
+correlation, and fee guards; ProfileStore target/settings persistence; StateStore
+`RebalanceState`; `rebalance_events` telemetry; orchestrator `sizing_equity` hook; supervisor soft
+sizing and per-strategy soft cap; hard-mode reduce-only sells that shrink stored positions while
+respecting portfolio and strategy kill switches; `/api/rebalance/*` settings/targets/status/run
+endpoints; and a Settings-page Rebalance panel for allocations, targets, controls, and manual hard
+run.
+
+Safety state: disabled behavior remains unchanged when `enabled=false`; trims are sells only, never
+entries; portfolio kill switch suppresses all trims; per-strategy kill switch excludes that
+strategy; paper/live routing uses the existing broker sell path. Local gates before Docker handoff:
+backend pytest passed (**626 passed, 6 skipped**) and ruff clean after the final import cleanup;
+frontend `npm run build` green. **NEXT:** clawd should rebuild/restart the live Docker `swingbot`
+container and verify `/api/rebalance/settings` returns `enabled:false` plus dashboard render.
 
 **✅ AUTONOMOUS TRADING DASHBOARD — COMPLETE & LIVE (2026-06-19).** Plan
 `docs/superpowers/plans/2026-06-19-autonomous-dashboard-implementation.md` executed end-to-end

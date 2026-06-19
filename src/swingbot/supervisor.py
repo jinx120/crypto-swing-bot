@@ -457,7 +457,6 @@ class PortfolioSupervisor:
                 stages[required_stage] = "ok"
             else:
                 try:
-                    sizing_equity = None
                     if self._rebalance_settings.enabled and acct is not None:
                         sizing_equity = allocated_equity(
                             name,
@@ -465,7 +464,9 @@ class PortfolioSupervisor:
                             acct["equity"],
                             len(self._strategies),
                         )
-                    decision = orch.tick(now=now, sizing_equity=sizing_equity)
+                        decision = orch.tick(now=now, sizing_equity=sizing_equity)
+                    else:
+                        decision = orch.tick(now)
                     if not isinstance(decision, DecisionResult):
                         raise TypeError("orchestrator tick returned no DecisionResult")
                     self.note_managed_decision(name, decision)
