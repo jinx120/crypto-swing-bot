@@ -16,7 +16,8 @@ the redesign). Auto-start fails (`running_actual:false`, `startup_error: auto-st
 so every strategy shows `ERROR · no fresh closed bar available` (no live candles without a valid broker).
 **Remedy — now via the redesigned UI:** `http://localhost:8000/#/settings` → **Broker connection** → paste
 a fresh paper key pair → **Test connection** → **Save credentials** → **Reconnect bot** (hot-swap, no
-restart). Secondary follow-up: merge `core-engine` → `master` (redesign + E removal are core-engine only).
+restart). (`core-engine` → `master` consolidation is **already done** this session: FF `8705783 → 40cf49d`,
+pushed; `master` = `core-engine` = `40cf49d`.)
 
 ---
 
@@ -54,7 +55,8 @@ clean; frontend `npm run build` green + `npm run test` **12/12** (derive). **Liv
 `docs/redesign-smoke.png`); `GET /api/agent/runs` → **404** (removed); broker-recovery surface reachable
 (amber "Broker not connected" banner on `#/` + form on `#/settings`); the Start/Stop toggle is wired and
 truthfully surfaces the 401 (no clean flip possible under the stale key) — `running_desired` was restored
-to `false` after the test. Branch `core-engine` @ `09ed04c` (+ this roadmap commit), pushed to origin.
+to `false` after the test. **`core-engine` `40cf49d` merged to `master` (FF) and pushed**;
+`master` = `core-engine` = `origin/master` = `40cf49d`.
 **Smoke note:** no `@playwright/test` runner exists in the repo, so the smoke is MCP-driven (matching the
 `docs/autodash-smoke.png` precedent) — the committed artifact is the screenshot, not a `.spec.js`.
 
