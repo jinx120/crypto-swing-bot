@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api.js'
-import Hint from './Hint.jsx'
 
 const pct = (value, digits = 1) => (
   typeof value === 'number' && Number.isFinite(value)
@@ -124,9 +123,7 @@ export default function RebalancePanel(){
 
   return (
     <div className="panel full rebalance-panel">
-      <h3>Rebalance
-        <Hint text="Target weights control future sizing in soft mode and trims in hard mode." />
-      </h3>
+      <h3>Rebalance</h3>
       {err && <div className="err">{err}</div>}
       {msg && <div className="pos">{msg}</div>}
       <div className="rebalance-grid">
