@@ -12,6 +12,11 @@ class NoCredentials:
     def get(self):
         return None
 
+    def make_broker(self, mode=None):
+        # Mirrors a real CredentialStore with no credentials configured:
+        # make_broker() returns None, so build() raises "credentials not set".
+        return None
+
 
 def _supervisor(tmp_path, *, broker=None, creds=None, mode="paper"):
     profiles = ProfileStore(str(tmp_path / "profiles.db"))
