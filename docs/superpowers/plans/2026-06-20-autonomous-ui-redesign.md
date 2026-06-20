@@ -185,7 +185,7 @@ frontend/
 **Interfaces:**
 - Produces: Tailwind build pipeline; `cn(...classes)` from `lib/utils.js`; design tokens (CSS vars) consumed by every later component; `npm run test` (Vitest) runnable.
 
-- [ ] **Step 1: Add dependencies and the test script to `package.json`**
+- [x] **Step 1: Add dependencies and the test script to `package.json`**
 
 Replace the whole file with:
 ```json
@@ -231,12 +231,12 @@ Note: `marked` is **retained** here. The old `App.jsx` still mounts `pages/Guide
 the only manual-era dependency kept through the middle tasks and is removed in **Task 13** once its sole
 importer is gone.
 
-- [ ] **Step 2: Install**
+- [x] **Step 2: Install**
 
 Run: `cd frontend && npm install`
 Expected: completes; `node_modules/tailwindcss` and `node_modules/vitest` exist.
 
-- [ ] **Step 3: Create `postcss.config.js`**
+- [x] **Step 3: Create `postcss.config.js`**
 
 ```js
 export default {
@@ -247,7 +247,7 @@ export default {
 }
 ```
 
-- [ ] **Step 4: Create `tailwind.config.js`**
+- [x] **Step 4: Create `tailwind.config.js`**
 
 ```js
 /** @type {import('tailwindcss').Config} */
@@ -284,7 +284,7 @@ export default {
 }
 ```
 
-- [ ] **Step 5: Create `src/index.css` (Tailwind directives + trading-terminal tokens)**
+- [x] **Step 5: Create `src/index.css` (Tailwind directives + trading-terminal tokens)**
 
 ```css
 @tailwind base;
@@ -322,7 +322,7 @@ body {
 .tabular-nums { font-variant-numeric: tabular-nums; }
 ```
 
-- [ ] **Step 6: Create `src/lib/utils.js`**
+- [x] **Step 6: Create `src/lib/utils.js`**
 
 ```js
 import { clsx } from 'clsx'
@@ -333,7 +333,7 @@ export function cn(...inputs) {
 }
 ```
 
-- [ ] **Step 7: Verify build + test runner**
+- [x] **Step 7: Verify build + test runner**
 
 Run: `cd frontend && npm run build && npm run test`
 Expected: build green; Vitest prints `No test files found` and **exits 0** — the `test` script uses
@@ -342,7 +342,7 @@ on no test files and fail the chained gate). Once Task 3 adds `derive.test.js`, 
 effect — real tests run and a failing one still exits 1, so TDD red/green is preserved. The old app still
 renders (it still imports `theme.css` via `main.jsx`; untouched here).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add frontend/package.json frontend/package-lock.json frontend/tailwind.config.js \
@@ -360,7 +360,7 @@ git commit -m "build(ui): add Tailwind + shadcn deps, design tokens, cn helper, 
 **Interfaces:**
 - Produces: `Button`, `Card`/`CardHeader`/`CardTitle`/`CardContent`/`CardFooter`, `Badge`, `Dialog`/`DialogTrigger`/`DialogContent`/`DialogHeader`/`DialogTitle`/`DialogClose`, `Input`, `Label`. All consume `cn()` and the Task 1 tokens.
 
-- [ ] **Step 1: `components/ui/button.jsx`**
+- [x] **Step 1: `components/ui/button.jsx`**
 
 ```jsx
 import { cva } from 'class-variance-authority'
@@ -392,7 +392,7 @@ export function Button({ className, variant, size, ...props }) {
 export { buttonVariants }
 ```
 
-- [ ] **Step 2: `components/ui/card.jsx`**
+- [x] **Step 2: `components/ui/card.jsx`**
 
 ```jsx
 import { cn } from '../../lib/utils.js'
@@ -414,7 +414,7 @@ export function CardFooter({ className, ...props }) {
 }
 ```
 
-- [ ] **Step 3: `components/ui/badge.jsx`**
+- [x] **Step 3: `components/ui/badge.jsx`**
 
 ```jsx
 import { cva } from 'class-variance-authority'
@@ -441,7 +441,7 @@ export function Badge({ className, variant, ...props }) {
 }
 ```
 
-- [ ] **Step 4: `components/ui/dialog.jsx`**
+- [x] **Step 4: `components/ui/dialog.jsx`**
 
 ```jsx
 import * as DialogPrimitive from '@radix-ui/react-dialog'
@@ -479,7 +479,7 @@ export function DialogTitle({ className, ...props }) {
 }
 ```
 
-- [ ] **Step 5: `components/ui/input.jsx` and `components/ui/label.jsx`**
+- [x] **Step 5: `components/ui/input.jsx` and `components/ui/label.jsx`**
 
 `input.jsx`:
 ```jsx
@@ -506,12 +506,12 @@ export function Label({ className, ...props }) {
 }
 ```
 
-- [ ] **Step 6: Verify build**
+- [x] **Step 6: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green (primitives compile; not yet imported anywhere).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add frontend/src/components/ui
@@ -540,7 +540,7 @@ git commit -m "feat(ui): add shadcn-style primitives (button, card, badge, dialo
   - `availableToAdd(universe, watchlist) -> string[]`
   - `lastDecision(health, name) -> { code: string, reason: string } | null`
 
-- [ ] **Step 1: Ensure Vitest config exists**
+- [x] **Step 1: Ensure Vitest config exists**
 
 Read `frontend/vite.config.js`. If it lacks a `test` block, set the file to:
 ```js
@@ -554,7 +554,7 @@ export default defineConfig({
 ```
 (Preserve any existing `server.proxy` block if present — append `test` alongside it.)
 
-- [ ] **Step 2: Write the failing test `src/lib/derive.test.js`**
+- [x] **Step 2: Write the failing test `src/lib/derive.test.js`**
 
 ```js
 import { describe, it, expect } from 'vitest'
@@ -644,12 +644,12 @@ describe('lastDecision', () => {
 })
 ```
 
-- [ ] **Step 3: Run the test, verify it fails**
+- [x] **Step 3: Run the test, verify it fails**
 
 Run: `cd frontend && npm run test`
 Expected: FAIL — `Failed to resolve import "./derive.js"`.
 
-- [ ] **Step 4: Implement `src/lib/derive.js`**
+- [x] **Step 4: Implement `src/lib/derive.js`**
 
 ```js
 // Pure view-logic derived from the backend response shapes. No React, no I/O.
@@ -716,17 +716,17 @@ export function lastDecision(health, name) {
 }
 ```
 
-- [ ] **Step 5: Run the test, verify it passes**
+- [x] **Step 5: Run the test, verify it passes**
 
 Run: `cd frontend && npm run test`
 Expected: PASS — all `derive.test.js` cases green.
 
-- [ ] **Step 6: Build sanity**
+- [x] **Step 6: Build sanity**
 
 Run: `cd frontend && npm run build`
 Expected: green.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add frontend/src/lib/derive.js frontend/src/lib/derive.test.js frontend/vite.config.js
@@ -748,7 +748,7 @@ git commit -m "feat(ui): add tested pure view-logic helpers (lib/derive)"
 
 > This task replaces the manual-trading app shell. The old pages still exist on disk (deleted in Task 13) but are no longer mounted.
 
-- [ ] **Step 1: Create placeholder pages so routes resolve**
+- [x] **Step 1: Create placeholder pages so routes resolve**
 
 `src/pages/MissionControl.jsx`:
 ```jsx
@@ -771,7 +771,7 @@ export default function Settings() {
 }
 ```
 
-- [ ] **Step 2: Rewrite `src/App.jsx`**
+- [x] **Step 2: Rewrite `src/App.jsx`**
 
 ```jsx
 import { HashRouter, Routes, Route, NavLink } from 'react-router-dom'
@@ -813,7 +813,7 @@ export default function App() {
 }
 ```
 
-- [ ] **Step 3: Update `src/main.jsx` to import the Tailwind stylesheet**
+- [x] **Step 3: Update `src/main.jsx` to import the Tailwind stylesheet**
 
 ```jsx
 import React from 'react'
@@ -830,12 +830,12 @@ ensureToken().finally(() => {
 ```
 (Only the stylesheet import changes: `./theme.css` → `./index.css`. `theme.css` is deleted in Task 13.)
 
-- [ ] **Step 4: Verify build**
+- [x] **Step 4: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green. The bundle no longer imports `theme.css`; the three placeholder routes resolve.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/App.jsx frontend/src/main.jsx \
@@ -854,7 +854,7 @@ git commit -m "feat(ui): switch app shell to HashRouter (Mission Control / Coin 
 - Consumes: `loopState`, `modeBadge`, `equityOf`, `dayPnl`, `dayPnlPct`, `reliabilityPct`, `brokerUnauthorized` from `lib/derive.js`; `api.state`, `api.tradingHealth`, `api.control`; `Button`, `Badge`.
 - Produces: `<StatusStrip state={...} health={...} onChange={fn} />` — loop state + mode + equity/PnL + Start/Stop toggle + health dots + broker-unauthorized banner.
 
-- [ ] **Step 1: Implement `components/StatusStrip.jsx`**
+- [x] **Step 1: Implement `components/StatusStrip.jsx`**
 
 ```jsx
 import { useState } from 'react'
@@ -935,12 +935,12 @@ export default function StatusStrip({ state, health, onChange }) {
 }
 ```
 
-- [ ] **Step 2: Verify build**
+- [x] **Step 2: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/components/StatusStrip.jsx
@@ -960,7 +960,7 @@ git commit -m "feat(ui): StatusStrip (loop state, mode, equity/PnL, Start/Stop, 
   - `<CoinCard strategy={...} health={...} onChange={fn} />`
   - `<CoinsGrid state={...} health={...} onChange={fn} onAdd={fn} />` (renders one `CoinCard` per `state.strategies`, plus the "+ Add coin" trigger slot via `onAdd`).
 
-- [ ] **Step 1: Implement `components/CoinCard.jsx`**
+- [x] **Step 1: Implement `components/CoinCard.jsx`**
 
 ```jsx
 import { useState } from 'react'
@@ -1028,7 +1028,7 @@ export default function CoinCard({ strategy, health, onChange }) {
 }
 ```
 
-- [ ] **Step 2: Implement `components/CoinsGrid.jsx`**
+- [x] **Step 2: Implement `components/CoinsGrid.jsx`**
 
 ```jsx
 import { Plus } from 'lucide-react'
@@ -1061,12 +1061,12 @@ export default function CoinsGrid({ state, health, onChange, onAdd }) {
 }
 ```
 
-- [ ] **Step 3: Verify build**
+- [x] **Step 3: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add frontend/src/components/CoinCard.jsx frontend/src/components/CoinsGrid.jsx
@@ -1084,7 +1084,7 @@ git commit -m "feat(ui): per-coin grid (CoinCard + CoinsGrid) with arm/disarm/fl
 - Consumes: `availableToAdd`; `api.universe`, `api.watchlist`, `api.setWatchlist`, `api.strategies`, `api.arm`; `Dialog*`, `Button`.
 - Produces: `<AddCoinDialog open={bool} onOpenChange={fn} onAdded={fn} />` — lists universe-minus-watchlist; selecting a symbol writes the watchlist and arms its managed strategy if one exists.
 
-- [ ] **Step 1: Implement `components/AddCoinDialog.jsx`**
+- [x] **Step 1: Implement `components/AddCoinDialog.jsx`**
 
 ```jsx
 import { useEffect, useState } from 'react'
@@ -1144,12 +1144,12 @@ export default function AddCoinDialog({ open, onOpenChange, onAdded }) {
 }
 ```
 
-- [ ] **Step 2: Verify build**
+- [x] **Step 2: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/components/AddCoinDialog.jsx
@@ -1167,7 +1167,7 @@ git commit -m "feat(ui): AddCoinDialog (universe minus watchlist -> watchlist + 
 - Consumes: `api.getRebalanceStatus`; `usePolling` (from `components/detail/usePolling.js` — but that move happens in Task 11; until then import the existing `components/AutoDash/usePolling.js`). To avoid an ordering hazard, this component imports the **shared** hook by its final path and Task 11 guarantees the file exists. **Resolution:** import from `../components/AutoDash/usePolling.js` here and update the import in Task 11 when the file moves. Simpler: this component uses a local `useEffect` poll (below) so it has no cross-task path dependency.
 - Produces: `<RebalanceStrip />` — compact read of `/api/rebalance/status` with a "configure →" link to Settings.
 
-- [ ] **Step 1: Implement `components/RebalanceStrip.jsx` (self-contained polling, no shared-hook dependency)**
+- [x] **Step 1: Implement `components/RebalanceStrip.jsx` (self-contained polling, no shared-hook dependency)**
 
 ```jsx
 import { useEffect, useState } from 'react'
@@ -1209,12 +1209,12 @@ export default function RebalanceStrip() {
 }
 ```
 
-- [ ] **Step 2: Verify build**
+- [x] **Step 2: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/components/RebalanceStrip.jsx
@@ -1232,7 +1232,7 @@ git commit -m "feat(ui): RebalanceStrip (compact rebalance status + configure li
 - Consumes: `reliabilityPct`; `health.last_decisions_by_strategy`; `Card*`.
 - Produces: `<LiveJournal health={...} />` — streaming decision feed (latest decision per strategy, newest first) + reliability summary.
 
-- [ ] **Step 1: Implement `components/LiveJournal.jsx`**
+- [x] **Step 1: Implement `components/LiveJournal.jsx`**
 
 ```jsx
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card.jsx'
@@ -1281,12 +1281,12 @@ export default function LiveJournal({ health }) {
 }
 ```
 
-- [ ] **Step 2: Verify build**
+- [x] **Step 2: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/components/LiveJournal.jsx
@@ -1304,7 +1304,7 @@ git commit -m "feat(ui): LiveJournal (per-strategy decision feed + reliability)"
 - Consumes: `StatusStrip`, `CoinsGrid`, `RebalanceStrip`, `LiveJournal`, `AddCoinDialog`; `api.state`, `api.tradingHealth`.
 - Produces: the `#/` page — owns the poll loop for `state` + `health`, renders the four sections, and hosts the Add-coin dialog.
 
-- [ ] **Step 1: Implement `pages/MissionControl.jsx`**
+- [x] **Step 1: Implement `pages/MissionControl.jsx`**
 
 ```jsx
 import { useCallback, useEffect, useState } from 'react'
@@ -1343,12 +1343,12 @@ export default function MissionControl() {
 }
 ```
 
-- [ ] **Step 2: Verify build**
+- [x] **Step 2: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/pages/MissionControl.jsx
@@ -1368,7 +1368,7 @@ git commit -m "feat(ui): Mission Control home (status + coins + rebalance + jour
 - Consumes: `api.candles(symbol, timeframe)`, `api.journal(strategy)`, `api.metrics(strategy)`, `api.state`, `api.auto.backtestEma/Kronos`, `api.arm/disarm/flattenStrategy/setWatchlist/watchlist`; `usePolling`; `Card*`, `Button`, `Badge`; `lightweight-charts`.
 - Produces: restyled, **per-strategy/per-symbol** panels and the `#/coin/:name` page (resolves symbol from `/api/state`).
 
-- [ ] **Step 1: Create `components/detail/usePolling.js`**
+- [x] **Step 1: Create `components/detail/usePolling.js`**
 
 Copy the existing hook verbatim:
 ```js
@@ -1400,7 +1400,7 @@ export default function usePolling(fetcher, intervalMs = 10000) {
 }
 ```
 
-- [ ] **Step 2: `components/detail/ChartPanel.jsx` (per symbol + per-strategy markers)**
+- [x] **Step 2: `components/detail/ChartPanel.jsx` (per symbol + per-strategy markers)**
 
 ```jsx
 import { useEffect, useMemo, useRef } from 'react'
@@ -1462,7 +1462,7 @@ export default function ChartPanel({ symbol, strategy, timeframe = '15m' }) {
 }
 ```
 
-- [ ] **Step 3: `components/detail/CurrentPositionPanel.jsx` (from state)**
+- [x] **Step 3: `components/detail/CurrentPositionPanel.jsx` (from state)**
 
 ```jsx
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card.jsx'
@@ -1494,7 +1494,7 @@ export default function CurrentPositionPanel({ strategy: strat }) {
 }
 ```
 
-- [ ] **Step 4: `components/detail/LiveStatsPanel.jsx` (per-strategy metrics)**
+- [x] **Step 4: `components/detail/LiveStatsPanel.jsx` (per-strategy metrics)**
 
 ```jsx
 import { useMemo } from 'react'
@@ -1521,7 +1521,7 @@ export default function LiveStatsPanel({ strategy }) {
 }
 ```
 
-- [ ] **Step 5: `components/detail/RecentTradesPanel.jsx` (per-strategy journal)**
+- [x] **Step 5: `components/detail/RecentTradesPanel.jsx` (per-strategy journal)**
 
 ```jsx
 import { useMemo } from 'react'
@@ -1560,7 +1560,7 @@ export default function RecentTradesPanel({ strategy }) {
 }
 ```
 
-- [ ] **Step 6: `components/detail/JournalFeedPanel.jsx` (per-strategy trade reasons)**
+- [x] **Step 6: `components/detail/JournalFeedPanel.jsx` (per-strategy trade reasons)**
 
 ```jsx
 import { useMemo } from 'react'
@@ -1590,7 +1590,7 @@ export default function JournalFeedPanel({ strategy }) {
 }
 ```
 
-- [ ] **Step 7: `components/detail/BacktestComparisonPanel.jsx` (BTC/USD only, else note)**
+- [x] **Step 7: `components/detail/BacktestComparisonPanel.jsx` (BTC/USD only, else note)**
 
 ```jsx
 import { api } from '../../api.js'
@@ -1633,7 +1633,7 @@ export default function BacktestComparisonPanel({ symbol }) {
 }
 ```
 
-- [ ] **Step 8: Rewrite `pages/CoinDetail.jsx` (resolve symbol from state)**
+- [x] **Step 8: Rewrite `pages/CoinDetail.jsx` (resolve symbol from state)**
 
 ```jsx
 import { useCallback, useEffect, useState } from 'react'
@@ -1711,12 +1711,12 @@ export default function CoinDetail() {
 }
 ```
 
-- [ ] **Step 9: Verify build**
+- [x] **Step 9: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add frontend/src/components/detail frontend/src/pages/CoinDetail.jsx
@@ -1738,7 +1738,7 @@ git commit -m "feat(ui): per-symbol Coin Detail panels + page"
 - Consumes: `api.listBrokers/testBroker/setBrokerCreds/setActiveBroker/reconnectBroker`, `api.control`, `api.portfolioSettings/setPortfolioSettings`, `api.strategies/setLiveEligible`; `Card*`, `Button`, `Input`, `Label`, `Badge`; `RebalancePanel`, `TokenGate`.
 - Produces: the `#/settings` page with three sections (Broker / Rebalance / Advanced) + TokenGate.
 
-- [ ] **Step 1: Implement `components/settings/BrokerConnectionPanel.jsx`**
+- [x] **Step 1: Implement `components/settings/BrokerConnectionPanel.jsx`**
 
 This is the Task-0 broker form, restyled (logic copied 1:1 from the old `pages/Settings.jsx`):
 ```jsx
@@ -1818,7 +1818,7 @@ export default function BrokerConnectionPanel() {
 }
 ```
 
-- [ ] **Step 2: Implement `components/settings/AdvancedControls.jsx`**
+- [x] **Step 2: Implement `components/settings/AdvancedControls.jsx`**
 
 ```jsx
 import { useEffect, useState } from 'react'
@@ -1869,7 +1869,7 @@ export default function AdvancedControls() {
 }
 ```
 
-- [ ] **Step 3: Rewrite `pages/Settings.jsx`**
+- [x] **Step 3: Rewrite `pages/Settings.jsx`**
 
 ```jsx
 import BrokerConnectionPanel from '../components/settings/BrokerConnectionPanel.jsx'
@@ -1890,18 +1890,18 @@ export default function Settings() {
 }
 ```
 
-- [ ] **Step 4: Remove the `Hint` dependency from `TokenGate.jsx` and `RebalancePanel.jsx`**
+- [x] **Step 4: Remove the `Hint` dependency from `TokenGate.jsx` and `RebalancePanel.jsx`**
 
 `Hint.jsx` is deleted in Task 13, so any kept component that imports it must drop it now.
 - In `components/TokenGate.jsx`: delete the line `import Hint from './Hint.jsx'` and remove the `<Hint ... />` element inside the `<h3>` (keep the heading text).
 - Check `components/RebalancePanel.jsx`: run `grep -n "Hint" frontend/src/components/RebalancePanel.jsx`. If it imports/uses `Hint`, delete the import and each `<Hint .../>` usage. If there are no matches, leave the file unchanged.
 
-- [ ] **Step 5: Verify build**
+- [x] **Step 5: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green. (At this point all three routes are fully functional; the only remaining imports of soon-to-be-deleted files are inside the orphaned old pages, which are no longer referenced by `App.jsx`.)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/src/components/settings frontend/src/pages/Settings.jsx \
@@ -1921,7 +1921,7 @@ git commit -m "feat(ui): consolidated Settings (broker, rebalance, advanced cont
 
 **Interfaces:** none produced — this is pure removal. Nothing in `App.jsx`, the three pages, or the kept components imports any deleted file (verified in Step 2).
 
-- [ ] **Step 1: Delete the files**
+- [x] **Step 1: Delete the files**
 
 ```bash
 cd frontend/src
@@ -1938,7 +1938,7 @@ rm -f theme.css guide.md
 cd ../..
 ```
 
-- [ ] **Step 2: Verify no dangling imports remain**
+- [x] **Step 2: Verify no dangling imports remain**
 
 Run:
 ```bash
@@ -1946,7 +1946,7 @@ cd frontend && grep -rEn "AutoDash|theme\.css|guide\.md|/Hint|/ControlBar|/Portf
 ```
 Expected: `CLEAN` (no remaining references to any deleted module).
 
-- [ ] **Step 3: Drop the now-unused `marked` dependency**
+- [x] **Step 3: Drop the now-unused `marked` dependency**
 
 `Guide.jsx` (deleted in Step 1) was the only importer of `marked` (kept through Tasks 1–12 so the old
 app kept building). Now remove it. In `frontend/package.json`, delete the line:
@@ -1959,12 +1959,12 @@ cd frontend && npm install
 ```
 Expected: `npm install` completes and prunes `marked` from `node_modules`.
 
-- [ ] **Step 4: Verify build**
+- [x] **Step 4: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green, smaller bundle (no `marked`, no manual pages).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A frontend/src
