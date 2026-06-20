@@ -119,7 +119,7 @@ def main() -> None:
                      token=token, store=store, market=market, backfiller=backfiller,
                      discovery=discovery,
                      discovery_cache_path=os.path.join(DATA_DIR, "discovery.json"),
-                     brain=brain, agent_dir=os.path.join(DATA_DIR, "agent"),
+                     brain=brain,
                      poller=poller, auto_dashboard=auto_dashboard,
                      local_trust=os.environ.get("SWINGBOT_LOCAL_TRUST") == "1")
     brain.get_discovery = lambda: app.state.discovery
