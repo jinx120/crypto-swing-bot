@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from swingbot.data.alpaca import AlpacaData
 from swingbot.data.store import CandleStore
 
 _UNIT_SECONDS = {"m": 60, "h": 3600, "d": 86400}
@@ -72,11 +71,10 @@ class MarketData:
         self.creds = creds
         self.default_lookback = default_lookback
 
-    def _provider(self) -> AlpacaData | None:
-        c = self.creds.get() if self.creds else None
-        if not c:
+    def _provider(self):
+        if not self.creds:
             return None
-        return AlpacaData(c.key_id, c.secret_key)
+        return self.creds.make_data()
 
     def refresh(self, symbol: str, timeframe: str, lookback: int | None = None) -> int:
         """Force a live fetch from Alpaca and upsert into the store."""
