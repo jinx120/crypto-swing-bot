@@ -5,33 +5,101 @@ import Hint from '../components/Hint.jsx'
 import RebalancePanel from '../components/RebalancePanel.jsx'
 
 export default function Settings(){
-  const [st, setSt] = useState(null); const [err,setErr]=useState(''); const [msg,setMsg]=useState('')
-  const [key, setKey] = useState(''); const [sec, setSec] = useState('')
-  const [paper, setPaper] = useState(true)
-  const load = async()=> setSt(await api.credStatus())
-  useEffect(()=>{ load().catch(e=>setErr(e.message)) }, [])
-  const save = async()=>{ setErr('');setMsg(''); try{
-    const base = paper ? 'https://paper-api.alpaca.markets' : 'https://api.alpaca.markets'
-    await api.setCreds(key, sec, base); setMsg('saved'); setSec(''); load()
-  }catch(e){ setErr(e.message) } }
+  const [data, setData] = useState(null)       // { active, brokers: [...] }
+  const [sel, setSel] = useState('')           // selected broker id
+  const [vals, setVals] = useState({})         // field name -> input value
+  const [mode, setMode] = useState('paper')
+  const [err, setErr] = useState(''); const [msg, setMsg] = useState('')
+
+  const load = async () => {
+    const d = await api.listBrokers()
+    setData(d)
+    setSel(prev => prev || d.active)
+  }
+  useEffect(() => { load().catch(e => setErr(e.message)) }, [])
+  useEffect(() => { setVals({}); setMsg(''); setErr('') }, [sel])
+
+  if (!data) return <div className="wrap"><div className="panel">Loading…</div></div>
+  const broker = data.brokers.find(b => b.id === sel) || data.brokers[0]
+
+  const setField = (name, v) => setVals(s => ({ ...s, [name]: v }))
+
+  const valuesPayload = () => {
+    const out = { ...vals }
+    if (broker.modes.includes('paper'))
+      out.base_url = mode === 'paper'
+        ? 'https://paper-api.alpaca.markets' : 'https://api.alpaca.markets'
+    return out
+  }
+
+  const doTest = async () => { setErr(''); setMsg(''); try {
+    const r = await api.testBroker(broker.id, valuesPayload(), mode)
+    r.ok ? setMsg(`Test OK — ${r.detail}`) : setErr(`Test failed — ${r.detail}`)
+  } catch (e) { setErr(e.message) } }
+
+  const doSave = async () => { setErr(''); setMsg(''); try {
+    await api.setBrokerCreds(broker.id, valuesPayload())
+    if (data.active !== broker.id) await api.setActiveBroker(broker.id)
+    setMsg('Saved'); setVals({}); load()
+  } catch (e) { setErr(e.message) } }
+
+  const doReconnect = async () => { setErr(''); setMsg(''); try {
+    const r = await api.reconnectBroker()
+    r.ok ? setMsg(`Reconnected — ${r.detail}`) : setErr(`Reconnect failed — ${r.detail}`)
+  } catch (e) { setErr(e.message) } }
+
   return (
     <div className="wrap">
       <div className="panel">
-        <h3>Alpaca credentials
-          <Hint text="The API key pair from your Alpaca account that lets the bot read prices and place orders on your behalf. Create them in the Alpaca dashboard — paper and live each have their own keys." />
+        <h3>Broker connection
+          <Hint text="The brokerage the bot trades through. Pick the active broker, paste its API keys, test the connection, then save. Reconnect applies new keys to the running bot without a restart." />
         </h3>
         {err && <div className="err">{err}</div>}{msg && <div className="pos">{msg}</div>}
-        <div className="row"><span>Stored key
-          <Hint text="The key ID currently saved on the server (the public half — safe to display)." /></span><span>{st?.key_id ?? '—'}</span></div>
-        <div className="row"><span>Secret set
-          <Hint text="Whether a secret key is on file. The secret itself is write-only — once saved it’s never shown back, only confirmed as set." /></span><span className={st?.has_secret?'pos':'neg'}>{String(!!st?.has_secret)}</span></div>
-        <label>Key ID<Hint text="The public identifier of your Alpaca API key pair. Paste it from the Alpaca dashboard." /></label><input value={key} onChange={e=>setKey(e.target.value)} />
-        <label>Secret key (write-only)<Hint text="The private half of the key pair — treat it like a password. It’s stored locally (file permissions locked down) and never sent back to this screen." /></label><input type="password" value={sec} onChange={e=>setSec(e.target.value)} placeholder="••••••••" />
-        <label><input type="checkbox" style={{width:'auto'}} checked={paper} onChange={e=>setPaper(e.target.checked)} /> Paper endpoint<Hint text="Checked = connect to Alpaca’s paper (simulated) server with your paper keys. Uncheck only when you intend to trade real money with live keys." /></label>
-        <button className="act" style={{marginTop:10}} onClick={save}>Save credentials</button>
+
+        <label>Broker</label>
+        <select value={sel} onChange={e => setSel(e.target.value)}>
+          {data.brokers.map(b => (
+            <option key={b.id} value={b.id}>
+              {b.label}{b.id === data.active ? ' (active)' : ''}{b.configured ? ' ✓' : ''}
+            </option>
+          ))}
+        </select>
+
+        <div className="row"><span>Configured</span>
+          <span className={broker.configured ? 'pos' : 'neg'}>{String(broker.configured)}</span></div>
+
+        {broker.fields.map(f => (
+          <div key={f.name}>
+            <label>{f.label}{f.help && <Hint text={f.help} />}
+              {broker.status.fields[f.name]?.set && !f.secret
+                && <span className="muted"> (current: {broker.status.fields[f.name].value})</span>}
+              {broker.status.fields[f.name]?.set && f.secret
+                && <span className="pos"> (set)</span>}
+            </label>
+            <input
+              type={f.secret ? 'password' : 'text'}
+              value={vals[f.name] || ''}
+              placeholder={f.secret ? '••••••••' : ''}
+              onChange={e => setField(f.name, e.target.value)} />
+          </div>
+        ))}
+
+        {broker.modes.includes('paper') && (
+          <label><input type="checkbox" style={{ width: 'auto' }}
+            checked={mode === 'paper'}
+            onChange={e => setMode(e.target.checked ? 'paper' : 'live')} /> Paper endpoint
+            <Hint text="Checked = simulated paper trading with your paper keys. Uncheck only to trade real money with live keys." />
+          </label>
+        )}
+
+        <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+          <button className="act" onClick={doTest}>Test connection</button>
+          <button className="act" onClick={doSave}>Save credentials</button>
+          <button className="act" onClick={doReconnect}>Reconnect bot</button>
+        </div>
       </div>
       <RebalancePanel />
-      <TokenGate onSet={()=>load().catch(()=>{})} />
+      <TokenGate onSet={() => load().catch(() => {})} />
     </div>
   )
 }
