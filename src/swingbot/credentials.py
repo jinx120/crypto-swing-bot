@@ -5,28 +5,56 @@ import os
 
 from swingbot.config import AlpacaCredentials
 
+_DEFAULT_BROKER = "alpaca"
+
 
 class CredentialStore:
-    """Alpaca credentials in a chmod-600 local JSON file. Secret is never exposed
-    via status(); only get() (server-internal) returns it."""
+    """Versioned multi-broker credential file (chmod 600). Exactly one broker is
+    active. Legacy flat {key_id,secret_key,base_url} files migrate transparently
+    to v2 on load. Secrets are never exposed via status()/broker_status()."""
 
     def __init__(self, path: str):
         self.path = path
 
-    def set(self, key_id: str, secret_key: str, base_url: str) -> None:
-        payload = {"key_id": key_id, "secret_key": secret_key, "base_url": base_url}
-        with open(self.path, "w") as f:
-            json.dump(payload, f)
-        os.chmod(self.path, 0o600)
-
-    def _load(self) -> dict | None:
+    # ---- file IO + migration ----
+    def _raw(self) -> dict | None:
         if not os.path.exists(self.path):
             return None
         with open(self.path) as f:
             return json.load(f)
 
+    def _load(self) -> dict:
+        """Always returns a normalized v2 doc (migrating legacy in memory)."""
+        raw = self._raw()
+        if not raw:
+            return {"version": 2, "active": _DEFAULT_BROKER, "brokers": {}}
+        if raw.get("version") == 2 and "brokers" in raw:
+            raw.setdefault("active", _DEFAULT_BROKER)
+            return raw
+        # legacy v1: flat alpaca creds
+        broker = {k: raw.get(k) for k in ("key_id", "secret_key", "base_url")
+                  if raw.get(k) is not None}
+        return {"version": 2, "active": _DEFAULT_BROKER,
+                "brokers": {_DEFAULT_BROKER: broker} if broker else {}}
+
+    def _save(self, doc: dict) -> None:
+        with open(self.path, "w") as f:
+            json.dump(doc, f)
+        os.chmod(self.path, 0o600)
+
+    def active(self) -> str:
+        return self._load().get("active", _DEFAULT_BROKER)
+
+    # ---- legacy API (operates on the active broker; signatures unchanged) ----
+    def set(self, key_id: str, secret_key: str, base_url: str) -> None:
+        doc = self._load()
+        doc["active"] = _DEFAULT_BROKER
+        doc["brokers"][_DEFAULT_BROKER] = {
+            "key_id": key_id, "secret_key": secret_key, "base_url": base_url}
+        self._save(doc)
+
     def status(self) -> dict:
-        d = self._load()
+        d = self._load()["brokers"].get(self.active())
         if not d:
             return {"key_id": None, "has_secret": False, "paper": True}
         return {
@@ -36,7 +64,7 @@ class CredentialStore:
         }
 
     def get(self) -> AlpacaCredentials | None:
-        d = self._load()
+        d = self._load()["brokers"].get(self.active())
         if not d or not d.get("key_id") or not d.get("secret_key"):
             return None
         base_url = d.get("base_url", "https://paper-api.alpaca.markets")
