@@ -198,7 +198,7 @@ Replace the whole file with:
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.1",
@@ -336,7 +336,11 @@ export function cn(...inputs) {
 - [ ] **Step 7: Verify build + test runner**
 
 Run: `cd frontend && npm run build && npm run test`
-Expected: build green; Vitest prints `No test files found` (exit 0 — acceptable at this stage) **or** passes. The old app still renders (it still imports `theme.css` via `main.jsx`; untouched here).
+Expected: build green; Vitest prints `No test files found` and **exits 0** — the `test` script uses
+`vitest run --passWithNoTests`, so the empty case is a pass at this stage (plain `vitest run` would exit 1
+on no test files and fail the chained gate). Once Task 3 adds `derive.test.js`, `--passWithNoTests` has no
+effect — real tests run and a failing one still exits 1, so TDD red/green is preserved. The old app still
+renders (it still imports `theme.css` via `main.jsx`; untouched here).
 
 - [ ] **Step 8: Commit**
 
