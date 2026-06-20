@@ -10,6 +10,16 @@
 
 ## ▶ NEXT ACTION
 
+**▶ EXECUTE the Autonomous-First UI Redesign plan (2026-06-20).** Phase: EXECUTE. Plan written and
+self-contained (cold-agent preamble + 14 tasks, TDD on `lib/derive.js`, build-green gates elsewhere):
+`docs/superpowers/plans/2026-06-20-autonomous-ui-redesign.md`, from spec
+`docs/superpowers/specs/2026-06-20-autonomous-ui-redesign-design.md`. Frontend-only (no `src/swingbot/`
+changes; backend gate `659 passed, 6 skipped` must hold). Branch `core-engine`. **No Docker rebuild until
+Task 14** (it batches deploy + Playwright smoke + live-verify). Resume: load `superpowers:executing-plans`
+(or subagent-driven-development), find the first `- [ ]`, execute → tick → commit per task.
+
+---
+
 **✅ `core-engine` MERGED TO `master` (2026-06-20).** Fast-forward merge (`f37fc02 → 3a94791`, +70
 commits, no conflicts/no merge commit) — `master` was a strict ancestor of `core-engine`. Pushed to
 `origin/master` (non-force FF). This reconciled all previously-unmerged core-engine work onto `master`:
