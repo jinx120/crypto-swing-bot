@@ -10,13 +10,26 @@
 
 ## ▶ NEXT ACTION
 
-**▶ Enter a fresh Alpaca paper API key to bring the bot back online.** The stored key
-`PKPLVRJZQKCYWE7VZ6W6OHDGFZ` returns **401 unauthorized** (pre-existing since ~2026-06-20, NOT caused by
-the redesign). Auto-start fails (`running_actual:false`, `startup_error: auto-start failed: unauthorized`),
-so every strategy shows `ERROR · no fresh closed bar available` (no live candles without a valid broker).
-**Remedy — now via the redesigned UI:** `http://localhost:8000/#/settings` → **Broker connection** → paste
-a fresh paper key pair → **Test connection** → **Save credentials** → **Reconnect bot** (hot-swap, no
-restart). (`core-engine` → `master` consolidation is **already done** this session: FF `8705783 → 40cf49d`,
+**▶ PLAN → write the implementation plan: "Kronos POC Paper Trader".** The spec is **WRITTEN, self-reviewed,
+and committed** (2026-06-20): `docs/superpowers/specs/2026-06-20-kronos-poc-paper-trader-design.md`
+(commit `718a4aa`; decisions brief committed `a926157`). **Awaiting user review of the spec.** Once the
+user approves the spec, load `superpowers:writing-plans`, read the spec, and write the full TDD
+implementation plan to **`docs/superpowers/plans/2026-06-20-kronos-poc-paper-trader-implementation.md`**
+(self-contained for a cold Codex agent — include the "Context for a cold code-gen agent" preamble per the
+house pattern). If the user requests spec changes first, edit the spec, re-run the spec self-review, then
+proceed to the plan. Do **NOT** re-ask the settled forks (they live in the DECISIONS brief).
+
+**One-line product summary:** a hands-off autonomous **paper** trader on the principle *"it does what I
+don't need to know how to do"* — selectable data feed (Coinbase default, decoupled from the broker) →
+a single **Kronos-bracket** strategy (predict up ≥ +0.75% → market BUY → software TP +1.5% / SL −1%) →
+deterministic auto-rebalance + drawdown circuit breakers → a tiny local-LLM **advisor** (bounded
+auto-apply) that tunes config/weights so the user never types a number. Strips discovery, old strategy
+editor, managed strategies, paper_probe, and the old per-trade brain. Full detail in the DECISIONS brief.
+
+**Carry-forward (still true, lower priority under the new design):** the stored Alpaca paper key
+`PKPLVRJZQKCYWE7VZ6W6OHDGFZ` is **401 unauthorized** — but under the new design this **no longer blocks
+the charts** (data decouples to Coinbase); a valid Alpaca paper key is needed only for **order
+execution / fills**. (`core-engine` → `master` consolidation done earlier: FF `8705783 → 40cf49d`,
 pushed; `master` = `core-engine` = `40cf49d`.)
 
 ---
