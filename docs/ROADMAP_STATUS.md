@@ -10,13 +10,53 @@
 
 ## ▶ NEXT ACTION
 
-**▶ EXECUTE the Autonomous-First UI Redesign plan (2026-06-20).** Phase: EXECUTE. Plan written and
-self-contained (cold-agent preamble + 14 tasks, TDD on `lib/derive.js`, build-green gates elsewhere):
-`docs/superpowers/plans/2026-06-20-autonomous-ui-redesign.md`, from spec
-`docs/superpowers/specs/2026-06-20-autonomous-ui-redesign-design.md`. Frontend-only (no `src/swingbot/`
-changes; backend gate `659 passed, 6 skipped` must hold). Branch `core-engine`. **No Docker rebuild until
-Task 14** (it batches deploy + Playwright smoke + live-verify). Resume: load `superpowers:executing-plans`
-(or subagent-driven-development), find the first `- [ ]`, execute → tick → commit per task.
+**▶ Enter a fresh Alpaca paper API key to bring the bot back online.** The stored key
+`PKPLVRJZQKCYWE7VZ6W6OHDGFZ` returns **401 unauthorized** (pre-existing since ~2026-06-20, NOT caused by
+the redesign). Auto-start fails (`running_actual:false`, `startup_error: auto-start failed: unauthorized`),
+so every strategy shows `ERROR · no fresh closed bar available` (no live candles without a valid broker).
+**Remedy — now via the redesigned UI:** `http://localhost:8000/#/settings` → **Broker connection** → paste
+a fresh paper key pair → **Test connection** → **Save credentials** → **Reconnect bot** (hot-swap, no
+restart). Secondary follow-up: merge `core-engine` → `master` (redesign + E removal are core-engine only).
+
+---
+
+**✅ AUTONOMOUS-FIRST UI REDESIGN — COMPLETE & LIVE (2026-06-20).** Plan
+`docs/superpowers/plans/2026-06-20-autonomous-ui-redesign.md` executed end-to-end. **Tasks 1–13 (the full
+frontend rebuild) implemented by Codex (gpt-5.5) over the VM bridge** — committed per task, pushed to
+`origin/core-engine`; **clawd ran Task 14 on the host** (gate + Docker + Playwright smoke + live-verify).
+The 8-tab manual UI is gone; the app is now a **3-route HashRouter SPA**:
+- `#/` **Mission Control** — status strip (loop state/mode/equity/PnL, health dots, Start/Stop, broker
+  banner), per-coin grid (arm/disarm/flatten + Add coin dialog), rebalance strip, live decision journal.
+- `#/coin/:name` **Coin Detail** — six per-symbol panels (chart, position, live stats, EMA-vs-Kronos
+  backtest, recent trades, decision journal); routed by **strategy name** (symbols contain `/`).
+- `#/settings` **Settings** — broker connection (Test/Save/Reconnect), rebalance config, advanced
+  controls, API token.
+Stack: Tailwind v3 + hand-authored shadcn-style primitives (Radix Dialog), `react-router-dom` v6,
+`lightweight-charts` v5, pure view-logic in tested `lib/derive.js` (12 Vitest tests).
+
+**Two plan-ordering bugs found & fixed during execution** (Codex stopped + signaled each via the SSH
+bridge; clawd patched the plan, pushed, re-handed): (1) Task 1 dropped the `marked` dep while the old
+`App.jsx` still mounted `Guide.jsx` → build gate broke; `marked` now **retained until Task 13**. (2)
+`vitest run` exits 1 on "No test files found" → the `test` script now uses **`--passWithNoTests`**.
+
+**✅ SUB-PROJECT E (Usage Agent / selftest) REMOVED (2026-06-20, user-directed "remove this nonsense").**
+The redesign deleted the Health page + `frontend/src/guide.md` + every old route the nightly Usage Agent
+audited (`/#/guide`, `/#/brain`, `/#/health`, `/#/strategy`, `/#/discover`), so it audited a UI that no
+longer exists (surfaced as a backend doc-ref test failure). Removed: `src/swingbot/selftest/` package +
+its 12 tests + `tests/test_web_agent.py`; the `/api/agent/*` endpoints + `agent_dir` wiring
+(`web.py`/`webmain.py`, dropped the now-unused `FileResponse` import); the dead `api.js` agent client
+methods; `scripts/nightly-selftest.sh`; and the **03:00 cron entry** (`crontab` cleaned). **Sub-project E
+is retired — the platform is now A–D + the autonomous-entry sub-project.**
+
+**Gates:** backend **570 passed, 5 skipped** (new baseline — down from 659 after the E removal), ruff
+clean; frontend `npm run build` green + `npm run test` **12/12** (derive). **Live-verified on `:8000`**
+(container rebuilt, `runtime: runc` override): all spec-§13 smoke checks pass (screenshot
+`docs/redesign-smoke.png`); `GET /api/agent/runs` → **404** (removed); broker-recovery surface reachable
+(amber "Broker not connected" banner on `#/` + form on `#/settings`); the Start/Stop toggle is wired and
+truthfully surfaces the 401 (no clean flip possible under the stale key) — `running_desired` was restored
+to `false` after the test. Branch `core-engine` @ `09ed04c` (+ this roadmap commit), pushed to origin.
+**Smoke note:** no `@playwright/test` runner exists in the repo, so the smoke is MCP-driven (matching the
+`docs/autodash-smoke.png` precedent) — the committed artifact is the screenshot, not a `.spec.js`.
 
 ---
 

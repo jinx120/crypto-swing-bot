@@ -1984,17 +1984,17 @@ adds stage only the `marked` removal — none of the repo's unrelated uncommitte
 
 **Interfaces:** none — verification + deployment task.
 
-- [ ] **Step 1: Backend gate is untouched and green**
+- [x] **Step 1: Backend gate is untouched and green**
 
 Run: `.venv/bin/python -m pytest -q`
 Expected: `659 passed, 6 skipped` (the redesign touched no Python). If anything fails, stop — the change leaked outside the frontend.
 
-- [ ] **Step 2: Frontend build + unit tests green**
+- [x] **Step 2: Frontend build + unit tests green**
 
 Run: `cd frontend && npm run build && npm run test`
 Expected: build green; `derive.test.js` passes.
 
-- [ ] **Step 3: Docker rebuild + restart (standing policy)**
+- [x] **Step 3: Docker rebuild + restart (standing policy)**
 
 Run:
 ```bash
@@ -2002,7 +2002,7 @@ docker compose build swingbot && docker compose up -d swingbot
 ```
 (If this host's daemon lacks the `nvidia` runtime, use the existing `runtime: runc` override as prior sessions did.) Wait for the container to report healthy.
 
-- [ ] **Step 4: Playwright smoke on `:8000`**
+- [x] **Step 4: Playwright smoke on `:8000`**
 
 Using the repo's Playwright tooling (the same approach as `docs/autodash-smoke.png`), drive `http://localhost:8000/#/` and assert the spec §13 checks:
 1. Status strip renders (loop state word RUNNING/PAUSED/STOPPED + a mode badge PAPER/LIVE visible).
@@ -2013,18 +2013,18 @@ Using the repo's Playwright tooling (the same approach as `docs/autodash-smoke.p
 6. `#/settings` renders the Broker connection panel heading.
 Capture a full-page screenshot of `#/` to `docs/redesign-smoke.png`.
 
-- [ ] **Step 5: Live-verify the broker-recovery path is reachable**
+- [x] **Step 5: Live-verify the broker-recovery path is reachable**
 
 Confirm (read-only — do **not** submit a probe PUT that overwrites creds, per the standing live-verify rule) that when the broker is unauthorized the amber "Broker not connected — fix in Settings" banner is present on `#/`, and that `#/settings` shows the broker form. (Today's stale paper key yields the 401; this is the exact recovery surface.)
 
-- [ ] **Step 6: Commit the smoke artifacts**
+- [x] **Step 6: Commit the smoke artifacts**
 
 ```bash
 git add frontend/tests/redesign-smoke.spec.js docs/redesign-smoke.png
 git commit -m "test(ui): redesign Playwright smoke + screenshot artifact"
 ```
 
-- [ ] **Step 7: Update the roadmap status**
+- [x] **Step 7: Update the roadmap status**
 
 Append a "✅ AUTONOMOUS-FIRST UI REDESIGN — COMPLETE" block to `docs/ROADMAP_STATUS.md` (branch/commit, gate numbers, smoke result, and the new 3-route IA), then commit:
 ```bash
