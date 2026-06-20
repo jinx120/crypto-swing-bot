@@ -2,6 +2,22 @@ const TOKEN_KEY = 'swingbot_token'
 export const getToken = () => localStorage.getItem(TOKEN_KEY) || ''
 export const setToken = (t) => localStorage.setItem(TOKEN_KEY, t)
 
+// On a trusted localhost deployment the backend serves the token at
+// /api/auth/bootstrap so the user never has to copy it from the console.
+// Silently no-ops (keeps manual TokenGate) when the endpoint is 403/unavailable.
+export async function ensureToken() {
+  if (getToken()) return getToken()
+  try {
+    const res = await fetch('/api/auth/bootstrap')
+    if (!res.ok) return ''
+    const { token } = await res.json()
+    if (token) setToken(token)
+    return token || ''
+  } catch {
+    return ''
+  }
+}
+
 async function req(method, path, body) {
   const headers = { 'Content-Type': 'application/json' }
   if (method !== 'GET') headers['X-Token'] = getToken()
@@ -34,6 +50,15 @@ export const api = {
   credStatus: () => req('GET', '/api/credentials'),
   setCreds: (key_id, secret_key, base_url) =>
     req('PUT', '/api/credentials', { key_id, secret_key, base_url }),
+  // --- broker connection manager ---
+  listBrokers: () => req('GET', '/api/brokers'),
+  setBrokerCreds: (broker_id, values) =>
+    req('PUT', `/api/brokers/${encodeURIComponent(broker_id)}/credentials`, { values }),
+  testBroker: (broker_id, values, mode) =>
+    req('POST', `/api/brokers/${encodeURIComponent(broker_id)}/test`, { values, mode }),
+  setActiveBroker: (broker_id) => req('POST', '/api/brokers/active', { broker_id }),
+  reconnectBroker: () => req('POST', '/api/brokers/reconnect', {}),
+  authBootstrap: () => req('GET', '/api/auth/bootstrap'),
   control: (action, body) => req('POST', `/api/control/${action}`, body),
   flattenStrategy: (name) => req('POST', `/api/control/${encodeURIComponent(name)}/flatten`),
   candles: (symbol, timeframe, limit = 500) => {
