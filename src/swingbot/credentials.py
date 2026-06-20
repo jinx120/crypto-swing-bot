@@ -112,3 +112,44 @@ class CredentialStore:
                             "secret": f.secret, "help": f.help} for f in adapter.fields],
                 "status": st})
         return {"active": self.active(), "brokers": brokers}
+
+    # ---- adapter-backed client factories ----
+    def _active_values(self) -> tuple[str, dict] | None:
+        bid = self.active()
+        stored = self._load()["brokers"].get(bid)
+        if not stored:
+            return None
+        return bid, stored
+
+    def _stored_mode(self, stored: dict) -> str:
+        return "paper" if "paper" in stored.get("base_url", "paper") else "live"
+
+    def make_broker(self, mode: str | None = None):
+        av = self._active_values()
+        if av is None:
+            return None
+        bid, stored = av
+        adapter = get_adapter(bid)
+        try:
+            return adapter.make_broker(stored, mode or self._stored_mode(stored))
+        except ValueError:
+            return None
+
+    def make_data(self):
+        av = self._active_values()
+        if av is None:
+            return None
+        bid, stored = av
+        adapter = get_adapter(bid)
+        try:
+            return adapter.make_data(stored)
+        except ValueError:
+            return None
+
+    def test_broker(self, broker_id: str, values: dict | None = None,
+                    mode: str | None = None) -> dict:
+        adapter = get_adapter(broker_id)
+        if values is None:
+            values = self._load()["brokers"].get(broker_id, {})
+        resolved_mode = mode or self._stored_mode(values)
+        return adapter.test_connection(values, resolved_mode)

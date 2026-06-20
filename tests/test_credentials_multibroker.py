@@ -63,3 +63,50 @@ def test_list_brokers_returns_registry_with_schema(tmp_path):
     assert alpaca["configured"] is False
     assert [f["name"] for f in alpaca["fields"]] == ["key_id", "secret_key"]
     assert {f["name"]: f["secret"] for f in alpaca["fields"]}["secret_key"] is True
+
+
+def test_make_broker_none_when_unconfigured(tmp_path):
+    c = CredentialStore(str(tmp_path / "creds.json"))
+    assert c.make_broker() is None
+    assert c.make_data() is None
+
+
+def test_make_broker_builds_via_adapter(tmp_path, monkeypatch):
+    c = CredentialStore(str(tmp_path / "creds.json"))
+    c.set("KID", "SECRET", "https://paper-api.alpaca.markets")
+    captured = {}
+
+    class FakeClient:
+        def __init__(self, *args, **kw): captured["args"] = args; captured["kw"] = kw
+
+    monkeypatch.setattr("swingbot.broker.alpaca.TradingClient", FakeClient)
+    monkeypatch.setattr("swingbot.data.alpaca.CryptoHistoricalDataClient", FakeClient)
+    assert c.make_broker() is not None
+    assert captured["args"][:2] == ("KID", "SECRET")
+    assert c.make_data() is not None
+
+
+def test_make_broker_mode_override(tmp_path, monkeypatch):
+    c = CredentialStore(str(tmp_path / "creds.json"))
+    c.set("KID", "SECRET", "https://paper-api.alpaca.markets")
+    seen = {}
+
+    class FakeTrading:
+        def __init__(self, *a, **kw): seen["paper"] = kw.get("paper")
+
+    monkeypatch.setattr("swingbot.broker.alpaca.TradingClient", FakeTrading)
+    c.make_broker(mode="live")
+    assert seen["paper"] is False
+
+
+def test_test_broker_uses_stored_values(tmp_path, monkeypatch):
+    c = CredentialStore(str(tmp_path / "creds.json"))
+    c.set("KID", "SECRET", "https://paper-api.alpaca.markets")
+
+    class GoodBroker:
+        def __init__(self, *a, **k): pass
+        def get_account(self): return {"equity": 500.0}
+
+    monkeypatch.setattr("swingbot.broker.adapter.AlpacaBroker", GoodBroker)
+    res = c.test_broker("alpaca")
+    assert res["ok"] is True
