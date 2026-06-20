@@ -4,11 +4,47 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-06-19
+**Last updated:** 2026-06-20
 
 ---
 
 ## ▶ NEXT ACTION
+
+**✅ BROKER CONNECTION MANAGER — COMPLETE & LIVE (2026-06-20).** Plan
+`docs/superpowers/plans/2026-06-20-broker-connection-manager.md` executed end-to-end (11 tasks) via
+subagent-driven development — a fresh implementer subagent per task with a two-stage (spec + code
+quality) review between tasks — then a **Codex (gpt-5.5) final whole-branch review over the VM
+bridge**. Branch `core-engine` @ `256a1a7`, pushed to `origin/core-engine` (clawd = origin = VM synced).
+
+Shipped: `swingbot.broker.adapter` registry (`CredentialField` schema + `make_broker`/`make_data`/
+`test_connection`; Alpaca registered); versioned **v2 multi-broker `CredentialStore`** with transparent
+v1→v2 migration (legacy `set/status/get` preserved); adapter-backed `make_broker`/`make_data`/
+`test_broker`; supervisor **`reconnect()`** hot-swap (mirrors `set_mode` lock ordering); `MarketData`
+via `make_data()`; web endpoints `GET /api/brokers`, `PUT /api/brokers/{id}/credentials`,
+`POST /api/brokers/{id}/test`, `POST /api/brokers/active`, `POST /api/brokers/reconnect`; **autonomous
+auth** (`SWINGBOT_TOKEN` env + `GET /api/auth/bootstrap`, safe-by-default 403 unless
+`SWINGBOT_LOCAL_TRUST=1`); schema-driven **Settings → Broker connection** panel; `docker-compose.yml`
+env (`SWINGBOT_TOKEN`, `SWINGBOT_LOCAL_TRUST=1`).
+
+Review caught real defects: (a) a stale `NoCredentials` test double after the `build()`→`make_broker()`
+change (fixed `b65fd75`); (b) **Codex final review found a genuine secret-leak** — `test_connection`
+returned `str(exc)`, and an Alpaca auth error can embed the submitted `secret_key`, which
+`POST /api/brokers/{id}/test` would echo; fixed by redacting schema-marked secret values from error
+detail + regression test (`256a1a7`). Gate: **659 passed, 6 skipped**, ruff clean, frontend build green.
+
+**Live-verified on `:8000`** (container rebuilt + restarted): `GET /api/brokers` →
+`active:alpaca, configured:true` with secrets masked; `GET /api/auth/bootstrap` → `{"token":"swingbot-local"}`;
+`POST /api/brokers/reconnect` (X-Token) → `{"ok":true,"detail":"reconnected"}`; reconnect without token → 401;
+secret never present in any status/list/test response.
+
+**⚠️ NEXT ACTION (carry-forward): the stored Alpaca paper key returns 401 unauthorized.** This is a
+**pre-existing** condition (key `PKPLVRJZQKCYWE7VZ6W6OHDGFZ` invalid/rotated since ~2026-06-20, per the
+S179/S180 auth investigation), NOT introduced by this feature — it is exactly what this feature was built
+to remedy. The bot auto-start fails with `"unauthorized"` (`running_actual:false`). **Remedy:** generate a
+fresh Alpaca paper API key pair and enter it via **Settings → Broker connection → Test → Save → Reconnect**
+(the new hands-off UI); the running bot will adopt it without a manual restart. (NB: during live-verify a
+probe `PUT` briefly overwrote the stored creds; restored from backup
+`~/.swingbot/backups/swingbot-data-20260616T194951Z.tar.gz` — same real key pair, hence the same 401.)
 
 **✅ PORTFOLIO REBALANCING LAYER — COMPLETE & LIVE (2026-06-19).** Plan
 `docs/superpowers/plans/2026-06-19-portfolio-rebalancing-implementation.md` executed end-to-end
