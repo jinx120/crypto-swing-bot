@@ -109,7 +109,7 @@ class WebhookBody(BaseModel):
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
                backfiller=None, discovery=None, discovery_cache_path=None,
                brain=None, agent_dir=None, poller=None,
-               auto_dashboard=None) -> FastAPI:
+               auto_dashboard=None, local_trust: bool = False) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
         try:
@@ -138,6 +138,14 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     def require_token(x_token: str | None = Header(default=None)):
         if x_token != token:
             raise HTTPException(status_code=401, detail="bad or missing token")
+
+    @app.get("/api/auth/bootstrap")
+    def auth_bootstrap():
+        # Hands-off token delivery for a trusted single-user localhost deployment.
+        # Off by default; enabled only when the operator sets SWINGBOT_LOCAL_TRUST=1.
+        if not local_trust:
+            raise HTTPException(status_code=403, detail="bootstrap disabled")
+        return {"token": token}
 
     # ---- read ----
     @app.get("/api/state")

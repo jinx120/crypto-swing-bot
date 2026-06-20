@@ -23,6 +23,9 @@ PORT = int(os.environ.get("SWINGBOT_PORT", "8000"))
 
 
 def _ensure_token(path: str) -> str:
+    env_tok = os.environ.get("SWINGBOT_TOKEN")
+    if env_tok:
+        return env_tok.strip()
     if os.path.exists(path):
         with open(path) as f:
             return f.read().strip()
@@ -117,7 +120,8 @@ def main() -> None:
                      discovery=discovery,
                      discovery_cache_path=os.path.join(DATA_DIR, "discovery.json"),
                      brain=brain, agent_dir=os.path.join(DATA_DIR, "agent"),
-                     poller=poller, auto_dashboard=auto_dashboard)
+                     poller=poller, auto_dashboard=auto_dashboard,
+                     local_trust=os.environ.get("SWINGBOT_LOCAL_TRUST") == "1")
     brain.get_discovery = lambda: app.state.discovery
     app.state.archive_config = archive_cfg
     print(f"[swingbot-web] token: {token}")
