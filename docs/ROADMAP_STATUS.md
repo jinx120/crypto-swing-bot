@@ -10,6 +10,14 @@
 
 ## ▶ NEXT ACTION
 
+**✅ `core-engine` MERGED TO `master` (2026-06-20).** Fast-forward merge (`f37fc02 → 3a94791`, +70
+commits, no conflicts/no merge commit) — `master` was a strict ancestor of `core-engine`. Pushed to
+`origin/master` (non-force FF). This reconciled all previously-unmerged core-engine work onto `master`:
+the **Autonomous Trading Dashboard**, the **Portfolio Rebalancing Layer**, and the **Broker Connection
+Manager**. Merged code is identical to the gated `256a1a7` (+ a docs commit), so the **659 passed,
+6 skipped**, ruff-clean, frontend-build-green gate holds. `core-engine` is **kept** as the shared
+ongoing branch (Codex VM tracks it); it was not deleted. `master` = `core-engine` = `3a94791`.
+
 **✅ BROKER CONNECTION MANAGER — COMPLETE & LIVE (2026-06-20).** Plan
 `docs/superpowers/plans/2026-06-20-broker-connection-manager.md` executed end-to-end (11 tasks) via
 subagent-driven development — a fresh implementer subagent per task with a two-stage (spec + code
