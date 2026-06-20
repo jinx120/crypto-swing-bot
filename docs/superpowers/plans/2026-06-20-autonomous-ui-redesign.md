@@ -206,6 +206,7 @@ Replace the whole file with:
     "clsx": "^2.1.1",
     "lightweight-charts": "^5.2.0",
     "lucide-react": "^0.439.0",
+    "marked": "^18.0.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0",
@@ -224,7 +225,11 @@ Replace the whole file with:
   }
 }
 ```
-Note `marked` is intentionally dropped (only the cut Guide page used it).
+Note: `marked` is **retained** here. The old `App.jsx` still mounts `pages/Guide.jsx`, which does
+`import { marked } from 'marked'`, and that chain survives until Task 13 deletes `Guide.jsx`. Dropping
+`marked` now would break this task's `npm run build` gate (Step 7) with an unresolved-import error. It is
+the only manual-era dependency kept through the middle tasks and is removed in **Task 13** once its sole
+importer is gone.
 
 - [ ] **Step 2: Install**
 
@@ -1937,18 +1942,33 @@ cd frontend && grep -rEn "AutoDash|theme\.css|guide\.md|/Hint|/ControlBar|/Portf
 ```
 Expected: `CLEAN` (no remaining references to any deleted module).
 
-- [ ] **Step 3: Verify build**
+- [ ] **Step 3: Drop the now-unused `marked` dependency**
+
+`Guide.jsx` (deleted in Step 1) was the only importer of `marked` (kept through Tasks 1–12 so the old
+app kept building). Now remove it. In `frontend/package.json`, delete the line:
+```json
+    "marked": "^18.0.4",
+```
+Then refresh the lockfile:
+```bash
+cd frontend && npm install
+```
+Expected: `npm install` completes and prunes `marked` from `node_modules`.
+
+- [ ] **Step 4: Verify build**
 
 Run: `cd frontend && npm run build`
 Expected: green, smaller bundle (no `marked`, no manual pages).
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add -A frontend/src
-git commit -m "chore(ui): remove manual-era pages, components, theme.css, guide.md"
+git add frontend/package.json frontend/package-lock.json
+git commit -m "chore(ui): remove manual-era pages, components, theme.css, guide.md, marked dep"
 ```
-(`-A frontend/src` is scoped to the frontend source tree only — it stages the deletions without touching the repo's unrelated uncommitted work elsewhere.)
+(`-A frontend/src` is scoped to the frontend source tree; the explicit `package.json`/`package-lock.json`
+adds stage only the `marked` removal — none of the repo's unrelated uncommitted work elsewhere.)
 
 ---
 
