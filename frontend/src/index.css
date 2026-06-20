@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 222 24% 7%;
+  --foreground: 210 16% 92%;
+  --card: 222 22% 10%;
+  --card-foreground: 210 16% 92%;
+  --muted: 220 14% 16%;
+  --muted-foreground: 215 14% 60%;
+  --border: 220 14% 18%;
+  --input: 220 14% 18%;
+  --ring: 158 64% 42%;
+  --primary: 158 64% 42%;
+  --primary-foreground: 222 24% 7%;
+  --accent: 220 14% 16%;
+  --accent-foreground: 210 16% 92%;
+  --up: 152 62% 50%;
+  --down: 350 90% 60%;
+  --warn: 38 92% 55%;
+  --radius: 0.625rem;
+}
+
+* { border-color: hsl(var(--border)); }
+html, body, #root { height: 100%; }
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.tabular-nums { font-variant-numeric: tabular-nums; }
