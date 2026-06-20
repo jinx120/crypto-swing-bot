@@ -18,7 +18,6 @@ from swingbot import presets as presets_mod
 import swingbot.discovery as discovery_mod
 from swingbot.strategy_search import backtest_profile, search as run_strategy_search
 from swingbot.universe import fallback_universe
-from swingbot.broker.alpaca import AlpacaBroker
 from swingbot.managed_profiles import managed_meta
 from swingbot.supervisor import LifecycleError
 from swingbot.rebalance import RebalanceSettings
@@ -39,6 +38,19 @@ class CredBody(BaseModel):
     key_id: str
     secret_key: str
     base_url: str = "https://paper-api.alpaca.markets"
+
+
+class BrokerCredBody(BaseModel):
+    values: dict
+
+
+class BrokerTestBody(BaseModel):
+    values: dict | None = None
+    mode: str | None = None
+
+
+class ActiveBrokerBody(BaseModel):
+    broker_id: str
 
 
 class ModeBody(BaseModel):
@@ -264,9 +276,8 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
             return _universe_cache["symbols"]
         symbols = fallback_universe()
         try:
-            cr = creds.get() if creds is not None else None
-            if cr is not None:
-                broker = AlpacaBroker(cr.key_id, cr.secret_key, paper=True)
+            broker = creds.make_broker(mode="paper") if creds is not None else None
+            if broker is not None and hasattr(broker, "list_usd_pairs"):
                 live = broker.list_usd_pairs()
                 if live:
                     symbols = live
@@ -322,6 +333,42 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     def set_creds(body: CredBody, _=Depends(require_token)):
         creds.set(body.key_id, body.secret_key, body.base_url)
         return {"ok": True}
+
+    # ---- broker connection manager ----
+    @app.get("/api/brokers")
+    def list_brokers():
+        return creds.list_brokers()
+
+    @app.put("/api/brokers/{broker_id}/credentials")
+    def set_broker_credentials(broker_id: str, body: BrokerCredBody,
+                               _=Depends(require_token)):
+        try:
+            creds.set_broker(broker_id, body.values)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        return {"ok": True}
+
+    @app.post("/api/brokers/{broker_id}/test")
+    def test_broker(broker_id: str, body: BrokerTestBody, _=Depends(require_token)):
+        try:
+            return creds.test_broker(broker_id, body.values, body.mode)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    @app.post("/api/brokers/active")
+    def set_active_broker(body: ActiveBrokerBody, _=Depends(require_token)):
+        try:
+            creds.set_active(body.broker_id)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        return {"ok": True, "active": creds.active()}
+
+    @app.post("/api/brokers/reconnect")
+    def reconnect_broker(_=Depends(require_token)):
+        if not hasattr(controller, "reconnect"):
+            raise HTTPException(status_code=503, detail="reconnect not supported")
+        ok, detail = controller.reconnect()
+        return {"ok": ok, "detail": detail}
 
     # ---- presets / strategy build (unchanged behavior) ----
     def _require_market_ready():
