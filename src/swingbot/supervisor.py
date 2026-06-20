@@ -10,7 +10,7 @@ from uuid import uuid4
 
 import pandas as pd
 
-from swingbot.broker.alpaca import AlpacaBroker
+
 from swingbot.data.market import (
     MarketData,
     closed_bar_freshness,
@@ -258,10 +258,10 @@ class PortfolioSupervisor:
         if self.market is None:
             raise RuntimeError("market must be provided (webmain wires MarketData)")
         if self._broker is None:
-            c = self.creds.get() if self.creds else None
-            if c is None:
+            broker = self.creds.make_broker(mode=self.mode) if self.creds else None
+            if broker is None:
                 raise RuntimeError("Alpaca credentials not set")
-            self._broker = AlpacaBroker(c.key_id, c.secret_key, paper=(self.mode == "paper"))
+            self._broker = broker
 
         self._store = StateStore(self.state_db)
         # Only the risk-relevant keys belong to PortfolioSettings; other portfolio
@@ -1001,6 +1001,26 @@ class PortfolioSupervisor:
             else:
                 self.build()
             return (True, f"mode set to {mode}")
+
+    def reconnect(self) -> tuple[bool, str]:
+        """Rebuild the broker (and downstream data clients re-read creds on demand)
+        from the now-current active credentials. Preserves armed strategies and
+        running-desired; restarts the loop if it was running. Mirrors set_mode."""
+        with self._lifecycle_lock:
+            with self._state_lock:
+                was_running = self._running
+            if not self.stop():
+                return (False, "previous loop thread still alive; not reconnected")
+            with self._state_lock:
+                self._broker = None
+            try:
+                if was_running:
+                    self.start()
+                else:
+                    self.build()
+            except Exception as e:
+                return (False, f"reconnect failed: {e}")
+            return (True, "reconnected")
 
     @_state_locked
     def reload(self) -> None:
