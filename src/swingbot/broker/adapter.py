@@ -58,6 +58,12 @@ class AlpacaAdapter:
         self.validate(values)
         return AlpacaData(values["key_id"], values["secret_key"])
 
+    def _redact_secrets(self, detail: str, values: dict) -> str:
+        for f in self.fields:
+            if f.secret and values.get(f.name):
+                detail = detail.replace(str(values[f.name]), "[redacted]")
+        return detail
+
     def test_connection(self, values: dict, mode: str) -> dict:
         try:
             self.validate(values)
@@ -66,7 +72,7 @@ class AlpacaAdapter:
             acct = broker.get_account()
             return {"ok": True, "detail": f"connected; equity={acct.get('equity')}"}
         except Exception as exc:  # any SDK/credential failure -> truthful, never raises
-            return {"ok": False, "detail": str(exc)}
+            return {"ok": False, "detail": self._redact_secrets(str(exc), values)}
 
 
 BROKER_REGISTRY: dict[str, BrokerAdapter] = {"alpaca": AlpacaAdapter()}

@@ -72,3 +72,19 @@ def test_test_connection_endpoint(tmp_path, monkeypatch):
                json={"values": {"key_id": "K", "secret_key": "S"}, "mode": "paper"})
     assert r.status_code == 200
     assert r.json()["ok"] is True
+
+
+def test_test_connection_redacts_submitted_secret_from_error(tmp_path, monkeypatch):
+    c, _, _ = _client(tmp_path)
+    secret = "SENSITIVE_SECRET_123"
+
+    class LeakyBroker:
+        def __init__(self, *a, **k): pass
+        def get_account(self): raise RuntimeError(f"auth failed for {secret}")
+
+    monkeypatch.setattr("swingbot.broker.adapter.AlpacaBroker", LeakyBroker)
+    r = c.post("/api/brokers/alpaca/test", headers={"X-Token": "tok"},
+               json={"values": {"key_id": "K", "secret_key": secret}, "mode": "paper"})
+    assert r.status_code == 200
+    assert r.json()["ok"] is False
+    assert secret not in r.text
