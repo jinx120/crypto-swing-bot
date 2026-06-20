@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 
+from swingbot.broker.adapter import BROKER_REGISTRY, get_adapter
 from swingbot.config import AlpacaCredentials
 
 _DEFAULT_BROKER = "alpaca"
@@ -70,3 +71,44 @@ class CredentialStore:
         base_url = d.get("base_url", "https://paper-api.alpaca.markets")
         return AlpacaCredentials(key_id=d["key_id"], secret_key=d["secret_key"],
                                  base_url=base_url, paper="paper" in base_url)
+
+    # ---- multi-broker management ----
+    def set_active(self, broker_id: str) -> None:
+        get_adapter(broker_id)                 # raises ValueError if unknown
+        doc = self._load()
+        doc["active"] = broker_id
+        self._save(doc)
+
+    def set_broker(self, broker_id: str, values: dict) -> None:
+        adapter = get_adapter(broker_id)
+        adapter.validate(values)
+        doc = self._load()
+        stored = {f.name: values.get(f.name) for f in adapter.fields}
+        if "base_url" in values:
+            stored["base_url"] = values["base_url"]
+        doc["brokers"][broker_id] = stored
+        self._save(doc)
+
+    def broker_status(self, broker_id: str) -> dict:
+        adapter = get_adapter(broker_id)
+        stored = self._load()["brokers"].get(broker_id, {})
+        fields = {}
+        for f in adapter.fields:
+            present = bool(stored.get(f.name))
+            fields[f.name] = {"set": present,
+                              "value": (stored.get(f.name) if (present and not f.secret)
+                                        else None)}
+        configured = all(fields[f.name]["set"] for f in adapter.fields)
+        return {"broker": broker_id, "configured": configured, "fields": fields}
+
+    def list_brokers(self) -> dict:
+        brokers = []
+        for bid, adapter in BROKER_REGISTRY.items():
+            st = self.broker_status(bid)
+            brokers.append({
+                "id": bid, "label": adapter.label, "modes": list(adapter.modes),
+                "configured": st["configured"],
+                "fields": [{"name": f.name, "label": f.label,
+                            "secret": f.secret, "help": f.help} for f in adapter.fields],
+                "status": st})
+        return {"active": self.active(), "brokers": brokers}
