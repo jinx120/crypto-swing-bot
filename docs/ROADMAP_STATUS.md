@@ -16,12 +16,18 @@ Codex (gpt-5.5, VM bridge) implements code+TDD+commits+push per task; **clawd do
 per phase** (Codex has no live container). To resume mid-execution: check `origin/core-engine` HEAD + the
 Codex pane (`tmux -L codex-managed capture-pane -t codex -p`), pull, find first unchecked `- [ ]`, continue.
 
-- **✅ Phase A (Tasks 1–5, data decoupling) DONE + LIVE-VERIFIED (2026-06-21)** @ `origin/core-engine 0295a6b`.
-  Gate: 581 passed, 5 skipped, ruff clean, frontend build+test green. Live on `:8000`: `/api/data-source`=coinbase;
-  BTC/USD 15m candles populate from Coinbase with the **broker unconfigured** → the "no fresh closed bar" root
-  cause is FIXED (data fully decoupled from broker). Task 3 plan amendment `aedb527` (updated `test_market_provider.py`
-  to the alpaca path — the old tests encoded the removed coupling).
-- **▶ Phase B (Tasks 6–9, fixed-% Kronos bracket) IN PROGRESS** by Codex.
+- **✅ Phase A (Tasks 1–5, data decoupling) DONE + LIVE-VERIFIED** @ `0295a6b` (581 passed). `/api/data-source`=coinbase;
+  BTC/USD 15m candles populate from Coinbase with the **broker unconfigured** → "no fresh closed bar" root cause FIXED.
+  Task 3 plan amendment `aedb527` (updated `test_market_provider.py` to the alpaca path).
+- **✅ Phase B (Tasks 6–9, fixed-% Kronos bracket) DONE + LIVE-VERIFIED** @ `c6f9232` (590 passed). `kronos_bracket_profile`
+  deployed correct (kronos_forecast threshold_pct 0.0075, entry_threshold 1.0, bracket_mode pct, tp +1.5%/sl −1.0%).
+- **✅ Phase C (Tasks 10–13, removals) DONE + LIVE-VERIFIED** @ `cbe36d7` (496 passed). paper_probe, managed reconciler,
+  auto-discovery, per-trade brain all deleted; `/api/discovery`, `/api/brain/*`, `/api/agent/*` → 404; app healthy
+  (ready 200, 7 strategies, candles still populate).
+- **⏸ Phase D (Task 14) + Phase E (15–21 advisor) + Phase F (22–24) REMAINING.** Codex **rate-limited** (reset
+  ~07:42 account-TZ, ≈07:42 UTC from the 04:47 UTC observation). NEXT: when Codex clears, fresh session → hand off
+  Phase D+E continuously (advisor: NEVER trades; clamp-to-band; tuning journal+revert), verify, then Phase F.
+  All of A–C pushed to `origin/core-engine cbe36d7`.
 
 **⚠️ Parked work:** clawd's host working tree had a large set of unrelated uncommitted changes (token-auth/E-removal
 era: web.py, webmain.py, many tests, frontend, README, docker-compose.yml). To sync+build cleanly it is stashed at
