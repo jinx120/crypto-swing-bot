@@ -18,6 +18,7 @@ import swingbot.discovery as discovery_mod
 from swingbot.strategy_search import backtest_profile, search as run_strategy_search
 from swingbot.universe import fallback_universe
 from swingbot.managed_profiles import managed_meta
+from swingbot.kronos_preset import kronos_bracket_profile
 from swingbot.profiles import ProfileStore
 from swingbot.supervisor import LifecycleError
 from swingbot.rebalance import RebalanceSettings
@@ -77,6 +78,10 @@ class PortfolioSettingsBody(BaseModel):
 
 class WatchlistBody(BaseModel):
     symbols: list[str]
+
+
+def _kronos_profile_name(symbol: str) -> str:
+    return f"kronos-{symbol.replace('/', '-').lower()}"
 
 
 class DataSourceBody(BaseModel):
@@ -327,7 +332,18 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
 
     @app.put("/api/watchlist")
     def put_watchlist(body: WatchlistBody, _=Depends(require_token)):
+        existing = set(profiles.get_watchlist())
         profiles.set_watchlist(body.symbols)
+        created = False
+        for symbol in profiles.get_watchlist():
+            if symbol in existing:
+                continue
+            name = _kronos_profile_name(symbol)
+            profiles.save(name, kronos_bracket_profile(symbol))
+            profiles.arm(name)
+            created = True
+        if created:
+            controller.reload()
         return {"symbols": profiles.get_watchlist()}
 
     # ---- profiles CRUD ----
