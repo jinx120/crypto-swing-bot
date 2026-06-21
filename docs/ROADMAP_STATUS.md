@@ -41,18 +41,23 @@ Codex pane (`tmux -L codex-managed capture-pane -t codex -p`), pull, find first 
     idle until the next bar closes) — verified it flips to fresh + real decisions at each 15m boundary. Pre-existing
     freshness UX; not a POC bug. Optional polish: relabel it as idle, not ERROR.
 
-**▶ NEXT (remaining polish, all OPTIONAL — Kronos POC core is COMPLETE + live):**
-1. **Task 22 (cosmetic, deferred to Codex):** `frontend/src/components/RebalancePanel.jsx` still has numeric `<input type=number>`
-   fields — gut them to honor "no numeric fields" (weights auto-derive on the backend regardless). Hand to Codex when it clears.
-2. **Legacy strategies:** the live data dir still has 7 old mixed-signal strategies armed (incl. a `BTC/USDT` pair that never
-   fills). For a clean Kronos-only demo, disarm them and use **Add coin** to create `kronos_bracket` presets. Live-state change
-   — leave to a deliberate step / user.
-3. **Journal layout glitch:** decision-code/reason columns overlap in the live journal (minor frontend).
-4. **Advisor model:** confirm a quantized advisor model (gemma-4-e2b-it-qat-q4) is present for the scheduled review to act;
-   absent → advisor returns {} gracefully (no-op).
+- **✅ Task 22 (UI polish) DONE by clawd** @ `604fb9e`. `RebalancePanel` → read-only (removed manual drift/min-interval/fee/
+  target-weight inputs + Save targets; weights show equal-weight auto-derive 14.3%×7, "advisor tunes them"); `LiveJournal`
+  column overlap fixed (long codes like SIGNAL_BELOW_THRESHOLD no longer overlap the reason). Rebuilt + screenshot-verified
+  (needed `docker compose build --no-cache swingbot` — the cached frontend layer didn't pick the edits up the first time).
 
-All implementation pushed to `origin/core-engine 69ba42d` (+ this roadmap + smoke artifact). Host-local nvidia override is
-intentionally uncommitted.
+**▶ NEXT (remaining, both OPTIONAL — Kronos POC is COMPLETE + live-verified):**
+1. **Legacy strategies (live-state, user's call):** the live data dir still has 7 old mixed-signal strategies armed (incl. a
+   `BTC/USDT` pair that never fills). For a clean Kronos-only demo, disarm them and use **Add coin** to create `kronos_bracket`
+   presets. Not done — it mutates live state; leave to a deliberate step / user.
+2. **Advisor model (deployment opt-in):** the advisor uses Ollama at `localhost:11434` (in-container that won't reach host
+   Ollama — use `http://172.17.0.1:11434`) and a quantized model (gemma-4-e2b-it-qat-q4). Absent → advisor returns {}
+   gracefully (no-op, never errors, never trades). To make the scheduled review actually tune config, point it at a reachable
+   model + pull it.
+
+Notes: etag-based revalidation works (no `cache-control` header but content-based etag), so users get fresh JS on reload
+despite the stable Vite filename. All implementation pushed to `origin/core-engine 604fb9e`. Host-local nvidia override
+(GPU) intentionally uncommitted; clawd's prior unrelated work parked in `stash@{0}`.
 
 **⚠️ Parked work:** clawd's host working tree had a large set of unrelated uncommitted changes (token-auth/E-removal
 era: web.py, webmain.py, many tests, frontend, README, docker-compose.yml). To sync+build cleanly it is stashed at
