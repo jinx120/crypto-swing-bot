@@ -4,6 +4,7 @@ import { api } from '../api.js'
 import { Card, CardContent } from './ui/card.jsx'
 import { Badge } from './ui/badge.jsx'
 import { Button } from './ui/button.jsx'
+import MiniChart from './MiniChart.jsx'
 import { cn } from '../lib/utils.js'
 import { cardStatus, lastDecision } from '../lib/derive.js'
 
@@ -47,6 +48,7 @@ export default function CoinCard({ strategy, health, onChange }) {
             <div className="text-muted-foreground">—</div>
           )}
         </div>
+        {strategy.symbol && <MiniChart symbol={strategy.symbol} />}
         <div className="min-h-[2.5rem] text-xs text-muted-foreground">
           {decision ? <><b className="text-foreground">{decision.code}</b> · {decision.reason}</> : 'no recent decision'}
         </div>
