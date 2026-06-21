@@ -31,9 +31,9 @@ export default function LiveJournal({ health }) {
                 <span className="w-12 shrink-0 font-mono text-xs text-muted-foreground">
                   {(r.ts || '').slice(11, 16)}
                 </span>
-                <span className="w-24 shrink-0 font-medium">{r.strategy}</span>
-                <span className="w-16 shrink-0 font-semibold">{r.code}</span>
-                <span className="text-muted-foreground">{r.reason}</span>
+                <span className="w-24 shrink-0 truncate font-medium">{r.strategy}</span>
+                <span className="shrink-0 font-mono text-xs font-semibold">{r.code}</span>
+                <span className="min-w-0 flex-1 truncate text-muted-foreground">{r.reason}</span>
               </div>
             ))}
           </div>

@@ -7,10 +7,6 @@ const pct = (value, digits = 1) => (
     : '—'
 )
 
-const num = (value, digits = 2) => (
-  typeof value === 'number' && Number.isFinite(value) ? value.toFixed(digits) : '—'
-)
-
 export default function RebalancePanel(){
   const [status, setStatus] = useState(null)
   const [settings, setSettings] = useState(null)
@@ -52,6 +48,8 @@ export default function RebalancePanel(){
     return () => { alive = false; clearInterval(id) }
   }, [])
 
+  // Weights auto-derive (equal-weight across active coins; the advisor tunes them).
+  // This panel is read-only by design — no manual numbers to set.
   const rows = useMemo(() => {
     const allocs = status?.allocations || []
     const names = new Set([...allocs.map((a) => a.name), ...Object.keys(targets)])
@@ -67,11 +65,6 @@ export default function RebalancePanel(){
     })
   }, [status, targets])
 
-  const targetSum = Object.values(targets).reduce((sum, value) => {
-    const parsed = Number(value)
-    return sum + (Number.isFinite(parsed) ? parsed : 0)
-  }, 0)
-  const sumInvalid = targetSum > 1.0 + 1e-9
   const canRun = settings?.enabled && settings?.mode === 'hard'
 
   const patchSettings = async (patch) => {
@@ -80,24 +73,6 @@ export default function RebalancePanel(){
       const next = { ...settings, ...patch }
       setSettings(next)
       await api.setRebalanceSettings(patch)
-      setMsg('saved')
-      await load()
-    } catch (e) {
-      setErr(e.message)
-    }
-  }
-
-  const saveTargets = async () => {
-    setErr(''); setMsg('')
-    if (sumInvalid) {
-      setErr('target weights exceed 100%')
-      return
-    }
-    try {
-      const clean = Object.fromEntries(
-        Object.entries(targets).map(([name, value]) => [name, Number(value) || 0])
-      )
-      await api.setRebalanceTargets({ targets: clean })
       setMsg('saved')
       await load()
     } catch (e) {
@@ -114,11 +89,6 @@ export default function RebalancePanel(){
     } catch (e) {
       setErr(e.message)
     }
-  }
-
-  const updateTarget = (name, raw) => {
-    const next = Math.max(0, Number(raw) || 0) / 100
-    setTargets((cur) => ({ ...cur, [name]: next }))
   }
 
   return (
@@ -146,40 +116,10 @@ export default function RebalancePanel(){
                 <option value="hard">hard</option>
               </select>
             </label>
-            <label>Drift %
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                value={num((settings?.drift_threshold || 0) * 100, 1)}
-                onChange={(e) => patchSettings({
-                  drift_threshold: (Number(e.target.value) || 0) / 100,
-                })}
-              />
-            </label>
-            <label>Min interval
-              <input
-                type="number"
-                min="0"
-                step="1"
-                value={settings?.min_interval_minutes ?? 0}
-                onChange={(e) => patchSettings({
-                  min_interval_minutes: Number(e.target.value) || 0,
-                })}
-              />
-            </label>
-            <label>Fee %
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={num((settings?.fee_rate || 0) * 100, 2)}
-                onChange={(e) => patchSettings({
-                  fee_rate: (Number(e.target.value) || 0) / 100,
-                })}
-              />
-            </label>
           </div>
+          <div className="row"><span>Drift threshold</span><span>{pct(settings?.drift_threshold)}</span></div>
+          <div className="row"><span>Min interval</span><span>{settings?.min_interval_minutes ?? '—'} min</span></div>
+          <div className="row"><span>Fee rate</span><span>{pct(settings?.fee_rate, 2)}</span></div>
           <div className="row"><span>Last run</span><span>{status?.last_rebalance_at || '—'}</span></div>
           <div className="row"><span>Next eligible</span><span>{status?.next_eligible_at || '—'}</span></div>
           <div className="row"><span>Last skip</span><span>{status?.last_skip_reason || '—'}</span></div>
@@ -196,16 +136,7 @@ export default function RebalancePanel(){
                 return (
                   <tr key={row.name} className={over ? 'rebalance-over' : ''}>
                     <td>{row.name}<span className="muted-cell">{row.symbol}</span></td>
-                    <td>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        value={num(row.target * 100, 1)}
-                        onChange={(e) => updateTarget(row.name, e.target.value)}
-                      />
-                    </td>
+                    <td>{pct(row.target)}</td>
                     <td>{pct(row.actual)}</td>
                     <td className={row.drift >= 0 ? 'pos' : 'neg'}>{pct(row.drift)}</td>
                     <td><div className="drift-bar"><span style={{ width: `${Math.min(Math.abs(row.drift) * 100, 100)}%` }} /></div></td>
@@ -214,10 +145,7 @@ export default function RebalancePanel(){
               })}
             </tbody>
           </table>
-          <div className={`row ${sumInvalid ? 'neg' : ''}`}>
-            <span>Target sum</span><span>{pct(targetSum)}</span>
-          </div>
-          <button className="act" disabled={sumInvalid} onClick={saveTargets}>Save targets</button>
+          <div className="row muted-cell">Weights auto-derive (equal-weight); the advisor tunes them.</div>
         </div>
       </div>
     </div>
