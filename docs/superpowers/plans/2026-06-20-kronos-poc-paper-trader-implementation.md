@@ -228,11 +228,13 @@ git commit -m "feat(data): provider_for() factory + CcxtProvider multi shims"
 
 **Files:**
 - Modify: `src/swingbot/data/market.py`
-- Test: `tests/test_data_source.py` (append)
+- Test: `tests/test_data_source.py` (append), `tests/test_market_provider.py` (UPDATE — see note)
 
 **Interfaces:**
 - Consumes: `provider_for`.
 - Produces: `MarketData(store, creds, data_source="coinbase", default_lookback=500)`; `_provider()` returns `provider_for(self.data_source, self.creds)`. With `data_source="coinbase"` and `creds=None`, `_provider()` is non-None.
+
+> **Plan amendment (2026-06-21, blocker resolved):** The 3 existing tests in `tests/test_market_provider.py` (`test_provider_delegates_to_make_data`, `test_provider_none_when_unconfigured`, `test_provider_none_when_no_creds`) encode the OLD broker-coupling this task intentionally removes. Update them to make the Alpaca path explicit — pass `data_source="alpaca"` to each `MarketData(...)` so the make_data delegation / None-without-creds behavior is asserted on the alpaca source. The new coinbase-default-with-no-creds case is already covered by this task's `test_marketdata_provider_decoupled_from_broker`. Do NOT preserve the old default behavior — decoupling is the point.
 
 - [ ] **Step 1: Write the failing test** (append)
 
