@@ -46,11 +46,16 @@ Codex pane (`tmux -L codex-managed capture-pane -t codex -p`), pull, find first 
   column overlap fixed (long codes like SIGNAL_BELOW_THRESHOLD no longer overlap the reason). Rebuilt + screenshot-verified
   (needed `docker compose build --no-cache swingbot` — the cached frontend layer didn't pick the edits up the first time).
 
-**▶ NEXT (remaining, both OPTIONAL — Kronos POC is COMPLETE + live-verified):**
-1. **Legacy strategies (live-state, user's call):** the live data dir still has 7 old mixed-signal strategies armed (incl. a
-   `BTC/USDT` pair that never fills). For a clean Kronos-only demo, disarm them and use **Add coin** to create `kronos_bracket`
-   presets. Not done — it mutates live state; leave to a deliberate step / user.
-2. **Advisor model (deployment opt-in):** the advisor uses Ollama at `localhost:11434` (in-container that won't reach host
+- **✅ Legacy cleanup DONE (2026-06-21, user-authorized live-state change).** Deleted all 7 legacy mixed-signal profiles
+  (aggressive, ai_kronos, btc_trend, conservative, conservative/ai, eth_trend, ict_fvg) via `ProfileStore.delete`; cleared the
+  stale watchlist; cleared orphan pending orders (`paper_probe`, `ict_fvg`) + positions via `StateStore`; deleted their
+  telemetry/trade rows (`cycle_records` 1486→6, only kronos rows kept) so the live journal no longer ghosts them. Then created
+  **kronos-btc-usd (BTC/USD)** + **kronos-eth-usd (ETH/USD)** via `PUT /api/watchlist` (Kronos-bracket preset, controller
+  reloaded). Live now: exactly 2 Kronos strategies armed, 0 pending, journal shows only them. The bot is now a clean
+  Kronos-only autonomous paper trader matching the new design.
+
+**▶ NEXT (OPTIONAL — Kronos POC is COMPLETE + live-verified):**
+1. **Advisor model (deployment opt-in):** the advisor uses Ollama at `localhost:11434` (in-container that won't reach host
    Ollama — use `http://172.17.0.1:11434`) and a quantized model (gemma-4-e2b-it-qat-q4). Absent → advisor returns {}
    gracefully (no-op, never errors, never trades). To make the scheduled review actually tune config, point it at a reachable
    model + pull it.
