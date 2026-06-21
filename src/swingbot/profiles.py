@@ -77,6 +77,7 @@ class ProfileStore:
         self._conn.commit()
 
     _DATA_SOURCES = ("coinbase", "kraken", "alpaca")
+    _RISK_DIALS = ("cautious", "balanced", "aggressive")
 
     def get_data_source(self) -> str:
         return self.get_meta("data_source") or "coinbase"
@@ -85,6 +86,14 @@ class ProfileStore:
         if name not in self._DATA_SOURCES:
             raise ValueError(f"unknown data_source {name!r}")
         self.set_meta("data_source", name)
+
+    def get_risk_dial(self) -> str:
+        return self.get_meta("risk_dial") or "balanced"
+
+    def set_risk_dial(self, name: str) -> None:
+        if name not in self._RISK_DIALS:
+            raise ValueError(f"unknown risk_dial {name!r}")
+        self.set_meta("risk_dial", name)
 
     # --- armed set + per-strategy live-eligible flag ---
     def arm(self, name: str) -> None:

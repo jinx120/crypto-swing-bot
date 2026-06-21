@@ -6,6 +6,7 @@ import secrets
 import uvicorn
 
 from swingbot.credentials import CredentialStore
+from swingbot.advisor.journal import TuningJournal
 from swingbot.data.backfill import ArchiveConfig, Backfiller
 from swingbot.data.ccxt_provider import CcxtProvider
 from swingbot.data.market import MarketData
@@ -48,6 +49,7 @@ def main() -> None:
     backfiller = Backfiller(store, provider=archive_provider)
     market = MarketData(store, creds, data_source=profiles.get_data_source())
     runtime_state = RuntimeStateStore(os.path.join(DATA_DIR, "swingbot.db"))
+    advisor_journal = TuningJournal(os.path.join(DATA_DIR, "advisor_tuning.db"))
 
     supervisor = PortfolioSupervisor(
         profiles=profiles, creds=creds,
@@ -66,7 +68,8 @@ def main() -> None:
 
     app = create_app(controller=supervisor, profiles=profiles, creds=creds,
                      token=token, store=store, market=market, backfiller=backfiller,
-                     poller=poller, auto_dashboard=auto_dashboard,
+                     poller=poller, advisor_journal=advisor_journal,
+                     auto_dashboard=auto_dashboard,
                      local_trust=os.environ.get("SWINGBOT_LOCAL_TRUST") == "1")
     app.state.archive_config = archive_cfg
     print(f"[swingbot-web] token: {token}")

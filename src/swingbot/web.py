@@ -77,8 +77,16 @@ class DataSourceBody(BaseModel):
     data_source: str
 
 
+class RiskDialBody(BaseModel):
+    risk_dial: str
+
+
+class AdvisorRevertBody(BaseModel):
+    batch_id: str
+
+
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
-               backfiller=None, poller=None,
+               backfiller=None, poller=None, advisor_journal=None,
                auto_dashboard=None, local_trust: bool = False) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
@@ -262,6 +270,61 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
             market.data_source = body.data_source
         controller.reload()
         return {"ok": True, "data_source": body.data_source}
+
+    # ---- advisor / risk dial ----
+    @app.get("/api/risk-dial")
+    def get_risk_dial():
+        return {"risk_dial": profiles.get_risk_dial()}
+
+    @app.put("/api/risk-dial")
+    def put_risk_dial(body: RiskDialBody, _=Depends(require_token)):
+        try:
+            profiles.set_risk_dial(body.risk_dial)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        return {"ok": True, "risk_dial": profiles.get_risk_dial()}
+
+    def _advisor_entries():
+        return advisor_journal.list_entries() if advisor_journal is not None else []
+
+    @app.get("/api/advisor/notes")
+    def advisor_notes():
+        return [row for row in _advisor_entries() if row.get("rationale")]
+
+    @app.get("/api/advisor/journal")
+    def advisor_journal_rows():
+        return _advisor_entries()
+
+    def _apply_inverse_changes(changes: list[dict]) -> None:
+        dirty = False
+        for change in changes:
+            symbol = change["symbol"]
+            for name in profiles.list():
+                profile = profiles.get(name) or {}
+                if profile.get("symbol") != symbol:
+                    continue
+                profile[change["param"]] = change["value"]
+                profiles.save(name, profile)
+                dirty = True
+                break
+        if dirty:
+            controller.reload()
+
+    @app.post("/api/advisor/revert")
+    def advisor_revert(body: AdvisorRevertBody, _=Depends(require_token)):
+        if advisor_journal is None:
+            raise HTTPException(status_code=503, detail="advisor journal is not configured")
+        changes = advisor_journal.revert(body.batch_id)
+        _apply_inverse_changes(changes)
+        return {"ok": True, "changes": changes}
+
+    @app.post("/api/advisor/revert-all")
+    def advisor_revert_all(_=Depends(require_token)):
+        if advisor_journal is None:
+            raise HTTPException(status_code=503, detail="advisor journal is not configured")
+        changes = advisor_journal.revert_all()
+        _apply_inverse_changes(changes)
+        return {"ok": True, "changes": changes}
 
     # ---- universe / watchlist ----
     _universe_cache: dict = {}

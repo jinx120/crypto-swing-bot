@@ -59,3 +59,12 @@ def test_rebalance_targets_reject_sum_over_one(tmp_path):
     s = ProfileStore(str(tmp_path / "p.db"))
     with pytest.raises(ValueError):
         s.set_rebalance_targets({"a": 0.7, "b": 0.5})
+
+
+def test_risk_dial_defaults_and_validates(tmp_path):
+    s = ProfileStore(str(tmp_path / "p.db"))
+    assert s.get_risk_dial() == "balanced"
+    s.set_risk_dial("cautious")
+    assert s.get_risk_dial() == "cautious"
+    with pytest.raises(ValueError):
+        s.set_risk_dial("wild")
