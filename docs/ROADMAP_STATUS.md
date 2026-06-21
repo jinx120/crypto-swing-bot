@@ -10,14 +10,20 @@
 
 ## ▶ NEXT ACTION
 
-**▶ PLAN → write the implementation plan: "Kronos POC Paper Trader".** The spec is **WRITTEN, self-reviewed,
-and committed** (2026-06-20): `docs/superpowers/specs/2026-06-20-kronos-poc-paper-trader-design.md`
-(commit `718a4aa`; decisions brief committed `a926157`). **Awaiting user review of the spec.** Once the
-user approves the spec, load `superpowers:writing-plans`, read the spec, and write the full TDD
-implementation plan to **`docs/superpowers/plans/2026-06-20-kronos-poc-paper-trader-implementation.md`**
-(self-contained for a cold Codex agent — include the "Context for a cold code-gen agent" preamble per the
-house pattern). If the user requests spec changes first, edit the spec, re-run the spec self-review, then
-proceed to the plan. Do **NOT** re-ask the settled forks (they live in the DECISIONS brief).
+**▶ EXECUTE → implement the plan: "Kronos POC Paper Trader".** Spec **+ plan both WRITTEN, self-reviewed,
+committed** (2026-06-20). Plan: **`docs/superpowers/plans/2026-06-20-kronos-poc-paper-trader-implementation.md`**
+(24 tasks across 6 phases A–F, TDD, self-contained for a cold Codex agent). Spec:
+`docs/superpowers/specs/2026-06-20-kronos-poc-paper-trader-design.md`. **Awaiting user choice of execution
+mode (subagent-driven vs inline vs Codex VM bridge).** To resume: load `superpowers:executing-plans` (or
+`superpowers:subagent-driven-development`), find the first unchecked `- [ ]` task, execute → tick → commit,
+and continue without pausing (standing authorization). Docker rebuild after each code change.
+
+**Key implementation reframe baked into the plan (transparent, reversible):** "KronosBracketStrategy" is
+realized via the **existing** `KronosForecastSignal` (which already computes `pct_change/threshold_pct`) +
+a **profile preset** (Task 8) + a **new fixed-% bracket** (Tasks 6–7), all running through the existing
+`Orchestrator` (broker-confirmed fills/reconcile from phases 3–6) — NOT a new standalone class. This
+reuses what the DECISIONS brief said to KEEP and avoids re-implementing the fill safety net. Phase A
+(data decoupling, Tasks 1–5) is the demoable core and ships first.
 
 **One-line product summary:** a hands-off autonomous **paper** trader on the principle *"it does what I
 don't need to know how to do"* — selectable data feed (Coinbase default, decoupled from the broker) →
