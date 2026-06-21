@@ -24,10 +24,35 @@ Codex pane (`tmux -L codex-managed capture-pane -t codex -p`), pull, find first 
 - **✅ Phase C (Tasks 10–13, removals) DONE + LIVE-VERIFIED** @ `cbe36d7` (496 passed). paper_probe, managed reconciler,
   auto-discovery, per-trade brain all deleted; `/api/discovery`, `/api/brain/*`, `/api/agent/*` → 404; app healthy
   (ready 200, 7 strategies, candles still populate).
-- **⏸ Phase D (Task 14) + Phase E (15–21 advisor) + Phase F (22–24) REMAINING.** Codex **rate-limited** (reset
-  ~07:42 account-TZ, ≈07:42 UTC from the 04:47 UTC observation). NEXT: when Codex clears, fresh session → hand off
-  Phase D+E continuously (advisor: NEVER trades; clamp-to-band; tuning journal+revert), verify, then Phase F.
-  All of A–C pushed to `origin/core-engine cbe36d7`.
+- **✅ Phase D (Task 14, rebalance defaults) DONE + LIVE-VERIFIED** @ `2cba40b`. `/api/rebalance/settings`=enabled/hard;
+  `equal_weight_targets` auto-derive.
+- **✅ Phase E (Tasks 15–21, LLM advisor) DONE + LIVE-VERIFIED** @ `69ba42d` (516 passed). `swingbot/advisor/`
+  (digest·schema·bands·journal·client·service); `/api/advisor/notes|journal`, `/api/risk-dial` all 200 (risk-dial=balanced);
+  out-of-band clamp works; **advisor never trades** (service test asserts no broker submit_*).
+- **✅ Phase F (Tasks 22–24) DONE by clawd** (Codex rate-limited again until 12:50; remaining was light, so clawd finished):
+  - **Task 23 nvidia runtime ENABLED** — host docker NOW has the `nvidia` runtime + RTX 3050 (prior "no nvidia" note is
+    stale). Host-local `docker-compose.override.yml` switched `runc→nvidia` (backup `/tmp/override.runc.bak`);
+    in-container `nvidia-smi`=RTX 3050 8GB, `torch.cuda.is_available()=True` → **Kronos runs on GPU** (no more CPU/HOLD).
+  - **Task 24 gate GREEN** on `69ba42d`: pytest 516 passed/5 skipped, ruff clean, frontend build green, 12/12 vitest.
+  - **Task 24 live smoke PASS** (`docs/kronos-poc-smoke.png`): with broker unconfigured, `/api/data-source`=coinbase,
+    Coinbase 15m candles fresh, **decision loop produces real decisions at each 15m close** (SIGNAL_BELOW_THRESHOLD/HOLD +
+    one ORDER_PENDING on bar 08:45); advisor notes panel + rebalance-hard render; removed routes 404.
+  - **NOTE on "no fresh closed bar":** that ERROR is the *normal between-bars idle* (latest closed bar + 120s grace, then
+    idle until the next bar closes) — verified it flips to fresh + real decisions at each 15m boundary. Pre-existing
+    freshness UX; not a POC bug. Optional polish: relabel it as idle, not ERROR.
+
+**▶ NEXT (remaining polish, all OPTIONAL — Kronos POC core is COMPLETE + live):**
+1. **Task 22 (cosmetic, deferred to Codex):** `frontend/src/components/RebalancePanel.jsx` still has numeric `<input type=number>`
+   fields — gut them to honor "no numeric fields" (weights auto-derive on the backend regardless). Hand to Codex when it clears.
+2. **Legacy strategies:** the live data dir still has 7 old mixed-signal strategies armed (incl. a `BTC/USDT` pair that never
+   fills). For a clean Kronos-only demo, disarm them and use **Add coin** to create `kronos_bracket` presets. Live-state change
+   — leave to a deliberate step / user.
+3. **Journal layout glitch:** decision-code/reason columns overlap in the live journal (minor frontend).
+4. **Advisor model:** confirm a quantized advisor model (gemma-4-e2b-it-qat-q4) is present for the scheduled review to act;
+   absent → advisor returns {} gracefully (no-op).
+
+All implementation pushed to `origin/core-engine 69ba42d` (+ this roadmap + smoke artifact). Host-local nvidia override is
+intentionally uncommitted.
 
 **⚠️ Parked work:** clawd's host working tree had a large set of unrelated uncommitted changes (token-auth/E-removal
 era: web.py, webmain.py, many tests, frontend, README, docker-compose.yml). To sync+build cleanly it is stashed at
