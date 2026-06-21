@@ -51,3 +51,14 @@ def test_ccxt_get_candles_multi_loops_per_symbol():
     p = FakeCcxt(exchange_id="coinbase", quote_map={})
     out = p.get_candles_multi(["BTC/USD", "ETH/USD"], "15m", 10)
     assert out == {"BTC/USD": "BTC/USD:15m:10", "ETH/USD": "ETH/USD:15m:10"}
+
+
+def test_marketdata_provider_decoupled_from_broker(tmp_path):
+    from swingbot.data.market import MarketData
+    from swingbot.data.store import CandleStore
+
+    store = CandleStore(str(tmp_path / "candles.db"))
+    md = MarketData(store, creds=None, data_source="coinbase")
+    prov = md._provider()
+    assert isinstance(prov, CcxtProvider)
+    assert prov.exchange_id == "coinbase"

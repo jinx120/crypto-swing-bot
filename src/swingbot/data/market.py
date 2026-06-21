@@ -66,15 +66,16 @@ class MarketData:
     background poller only keeps the active strategy's timeframe continuously warm.
     """
 
-    def __init__(self, store: CandleStore, creds, default_lookback: int = 500):
+    def __init__(self, store: CandleStore, creds, data_source: str = "coinbase",
+                 default_lookback: int = 500):
         self.store = store
         self.creds = creds
+        self.data_source = data_source
         self.default_lookback = default_lookback
 
     def _provider(self):
-        if not self.creds:
-            return None
-        return self.creds.make_data()
+        from swingbot.data.provider_factory import provider_for
+        return provider_for(self.data_source, self.creds)
 
     def refresh(self, symbol: str, timeframe: str, lookback: int | None = None) -> int:
         """Force a live fetch from Alpaca and upsert into the store."""

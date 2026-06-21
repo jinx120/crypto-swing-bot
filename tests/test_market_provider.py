@@ -16,17 +16,17 @@ class _Creds:
 def test_provider_delegates_to_make_data():
     sentinel = object()
     creds = _Creds(sentinel)
-    md = MarketData(_Store(), creds)
+    md = MarketData(_Store(), creds, data_source="alpaca")
     assert md._provider() is sentinel
     assert creds.calls == 1
 
 
 def test_provider_none_when_unconfigured():
     creds = _Creds(None)
-    md = MarketData(_Store(), creds)
+    md = MarketData(_Store(), creds, data_source="alpaca")
     assert md._provider() is None
 
 
 def test_provider_none_when_no_creds():
-    md = MarketData(_Store(), None)
+    md = MarketData(_Store(), None, data_source="alpaca")
     assert md._provider() is None
