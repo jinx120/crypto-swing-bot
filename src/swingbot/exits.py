@@ -14,6 +14,13 @@ def bracket_levels(
     return stop, take_profit
 
 
+def pct_bracket_levels(entry_price: float, tp_pct: float, sl_pct: float) -> tuple[float, float]:
+    """Return (stop_price, take_profit_price) as fixed percentages off entry."""
+    stop = entry_price * (1.0 - sl_pct)
+    take_profit = entry_price * (1.0 + tp_pct)
+    return stop, take_profit
+
+
 def exit_decision(
     stop: float, tp: float, max_hold_until: datetime | None,
     high: float, low: float, close: float, now: datetime,

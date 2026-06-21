@@ -24,6 +24,9 @@ class StrategyProfile:
     atr_period: int = 14
     stop_atr_mult: float = 1.5
     take_profit_atr_mult: float = 2.0
+    bracket_mode: str = "atr"
+    tp_pct: float = 0.015
+    sl_pct: float = 0.01
     max_hold_bars: int = 32          # 8 hours at 15m
 
     # sizing / risk
