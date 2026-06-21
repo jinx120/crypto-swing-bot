@@ -10,13 +10,23 @@
 
 ## ▶ NEXT ACTION
 
-**▶ EXECUTE → implement the plan: "Kronos POC Paper Trader".** Spec **+ plan both WRITTEN, self-reviewed,
-committed** (2026-06-20). Plan: **`docs/superpowers/plans/2026-06-20-kronos-poc-paper-trader-implementation.md`**
-(24 tasks across 6 phases A–F, TDD, self-contained for a cold Codex agent). Spec:
-`docs/superpowers/specs/2026-06-20-kronos-poc-paper-trader-design.md`. **Awaiting user choice of execution
-mode (subagent-driven vs inline vs Codex VM bridge).** To resume: load `superpowers:executing-plans` (or
-`superpowers:subagent-driven-development`), find the first unchecked `- [ ]` task, execute → tick → commit,
-and continue without pausing (standing authorization). Docker rebuild after each code change.
+**▶ EXECUTE (in progress, via Codex VM bridge) — "Kronos POC Paper Trader".** Plan:
+**`docs/superpowers/plans/2026-06-20-kronos-poc-paper-trader-implementation.md`** (24 tasks, 6 phases A–F).
+Codex (gpt-5.5, VM bridge) implements code+TDD+commits+push per task; **clawd docker-rebuilds + live-verifies
+per phase** (Codex has no live container). To resume mid-execution: check `origin/core-engine` HEAD + the
+Codex pane (`tmux -L codex-managed capture-pane -t codex -p`), pull, find first unchecked `- [ ]`, continue.
+
+- **✅ Phase A (Tasks 1–5, data decoupling) DONE + LIVE-VERIFIED (2026-06-21)** @ `origin/core-engine 0295a6b`.
+  Gate: 581 passed, 5 skipped, ruff clean, frontend build+test green. Live on `:8000`: `/api/data-source`=coinbase;
+  BTC/USD 15m candles populate from Coinbase with the **broker unconfigured** → the "no fresh closed bar" root
+  cause is FIXED (data fully decoupled from broker). Task 3 plan amendment `aedb527` (updated `test_market_provider.py`
+  to the alpaca path — the old tests encoded the removed coupling).
+- **▶ Phase B (Tasks 6–9, fixed-% Kronos bracket) IN PROGRESS** by Codex.
+
+**⚠️ Parked work:** clawd's host working tree had a large set of unrelated uncommitted changes (token-auth/E-removal
+era: web.py, webmain.py, many tests, frontend, README, docker-compose.yml). To sync+build cleanly it is stashed at
+**`stash@{0}` ("clawd-temp-pull")** with a clean tree at `0295a6b`. Restore later with `git stash pop` (it conflicts
+with Phase A's `frontend/src/api.js` — resolve that one file) or drop if obsolete. **Do not lose it.**
 
 **Key implementation reframe baked into the plan (transparent, reversible):** "KronosBracketStrategy" is
 realized via the **existing** `KronosForecastSignal` (which already computes `pct_change/threshold_pct`) +
