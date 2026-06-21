@@ -76,6 +76,28 @@ def test_reload_waits_for_inflight_tick(tmp_path):
     assert reload_finished.is_set()
 
 
+def test_advisor_hook_runs_on_interval_without_blocking(tmp_path):
+    class Advisor:
+        def __init__(self):
+            self.calls = 0
+
+        def run_review(self):
+            self.calls += 1
+
+    advisor = Advisor()
+    sup = _supervisor(tmp_path)
+    sup._advisor = advisor
+    sup._advisor_interval_ticks = 1
+    sup._maybe_run_advisor()
+
+    for _ in range(50):
+        if advisor.calls:
+            break
+        time.sleep(0.02)
+
+    assert advisor.calls == 1
+
+
 def test_stop_interrupts_loop_sleep_and_is_idempotent(tmp_path):
     sup = _supervisor(tmp_path)
     ticked = threading.Event()

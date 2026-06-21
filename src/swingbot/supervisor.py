@@ -128,7 +128,7 @@ class PortfolioSupervisor:
 
     def __init__(self, profiles: ProfileStore, creds, state_db: str,
                  market: MarketData | None = None, broker=None, mode: str = "paper",
-                 runtime_state=None):
+                 runtime_state=None, advisor=None, advisor_interval_ticks: int = 0):
         self.profiles = profiles
         self.creds = creds
         self.state_db = state_db
@@ -152,6 +152,11 @@ class PortfolioSupervisor:
         self._trade_store = TradeStore(state_db)
         self._provider: CachedProvider | None = None
         self._summary: dict = {}
+        self._advisor = advisor
+        self._advisor_interval_ticks = max(0, int(advisor_interval_ticks or 0))
+        self._advisor_tick_count = 0
+        self._advisor_running = False
+        self._advisor_last_error: str = ""
         # Lock order: lifecycle -> state. Never acquire lifecycle while holding state.
         self._lifecycle_lock = threading.RLock()
         self._state_lock = threading.RLock()
@@ -475,8 +480,30 @@ class PortfolioSupervisor:
             s["snapshot"] = self._snapshot(s["profile"])
         if acct is not None and self._rebalance_settings.enabled:
             self._run_rebalance(now, acct)
+        self._maybe_run_advisor()
         if acct is not None:
             self._summary = self._build_summary(acct)
+
+    def _maybe_run_advisor(self) -> None:
+        if self._advisor is None or self._advisor_interval_ticks <= 0:
+            return
+        self._advisor_tick_count += 1
+        if self._advisor_tick_count % self._advisor_interval_ticks:
+            return
+        if self._advisor_running:
+            return
+
+        def job():
+            try:
+                self._advisor.run_review()
+                self._advisor_last_error = ""
+            except Exception as exc:
+                self._advisor_last_error = str(exc)
+            finally:
+                self._advisor_running = False
+
+        self._advisor_running = True
+        threading.Thread(target=job, name="swingbot-advisor", daemon=True).start()
 
     def _run_rebalance(self, now: datetime, acct: dict):
         if self._portfolio_risk.state.kill_switch_active:
