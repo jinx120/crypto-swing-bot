@@ -17,7 +17,6 @@ from swingbot import presets as presets_mod
 import swingbot.discovery as discovery_mod
 from swingbot.strategy_search import backtest_profile, search as run_strategy_search
 from swingbot.universe import fallback_universe
-from swingbot.managed_profiles import managed_meta
 from swingbot.kronos_preset import kronos_bracket_profile
 from swingbot.profiles import ProfileStore
 from swingbot.supervisor import LifecycleError
@@ -206,10 +205,8 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         out = []
         for name in profiles.list():
             p = profiles.get(name) or {}
-            meta = managed_meta(name)
             out.append({"name": name, "symbol": p.get("symbol"),
-                        "armed": name in flags, "live_eligible": flags.get(name, False),
-                        "kind": meta["kind"], "label": meta["label"]})
+                        "armed": name in flags, "live_eligible": flags.get(name, False)})
         return out
 
     @app.post("/api/strategies/arm")

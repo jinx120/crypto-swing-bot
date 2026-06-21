@@ -19,7 +19,6 @@ from swingbot.data.market import (
 )
 from swingbot.graduation import can_go_live
 from swingbot.journal import TradeJournal
-from swingbot.managed_profiles import managed_meta
 from swingbot.metrics import compute_metrics
 from swingbot.orchestrator import Orchestrator
 from swingbot.portfolio_risk import PortfolioDecision, PortfolioRiskManager, PortfolioSettings
@@ -124,14 +123,13 @@ class PortfolioSupervisor:
 
     def __init__(self, profiles: ProfileStore, creds, state_db: str,
                  market: MarketData | None = None, broker=None, mode: str = "paper",
-                 runtime_state=None, reconcile=None):
+                 runtime_state=None):
         self.profiles = profiles
         self.creds = creds
         self.state_db = state_db
         self.market = market
         self.mode = mode
         self.runtime_state = runtime_state    # durable running_desired flag (may be None)
-        self._reconcile = reconcile
         self.startup_error: str | None = None  # most recent auto-start outcome
         self._broker = broker
         self.paused = False
@@ -251,8 +249,6 @@ class PortfolioSupervisor:
     # ---- construction ----
     @_state_locked
     def build(self) -> None:
-        if self._reconcile is not None:
-            self._reconcile()
         if self.market is None:
             raise RuntimeError("market must be provided (webmain wires MarketData)")
         if self._broker is None:
@@ -760,12 +756,10 @@ class PortfolioSupervisor:
                         if mark_price is not None else None
                     )
                 rs = s["orch"].risk.state
-                meta = managed_meta(name)
                 strategies.append({
                     "name": name, "symbol": s["profile"].symbol,
                     "running": self._running,
                     "live_eligible": self.profiles.is_live_eligible(name),
-                    "kind": meta["kind"], "label": meta["label"],
                     "snapshot": s["snapshot"],
                     "position": pos_dict,
                     "risk": {"kill_switch": {"active": rs.kill_switch_active,
@@ -778,12 +772,10 @@ class PortfolioSupervisor:
                 name = f["name"]
                 pdict = self.profiles.get(name)
                 symbol = (pdict or {}).get("symbol", "")
-                meta = managed_meta(name)
                 strategies.append({
                     "name": name, "symbol": symbol,
                     "running": False,
                     "live_eligible": f["live_eligible"],
-                    "kind": meta["kind"], "label": meta["label"],
                     "snapshot": {}, "position": None, "risk": None,
                 })
         pending = []

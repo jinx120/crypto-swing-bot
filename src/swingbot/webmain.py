@@ -50,19 +50,10 @@ def main() -> None:
     market = MarketData(store, creds, data_source=profiles.get_data_source())
     runtime_state = RuntimeStateStore(os.path.join(DATA_DIR, "swingbot.db"))
 
-    from swingbot.managed_profiles import reconcile_managed_profiles
-    backup_dir = os.path.join(DATA_DIR, "backups")
-
-    def _reconcile_managed():
-        reconcile_managed_profiles(
-            profiles, enable_probe=False, mode="paper", backup_dir=backup_dir
-        )
-
     supervisor = PortfolioSupervisor(
         profiles=profiles, creds=creds,
         state_db=os.path.join(DATA_DIR, "swingbot.db"), market=market,
-        runtime_state=runtime_state,
-        reconcile=_reconcile_managed)
+        runtime_state=runtime_state)
     poller = CandlePoller(market, profiles)        # lifespan owns start/stop
     discovery = DiscoveryEngine(market)
 

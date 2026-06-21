@@ -70,7 +70,7 @@ def test_backtest_single_profile():
     assert "n_trades" in r.json()["metrics"]
 
 
-def test_strategies_carry_kind_and_label():
+def test_strategies_list_generic_fields():
     class FakeProfiles:
         def list(self):
             return ["btc_trend", "my_custom"]
@@ -91,9 +91,8 @@ def test_strategies_carry_kind_and_label():
         store=None, market=FakeMarket(),
     )
     rows = {r["name"]: r for r in TestClient(app).get("/api/strategies").json()}
-    assert rows["btc_trend"]["kind"] == "strategy"
-    assert rows["btc_trend"]["label"] == "BTC Trend (EMA)"
-    assert rows["my_custom"]["kind"] == "user"
-    assert rows["my_custom"]["label"] == "my_custom"
+    assert rows["btc_trend"]["symbol"] == "BTC/USD"
     assert rows["btc_trend"]["armed"] is True
+    assert rows["btc_trend"]["live_eligible"] is True
+    assert rows["my_custom"]["symbol"] == "ETH/USD"
     assert rows["my_custom"]["armed"] is False
