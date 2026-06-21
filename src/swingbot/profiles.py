@@ -136,13 +136,6 @@ class ProfileStore:
         "max_total_deployed_frac": 0.80,
         "portfolio_daily_loss_limit_pct": 0.08,
         "default_symbol": "",
-        # --- decision brain config ---
-        "brain_model": "qwen3.5:9b",
-        "brain_ollama_url": "http://172.17.0.1:11434",
-        "brain_confidence_threshold": 0.7,
-        "brain_timeout_s": 30,
-        "brain_autonomous_mode": False,
-        "brain_auto_recommend": False,
     }
 
     def get_portfolio_settings(self) -> dict:
@@ -196,15 +189,4 @@ class ProfileStore:
         self._conn.execute(
             "INSERT OR REPLACE INTO meta (key, value) VALUES ('watchlist', ?)",
             (json.dumps(clean),))
-        self._conn.commit()
-
-    def get_discord_webhook(self) -> str | None:
-        row = self._conn.execute(
-            "SELECT value FROM meta WHERE key='discord_webhook'").fetchone()
-        return row[0] if row and row[0] else None
-
-    def set_discord_webhook(self, url: str) -> None:
-        self._conn.execute(
-            "INSERT OR REPLACE INTO meta (key, value) VALUES ('discord_webhook', ?)",
-            (url or "",))
         self._conn.commit()

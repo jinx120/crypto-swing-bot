@@ -30,7 +30,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-markers = ["integration: opt-in tests that require a live :8000 instance and real Ollama"]
+markers = ["integration: opt-in tests that require a live :8000 instance"]
 
 [tool.ruff]
 line-length = 100

@@ -87,14 +87,6 @@ export const api = {
   universe: () => req('GET', '/api/universe'),
   watchlist: () => req('GET', '/api/watchlist'),
   setWatchlist: (symbols) => req('PUT', '/api/watchlist', { symbols }),
-  // --- decision brain ---
-  brainProposals: () => req('GET', '/api/brain/proposals'),
-  brainIssues: () => req('GET', '/api/brain/issues'),
-  brainRecommend: () => req('POST', '/api/brain/recommend'),
-  brainApply: (id) => req('POST', `/api/brain/proposals/${encodeURIComponent(id)}/apply`),
-  brainDismiss: (id) => req('POST', `/api/brain/proposals/${encodeURIComponent(id)}/dismiss`),
-  brainWebhookStatus: () => req('GET', '/api/brain/webhook'),
-  setBrainWebhook: (url) => req('PUT', '/api/brain/webhook', { url }),
   auto: {
     backtestEma: () => req('GET', '/api/backtest/ema'),
     backtestKronos: () => req('GET', '/api/backtest/kronos'),

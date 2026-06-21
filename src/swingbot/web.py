@@ -63,12 +63,6 @@ class PortfolioSettingsBody(BaseModel):
     max_total_deployed_frac: float | None = None
     portfolio_daily_loss_limit_pct: float | None = None
     default_symbol: str | None = None
-    brain_model: str | None = None
-    brain_ollama_url: str | None = None
-    brain_confidence_threshold: float | None = None
-    brain_timeout_s: int | None = None
-    brain_autonomous_mode: bool | None = None
-    brain_auto_recommend: bool | None = None
 
 
 class WatchlistBody(BaseModel):
@@ -83,12 +77,8 @@ class DataSourceBody(BaseModel):
     data_source: str
 
 
-class WebhookBody(BaseModel):
-    url: str
-
-
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
-               backfiller=None, brain=None, poller=None,
+               backfiller=None, poller=None,
                auto_dashboard=None, local_trust: bool = False) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
@@ -452,56 +442,6 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     @app.post("/api/control/{name}/flatten")
     def control_flatten_one(name: str, _=Depends(require_token)):
         controller.flatten(name); return {"ok": True}
-
-    # ---- decision brain ----
-    def _require_brain():
-        if brain is None:
-            raise HTTPException(status_code=503, detail="decision brain is not configured")
-
-    @app.post("/api/brain/recommend")
-    def brain_recommend(_=Depends(require_token)):
-        _require_brain()
-        threading.Thread(target=lambda: brain.recommend(source="manual"),
-                         daemon=True).start()
-        return {"started": True}
-
-    @app.get("/api/brain/proposals")
-    def brain_proposals():
-        if brain is None:
-            return []
-        from dataclasses import asdict
-        return [asdict(p) for p in brain.proposals.all()]
-
-    @app.post("/api/brain/proposals/{pid}/apply")
-    def brain_apply(pid: str, _=Depends(require_token)):
-        _require_brain()
-        return brain.apply(pid, source="manual")
-
-    @app.post("/api/brain/proposals/{pid}/dismiss")
-    def brain_dismiss(pid: str, _=Depends(require_token)):
-        _require_brain()
-        brain.proposals.mark(pid, "dismissed")
-        return {"ok": True}
-
-    @app.get("/api/brain/issues")
-    def brain_issues():
-        return brain.issues.all() if brain is not None else []
-
-    @app.post("/api/brain/summary")
-    def brain_summary(_=Depends(require_token)):
-        _require_brain()
-        return brain.daily_summary()
-
-    @app.put("/api/brain/webhook")
-    def brain_set_webhook(body: WebhookBody, _=Depends(require_token)):
-        if profiles is not None:
-            profiles.set_discord_webhook(body.url)
-        return {"configured": bool(body.url)}
-
-    @app.get("/api/brain/webhook")
-    def brain_get_webhook():
-        configured = bool(profiles and profiles.get_discord_webhook())
-        return {"configured": configured}            # never returns the URL
 
     # ---- archive (deep historical backfill) ----
     @app.get("/api/archive/status")

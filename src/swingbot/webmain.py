@@ -55,25 +55,6 @@ def main() -> None:
         runtime_state=runtime_state)
     poller = CandlePoller(market, profiles)        # lifespan owns start/stop
 
-    from swingbot.decision.brain import DecisionBrain
-    from swingbot.decision.ollama import OllamaClient
-    from swingbot.decision.proposals import IssueLog, ProposalStore
-    from swingbot.notify import DiscordNotifier
-
-    def _ollama_factory(settings):
-        return OllamaClient(settings.get("brain_ollama_url", "http://localhost:11434"),
-                            settings.get("brain_model", "qwen2.5"),
-                            float(settings.get("brain_timeout_s", 30)))
-
-    notifier = DiscordNotifier(profiles.get_discord_webhook)
-    brain = DecisionBrain(
-        profiles=profiles, controller=supervisor, ollama_factory=_ollama_factory,
-        proposals=ProposalStore(os.path.join(DATA_DIR, "brain_proposals.json")),
-        issues=IssueLog(os.path.join(DATA_DIR, "brain_issues.json")),
-        notifier=notifier,
-        get_discovery=lambda: {},
-        backtest_ok=lambda *_args, **_kwargs: False)
-
     # The dashboard reuses core_engine.backtest; if that package is ever unavailable,
     # degrade gracefully (autodash routes 404) rather than taking the whole app down.
     try:
@@ -85,7 +66,6 @@ def main() -> None:
 
     app = create_app(controller=supervisor, profiles=profiles, creds=creds,
                      token=token, store=store, market=market, backfiller=backfiller,
-                     brain=brain,
                      poller=poller, auto_dashboard=auto_dashboard,
                      local_trust=os.environ.get("SWINGBOT_LOCAL_TRUST") == "1")
     app.state.archive_config = archive_cfg
