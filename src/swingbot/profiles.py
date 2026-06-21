@@ -76,6 +76,16 @@ class ProfileStore:
         )
         self._conn.commit()
 
+    _DATA_SOURCES = ("coinbase", "kraken", "alpaca")
+
+    def get_data_source(self) -> str:
+        return self.get_meta("data_source") or "coinbase"
+
+    def set_data_source(self, name: str) -> None:
+        if name not in self._DATA_SOURCES:
+            raise ValueError(f"unknown data_source {name!r}")
+        self.set_meta("data_source", name)
+
     # --- armed set + per-strategy live-eligible flag ---
     def arm(self, name: str) -> None:
         if self.get(name) is None:
