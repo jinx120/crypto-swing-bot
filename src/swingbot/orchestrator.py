@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 from swingbot.confluence import ConfluenceEngine, build_signals
-from swingbot.exits import bracket_levels, exit_decision
+from swingbot.exits import bracket_levels, exit_decision, pct_bracket_levels
 from swingbot.indicators import atr
 from swingbot.journal import Trade, TradeJournal
 from swingbot.profile import StrategyProfile
@@ -59,9 +59,12 @@ class Orchestrator:
         stored = self.state.load_position()
         if broker_pos and stored is None and adopt_broker_position:
             price = float(broker_pos["avg_entry_price"])
-            stop, tp = bracket_levels(price, price * 0.02,
-                                      self.profile.stop_atr_mult,
-                                      self.profile.take_profit_atr_mult)
+            if self.profile.bracket_mode == "pct":
+                stop, tp = pct_bracket_levels(price, self.profile.tp_pct, self.profile.sl_pct)
+            else:
+                stop, tp = bracket_levels(price, price * 0.02,
+                                          self.profile.stop_atr_mult,
+                                          self.profile.take_profit_atr_mult)
             self.state.save_position(OpenPosition(
                 symbol=self.profile.symbol, entry_ts=now, entry_price=price,
                 qty=float(broker_pos["qty"]), stop=stop, tp=tp,
@@ -166,11 +169,14 @@ class Orchestrator:
                 {"score": conf.score, "threshold": conf.threshold},
             )
         price = float(df["close"].iloc[-1])
-        a = float(atr(df, self.profile.atr_period).iloc[-1])
-        if not (a > 0):
-            return DecisionResult(DecisionCode.ATR_INVALID, "ATR is not positive", {"atr": a})
-        stop, tp = bracket_levels(price, a, self.profile.stop_atr_mult,
-                                  self.profile.take_profit_atr_mult)
+        if self.profile.bracket_mode == "pct":
+            stop, tp = pct_bracket_levels(price, self.profile.tp_pct, self.profile.sl_pct)
+        else:
+            a = float(atr(df, self.profile.atr_period).iloc[-1])
+            if not (a > 0):
+                return DecisionResult(DecisionCode.ATR_INVALID, "ATR is not positive", {"atr": a})
+            stop, tp = bracket_levels(price, a, self.profile.stop_atr_mult,
+                                      self.profile.take_profit_atr_mult)
         qty = self.risk.size(
             equity=sizing_equity if sizing_equity is not None else equity,
             entry_price=price,
