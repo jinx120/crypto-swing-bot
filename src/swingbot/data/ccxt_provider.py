@@ -98,5 +98,11 @@ class CcxtProvider:
         df = self.get_candles_range(symbol, timeframe, start_ms, end_ms)
         return df.tail(lookback).reset_index(drop=True)
 
+    def get_candles_multi(self, symbols, timeframe, lookback):
+        return {s: self.get_candles(s, timeframe, lookback) for s in symbols}
+
     def get_latest_price(self, symbol: str) -> float:
         return float(self.exchange.fetch_ticker(self.map_symbol(symbol))["last"])
+
+    def get_latest_prices(self, symbols):
+        return {s: self.get_latest_price(s) for s in symbols}
