@@ -70,9 +70,6 @@ export const api = {
     q.set('limit', String(limit))
     return req('GET', `/api/candles?${q.toString()}`)
   },
-  presets: () => req('GET', '/api/presets'),
-  buildStrategy: (body) => req('POST', '/api/strategy/build', body),
-  backtestProfile: (profile) => req('POST', '/api/strategy/backtest', { profile }),
   // --- portfolio / arming ---
   strategies: () => req('GET', '/api/strategies'),
   arm: (name) => req('POST', '/api/strategies/arm', { name }),
@@ -90,12 +87,6 @@ export const api = {
   universe: () => req('GET', '/api/universe'),
   watchlist: () => req('GET', '/api/watchlist'),
   setWatchlist: (symbols) => req('PUT', '/api/watchlist', { symbols }),
-  // --- discovery ---
-  getDiscovery: () => req('GET', '/api/discovery'),
-  discoveryWindows: () => req('GET', '/api/discovery/windows'),
-  refreshDiscovery: (body) => req('POST', '/api/discovery/refresh', body),
-  armDiscovery: (symbol, archetype, window) =>
-    req('POST', '/api/discovery/arm', { symbol, archetype, window }),
   // --- decision brain ---
   brainProposals: () => req('GET', '/api/brain/proposals'),
   brainIssues: () => req('GET', '/api/brain/issues'),

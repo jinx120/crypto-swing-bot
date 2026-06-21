@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import pathlib
 import threading
-import time
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import datetime, timezone
@@ -13,9 +12,6 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from swingbot.data.market import timeframe_seconds
-from swingbot import presets as presets_mod
-import swingbot.discovery as discovery_mod
-from swingbot.strategy_search import backtest_profile, search as run_strategy_search
 from swingbot.universe import fallback_universe
 from swingbot.kronos_preset import kronos_bracket_profile
 from swingbot.profiles import ProfileStore
@@ -87,36 +83,12 @@ class DataSourceBody(BaseModel):
     data_source: str
 
 
-class BuildBody(BaseModel):
-    symbol: str
-    risk: str = "balanced"
-    style: str = "swing"
-    ai: bool = False
-
-
-class BacktestBody(BaseModel):
-    profile: dict
-
-
-class DiscoveryRefreshBody(BaseModel):
-    window: str = "full"
-    scope: str = "universe"
-    max_symbols: int = 50
-
-
-class DiscoveryArmBody(BaseModel):
-    symbol: str
-    archetype: str
-    window: str | None = None
-
-
 class WebhookBody(BaseModel):
     url: str
 
 
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
-               backfiller=None, discovery=None, discovery_cache_path=None,
-               brain=None, poller=None,
+               backfiller=None, brain=None, poller=None,
                auto_dashboard=None, local_trust: bool = False) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
@@ -414,35 +386,6 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         ok, detail = controller.reconnect()
         return {"ok": ok, "detail": detail}
 
-    # ---- presets / strategy build (unchanged behavior) ----
-    def _require_market_ready():
-        if market is None or (creds is not None and creds.get() is None):
-            raise HTTPException(status_code=400, detail="set Alpaca credentials in Settings first")
-
-    @app.get("/api/presets")
-    def list_presets():
-        return [{"key": a.key, "name": a.name, "description": a.description,
-                 "signals": a.signals, "profile": presets_mod.archetype_profile(a)}
-                for a in presets_mod.ARCHETYPES]
-
-    @app.post("/api/strategy/backtest")
-    def strategy_backtest(body: BacktestBody, _=Depends(require_token)):
-        _require_market_ready()
-        try:
-            m = backtest_profile(market, body.profile)
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        return {"metrics": {k: getattr(m, k, None) for k in
-                ("n_trades", "win_rate", "expectancy", "profit_factor", "max_drawdown")}}
-
-    @app.post("/api/strategy/build")
-    def strategy_build(body: BuildBody, _=Depends(require_token)):
-        _require_market_ready()
-        try:
-            return run_strategy_search(market, body.symbol, body.risk, body.style, body.ai)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-
     # ---- controls (portfolio-level + per-strategy) ----
     @app.post("/api/control/halt")
     def halt(_=Depends(require_token)):
@@ -509,72 +452,6 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     @app.post("/api/control/{name}/flatten")
     def control_flatten_one(name: str, _=Depends(require_token)):
         controller.flatten(name); return {"ok": True}
-
-    # ---- discovery (auto-strategy sweep) ----
-    @app.get("/api/discovery")
-    def get_discovery():
-        return app.state.discovery
-
-    @app.get("/api/discovery/windows")
-    def discovery_windows():
-        cov: dict = {}
-        if store is not None:
-            syms = store.symbols()
-            pick = next((s for s in syms if s["symbol"] == "BTC/USD"),
-                        syms[0] if syms else None)
-            if pick:
-                cov = store.coverage(pick["symbol"], pick["timeframe"])
-        return discovery_mod.windows_for(cov)
-
-    @app.post("/api/discovery/refresh")
-    def discovery_refresh(body: DiscoveryRefreshBody, _=Depends(require_token)):
-        if discovery is None:
-            raise HTTPException(status_code=503,
-                                detail="discovery is not configured on this server")
-        if app.state.discovery.get("status") == "computing":
-            return {"started": False, "status": "computing"}
-        if body.scope == "watchlist":
-            symbols = profiles.get_watchlist() if profiles is not None else []
-        else:
-            symbols = _resolve_universe()
-        app.state.discovery = {**app.state.discovery, "status": "computing", "error": None}
-
-        def job():
-            try:
-                rows = discovery.sweep(symbols, window_key=body.window,
-                                       max_symbols=body.max_symbols)
-                result = {"status": "idle", "error": None, "computed_at": int(time.time()),
-                          "window": body.window, "scope": body.scope, "rows": rows}
-                app.state.discovery = result
-                if discovery_cache_path:
-                    discovery_mod.save_cache(discovery_cache_path, result)
-                if (brain is not None and profiles is not None
-                        and profiles.get_portfolio_settings().get("brain_auto_recommend")):
-                    brain.recommend(source="auto-after-discovery")
-            except Exception as e:   # a sweep failure must never touch live trading
-                app.state.discovery = {**app.state.discovery, "status": "idle",
-                                       "error": str(e)}
-                print(f"[discovery] {e}")
-
-        threading.Thread(target=job, daemon=True).start()
-        return {"started": True}
-
-    @app.post("/api/discovery/arm")
-    def discovery_arm(body: DiscoveryArmBody, _=Depends(require_token)):
-        arch = next((a for a in presets_mod.ARCHETYPES if a.key == body.archetype), None)
-        if arch is None:
-            raise HTTPException(status_code=400,
-                                detail=f"unknown archetype {body.archetype!r}")
-        profile = presets_mod.archetype_profile(arch, body.symbol, "swing")
-        name = f"disc-{body.symbol.replace('/', '').lower()}-{body.archetype}"
-        try:
-            profiles.save(name, profile)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        profiles.arm(name)
-        profiles.set_live_eligible(name, True)
-        controller.reload()
-        return {"ok": True, "name": name}
 
     # ---- decision brain ----
     def _require_brain():
@@ -658,13 +535,6 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     if backfiller is not None:
         from swingbot.data.backfill import ArchiveConfig
         app.state.archive_config = ArchiveConfig()
-
-    app.state.discovery = {"status": "idle", "computed_at": None, "window": None,
-                           "scope": None, "error": None, "rows": []}
-    if discovery_cache_path:
-        cached = discovery_mod.load_cache(discovery_cache_path)
-        if cached:
-            app.state.discovery = cached
 
     app.state.controller = controller
     app.state.profiles = profiles
