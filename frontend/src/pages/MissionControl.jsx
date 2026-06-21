@@ -4,6 +4,7 @@ import CoinsGrid from '../components/CoinsGrid.jsx'
 import RebalanceStrip from '../components/RebalanceStrip.jsx'
 import LiveJournal from '../components/LiveJournal.jsx'
 import AddCoinDialog from '../components/AddCoinDialog.jsx'
+import AdvisorNotes from '../components/AdvisorNotes.jsx'
 import { api } from '../api.js'
 
 export default function MissionControl() {
@@ -27,6 +28,7 @@ export default function MissionControl() {
       <StatusStrip state={state} health={health} onChange={refresh} />
       <CoinsGrid state={state} health={health} onChange={refresh} onAdd={() => setAddOpen(true)} />
       <RebalanceStrip />
+      <AdvisorNotes />
       <LiveJournal health={health} />
       <AddCoinDialog open={addOpen} onOpenChange={setAddOpen} onAdded={refresh} />
     </div>

@@ -87,6 +87,13 @@ export const api = {
   universe: () => req('GET', '/api/universe'),
   watchlist: () => req('GET', '/api/watchlist'),
   setWatchlist: (symbols) => req('PUT', '/api/watchlist', { symbols }),
+  // --- advisor ---
+  getAdvisorNotes: () => req('GET', '/api/advisor/notes'),
+  getAdvisorJournal: () => req('GET', '/api/advisor/journal'),
+  revertTuning: (batch_id) => req('POST', '/api/advisor/revert', { batch_id }),
+  revertAllTuning: () => req('POST', '/api/advisor/revert-all', {}),
+  getRiskDial: () => req('GET', '/api/risk-dial'),
+  setRiskDial: (risk_dial) => req('PUT', '/api/risk-dial', { risk_dial }),
   auto: {
     backtestEma: () => req('GET', '/api/backtest/ema'),
     backtestKronos: () => req('GET', '/api/backtest/kronos'),
