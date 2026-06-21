@@ -58,6 +58,8 @@ export const api = {
     req('POST', `/api/brokers/${encodeURIComponent(broker_id)}/test`, { values, mode }),
   setActiveBroker: (broker_id) => req('POST', '/api/brokers/active', { broker_id }),
   reconnectBroker: () => req('POST', '/api/brokers/reconnect', {}),
+  getDataSource: () => req('GET', '/api/data-source'),
+  setDataSource: (data_source) => req('PUT', '/api/data-source', { data_source }),
   authBootstrap: () => req('GET', '/api/auth/bootstrap'),
   control: (action, body) => req('POST', `/api/control/${action}`, body),
   flattenStrategy: (name) => req('POST', `/api/control/${encodeURIComponent(name)}/flatten`),
