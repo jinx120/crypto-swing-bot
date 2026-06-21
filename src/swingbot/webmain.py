@@ -47,7 +47,7 @@ def main() -> None:
                                     quote_map=archive_cfg.quote_map,
                                     symbol_overrides=archive_cfg.symbol_overrides)
     backfiller = Backfiller(store, provider=archive_provider)
-    market = MarketData(store, creds)
+    market = MarketData(store, creds, data_source=profiles.get_data_source())
     runtime_state = RuntimeStateStore(os.path.join(DATA_DIR, "swingbot.db"))
 
     from swingbot.managed_profiles import reconcile_managed_profiles

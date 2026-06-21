@@ -18,6 +18,7 @@ import swingbot.discovery as discovery_mod
 from swingbot.strategy_search import backtest_profile, search as run_strategy_search
 from swingbot.universe import fallback_universe
 from swingbot.managed_profiles import managed_meta
+from swingbot.profiles import ProfileStore
 from swingbot.supervisor import LifecycleError
 from swingbot.rebalance import RebalanceSettings
 
@@ -76,6 +77,10 @@ class PortfolioSettingsBody(BaseModel):
 
 class WatchlistBody(BaseModel):
     symbols: list[str]
+
+
+class DataSourceBody(BaseModel):
+    data_source: str
 
 
 class BuildBody(BaseModel):
@@ -274,6 +279,25 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     @app.post("/api/rebalance/run")
     def rebalance_run(_=Depends(require_token)):
         return controller.run_rebalance_now()
+
+    # ---- data source ----
+    @app.get("/api/data-source")
+    def get_data_source():
+        return {
+            "data_source": profiles.get_data_source(),
+            "choices": list(ProfileStore._DATA_SOURCES),
+        }
+
+    @app.put("/api/data-source")
+    def put_data_source(body: DataSourceBody, _=Depends(require_token)):
+        try:
+            profiles.set_data_source(body.data_source)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        if market is not None:
+            market.data_source = body.data_source
+        controller.reload()
+        return {"ok": True, "data_source": body.data_source}
 
     # ---- universe / watchlist ----
     _universe_cache: dict = {}
