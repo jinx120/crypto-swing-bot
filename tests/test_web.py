@@ -66,7 +66,8 @@ def test_get_rebalance_settings_defaults(tmp_path):
     client = _client(tmp_path)
     r = client.get("/api/rebalance/settings")
     assert r.status_code == 200
-    assert r.json()["enabled"] is False
+    assert r.json()["enabled"] is True
+    assert r.json()["mode"] == "hard"
 
 
 def test_post_rebalance_targets_validates_sum(tmp_path):

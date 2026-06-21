@@ -6,6 +6,7 @@ from swingbot.rebalance import (
     Rebalancer,
     allocated_equity,
     compute_allocations,
+    equal_weight_targets,
 )
 
 import pandas as pd
@@ -20,6 +21,16 @@ def test_allocated_equity_uses_target_times_total():
 
 def test_allocated_equity_equal_weight_fallback_when_no_target():
     assert allocated_equity("a", {}, 10_000, n_strategies=4) == 2_500.0
+
+
+def test_equal_weight_when_no_targets():
+    assert equal_weight_targets(["a", "b", "c", "d"]) == {
+        "a": 0.25,
+        "b": 0.25,
+        "c": 0.25,
+        "d": 0.25,
+    }
+    assert equal_weight_targets([]) == {}
 
 
 def test_compute_allocations_actual_and_drift():

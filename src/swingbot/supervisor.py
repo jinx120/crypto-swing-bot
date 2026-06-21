@@ -24,7 +24,12 @@ from swingbot.orchestrator import Orchestrator
 from swingbot.portfolio_risk import PortfolioDecision, PortfolioRiskManager, PortfolioSettings
 from swingbot.profile import StrategyProfile
 from swingbot.profiles import ProfileStore
-from swingbot.rebalance import Rebalancer, RebalanceSettings, allocated_equity
+from swingbot.rebalance import (
+    Rebalancer,
+    RebalanceSettings,
+    allocated_equity,
+    equal_weight_targets,
+)
 from swingbot.risk import RiskManager
 from swingbot.snapshot import signal_snapshot
 from swingbot.state import StateStore, StrategyStateView
@@ -505,12 +510,13 @@ class PortfolioSupervisor:
                 self._rebalance_settings.vol_lookback,
             )
 
+        targets = self._rebalance_targets or equal_weight_targets(sorted(self._strategies))
         res = self._rebalancer.evaluate(
             now=now,
             total_equity=acct["equity"],
             deployed=deployed,
             symbols=symbols,
-            targets=self._rebalance_targets,
+            targets=targets,
             prices=prices,
             returns_by_symbol=returns,
         )
@@ -681,6 +687,7 @@ class PortfolioSupervisor:
                 for name, strategy in self._strategies.items()
             }
             if self._rebalancer is not None:
+                targets = self._rebalance_targets or equal_weight_targets(sorted(self._strategies))
                 allocations = [
                     asdict(a)
                     for a in self._rebalancer.evaluate(
@@ -688,7 +695,7 @@ class PortfolioSupervisor:
                         total_equity=acct["equity"],
                         deployed=deployed,
                         symbols=symbols,
-                        targets=self._rebalance_targets,
+                        targets=targets,
                         prices={},
                         returns_by_symbol={},
                     ).allocations

@@ -8,8 +8,8 @@ import pandas as pd
 
 @dataclass(frozen=True)
 class RebalanceSettings:
-    enabled: bool = False
-    mode: str = "soft"
+    enabled: bool = True
+    mode: str = "hard"
     drift_threshold: float = 0.05
     min_interval_minutes: int = 1440
     vol_skip_threshold: float = 0.05
@@ -63,6 +63,13 @@ def allocated_equity(
     if weight is None:
         weight = (1.0 / n_strategies) if n_strategies else 0.0
     return weight * total_equity
+
+
+def equal_weight_targets(names: list[str]) -> dict[str, float]:
+    if not names:
+        return {}
+    weight = 1.0 / len(names)
+    return {name: weight for name in names}
 
 
 def compute_allocations(

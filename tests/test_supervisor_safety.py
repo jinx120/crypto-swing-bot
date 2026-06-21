@@ -52,10 +52,10 @@ def test_reload_waits_for_inflight_tick(tmp_path):
     strategy = sup._strategies["btc"]
     original_tick = strategy["orch"].tick
 
-    def blocking_tick(now):
+    def blocking_tick(now=None, sizing_equity=None):
         tick_entered.set()
         assert release_tick.wait(timeout=2)
-        original_tick(now)
+        original_tick(now=now, sizing_equity=sizing_equity)
 
     strategy["orch"].tick = blocking_tick
     tick_thread = threading.Thread(target=lambda: sup.tick_all(T0))
