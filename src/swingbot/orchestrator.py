@@ -163,10 +163,14 @@ class Orchestrator:
             )
         conf = self.engine.evaluate(ctx)
         if not conf.passed:
+            details = {"score": conf.score, "threshold": conf.threshold}
+            kronos = conf.signals.get("kronos_forecast")
+            if kronos is not None and kronos.meta.get("error") == "no_forecast":
+                details["kronos"] = "unavailable"
             return DecisionResult(
                 DecisionCode.SIGNAL_BELOW_THRESHOLD,
                 "confluence score below entry threshold",
-                {"score": conf.score, "threshold": conf.threshold},
+                details,
             )
         price = float(df["close"].iloc[-1])
         if self.profile.bracket_mode == "pct":

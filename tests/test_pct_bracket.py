@@ -17,6 +17,7 @@ from swingbot.types import (
     OrderStatus,
     Regime,
     RegimeResult,
+    SignalResult,
 )
 
 NOW = datetime(2026, 1, 1, 12, tzinfo=timezone.utc)
@@ -153,3 +154,25 @@ def test_reconcile_adopts_broker_position_with_pct_bracket(tmp_path):
     assert decision.code is DecisionCode.BROKER_POSITION_EXISTS
     assert round(pos.tp, 4) == 101.5
     assert round(pos.stop, 4) == 99.0
+
+
+def test_kronos_unavailable_holds_and_flags(tmp_path, monkeypatch):
+    orch = _pct_orch(tmp_path)
+    monkeypatch.setattr(orch.regime, "evaluate", lambda ctx: RegimeResult(Regime.NEUTRAL))
+    monkeypatch.setattr(
+        orch.engine,
+        "evaluate",
+        lambda ctx: ConfluenceResult(
+            0.0,
+            1.0,
+            False,
+            {},
+            {"kronos_forecast": SignalResult("kronos_forecast", 0.0, {"error": "no_forecast"})},
+        ),
+    )
+
+    decision = orch.tick(now=NOW)
+
+    assert orch.state.load_pending_order() is None
+    assert decision.code is DecisionCode.SIGNAL_BELOW_THRESHOLD
+    assert decision.details.get("kronos") == "unavailable"
