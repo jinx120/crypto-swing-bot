@@ -29,7 +29,6 @@ def test_decision_codes_match_phase3_api_contract():
         "MANAGED_NO_EXIT",
         "EXIT_SUBMITTED",
         "EXITED",
-        "PROBE_COMPLETE",  # Phase 4: terminal code for a probe suppressed after firing once
         "ERROR",
     }
 

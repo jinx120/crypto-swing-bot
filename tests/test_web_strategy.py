@@ -73,13 +73,12 @@ def test_backtest_single_profile():
 def test_strategies_carry_kind_and_label():
     class FakeProfiles:
         def list(self):
-            return ["btc_trend", "paper_probe", "my_custom"]
+            return ["btc_trend", "my_custom"]
 
         def get(self, name):
             return {
                 "symbol": {
                     "btc_trend": "BTC/USD",
-                    "paper_probe": "BTC/USD",
                     "my_custom": "ETH/USD",
                 }[name],
             }
@@ -94,8 +93,6 @@ def test_strategies_carry_kind_and_label():
     rows = {r["name"]: r for r in TestClient(app).get("/api/strategies").json()}
     assert rows["btc_trend"]["kind"] == "strategy"
     assert rows["btc_trend"]["label"] == "BTC Trend (EMA)"
-    assert rows["paper_probe"]["kind"] == "probe"
-    assert rows["paper_probe"]["label"] == "proof-of-life probe"
     assert rows["my_custom"]["kind"] == "user"
     assert rows["my_custom"]["label"] == "my_custom"
     assert rows["btc_trend"]["armed"] is True

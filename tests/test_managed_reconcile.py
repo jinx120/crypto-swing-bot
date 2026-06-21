@@ -19,7 +19,6 @@ def test_fresh_seed_creates_and_arms_trend_profiles(tmp_path):
     assert set(report.seeded) == {"btc_trend", "eth_trend"}
     assert store.get("btc_trend") is not None
     assert "btc_trend" in store.list_armed()
-    assert "paper_probe" not in store.list()
 
 
 def test_user_profiles_are_never_deleted_or_overwritten(tmp_path):
@@ -66,20 +65,3 @@ def test_version_bump_backs_up_then_upgrades(tmp_path, monkeypatch):
     with open(report.backup_path) as f:
         backup = json.load(f)
     assert backup["profiles"]["btc_trend"]["entry_threshold"] == 0.5
-
-
-def test_probe_rejected_when_mode_not_paper(tmp_path):
-    store = _store(tmp_path)
-    reconcile_managed_profiles(store, enable_probe=True, mode="live", backup_dir=str(tmp_path / "b"))
-    assert "paper_probe" not in store.list()
-
-
-def test_disabling_probe_removes_managed_probe_only(tmp_path):
-    store = _store(tmp_path)
-    backup_dir = str(tmp_path / "backups")
-    reconcile_managed_profiles(store, enable_probe=True, mode="paper", backup_dir=backup_dir)
-    assert "paper_probe" in store.list()
-    report = reconcile_managed_profiles(store, enable_probe=False, mode="paper", backup_dir=backup_dir)
-    assert "paper_probe" in report.removed
-    assert "paper_probe" not in store.list()
-    assert store.get("btc_trend") is not None

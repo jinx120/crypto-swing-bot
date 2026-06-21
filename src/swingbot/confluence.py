@@ -6,7 +6,6 @@ from swingbot.signals.ema_trend import EmaTrendSignal
 from swingbot.signals.fvg import FvgSignal
 from swingbot.signals.kronos_forecast import KronosForecastSignal
 from swingbot.signals.oversold import OversoldSignal
-from swingbot.signals.paper_probe import PaperProbeSignal
 from swingbot.signals.relative_strength import RelativeStrengthSignal
 from swingbot.signals.vwap import VwapSignal
 from swingbot.types import ConfluenceResult, MarketContext
@@ -18,7 +17,6 @@ _REGISTRY = {
     "fvg": FvgSignal,
     "kronos_forecast": KronosForecastSignal,
     "ema_trend": EmaTrendSignal,
-    "paper_probe": PaperProbeSignal,
 }
 
 

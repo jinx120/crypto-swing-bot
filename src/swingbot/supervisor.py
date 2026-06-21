@@ -24,7 +24,6 @@ from swingbot.metrics import compute_metrics
 from swingbot.orchestrator import Orchestrator
 from swingbot.portfolio_risk import PortfolioDecision, PortfolioRiskManager, PortfolioSettings
 from swingbot.profile import StrategyProfile
-from swingbot.probe_marker import probe_should_fire
 from swingbot.profiles import ProfileStore
 from swingbot.rebalance import Rebalancer, RebalanceSettings, allocated_equity
 from swingbot.risk import RiskManager
@@ -125,7 +124,7 @@ class PortfolioSupervisor:
 
     def __init__(self, profiles: ProfileStore, creds, state_db: str,
                  market: MarketData | None = None, broker=None, mode: str = "paper",
-                 runtime_state=None, reconcile=None, probe_marker=None):
+                 runtime_state=None, reconcile=None):
         self.profiles = profiles
         self.creds = creds
         self.state_db = state_db
@@ -133,7 +132,6 @@ class PortfolioSupervisor:
         self.mode = mode
         self.runtime_state = runtime_state    # durable running_desired flag (may be None)
         self._reconcile = reconcile
-        self._probe_marker = probe_marker
         self.startup_error: str | None = None  # most recent auto-start outcome
         self._broker = broker
         self.paused = False
@@ -357,22 +355,6 @@ class PortfolioSupervisor:
             self._store.save_portfolio_risk_state(self._portfolio_risk.state)
         return on_close
 
-    def note_managed_decision(self, name: str, decision) -> None:
-        """Record the durable proof-of-life marker after the probe completes."""
-        if self._probe_marker is None or name != "paper_probe":
-            return
-        if decision.code in (DecisionCode.ENTERED, DecisionCode.EXITED):
-            self._probe_marker.mark_complete("paper_probe")
-
-    def _probe_suppressed(self, name: str, position_exists: bool) -> bool:
-        """Fire-once gate. Once the paper probe's durable marker is set (or it is
-        not eligible to fire) and it holds no position, suppress further entries so
-        the probe fires at most once. A probe that still holds a position keeps
-        ticking so it can manage and exit cleanly."""
-        if name != "paper_probe" or position_exists or self._probe_marker is None:
-            return False
-        return not probe_should_fire(self._probe_marker, enabled=True, mode=self.mode)
-
     def _symbol_owned_by_other_strategy(self, name: str, symbol: str) -> bool:
         positions = self._store.load_all_positions()
         for strategy, pos in positions.items():
@@ -449,12 +431,6 @@ class PortfolioSupervisor:
                         ingest[name]["error"] or "fresh closed-bar ingest failed",
                         {"stage": "ingest"},
                     )
-            elif self._probe_suppressed(name, position_exists):
-                decision = DecisionResult(
-                    DecisionCode.PROBE_COMPLETE,
-                    "paper probe already fired; not re-entering",
-                )
-                stages[required_stage] = "ok"
             else:
                 try:
                     if self._rebalance_settings.enabled and acct is not None:
@@ -469,7 +445,6 @@ class PortfolioSupervisor:
                         decision = orch.tick(now)
                     if not isinstance(decision, DecisionResult):
                         raise TypeError("orchestrator tick returned no DecisionResult")
-                    self.note_managed_decision(name, decision)
                     stages[required_stage] = "ok"
                 except Exception as exc:
                     stages[required_stage] = "failed"
@@ -749,14 +724,6 @@ class PortfolioSupervisor:
         }
 
     # ---- status + control surface (consumed by Phase 2 web layer) ----
-    def _probe_complete(self, name: str, kind: str):
-        if kind != "probe" or self._probe_marker is None:
-            return None
-        try:
-            return bool(self._probe_marker.is_complete(name))
-        except Exception:
-            return None
-
     def _mark(self, symbol: str, timeframe: str):
         """Latest local-market close and bar timestamp for marking a position."""
         if self.market is None:
@@ -799,7 +766,6 @@ class PortfolioSupervisor:
                     "running": self._running,
                     "live_eligible": self.profiles.is_live_eligible(name),
                     "kind": meta["kind"], "label": meta["label"],
-                    "probe_complete": self._probe_complete(name, meta["kind"]),
                     "snapshot": s["snapshot"],
                     "position": pos_dict,
                     "risk": {"kill_switch": {"active": rs.kill_switch_active,
@@ -818,7 +784,6 @@ class PortfolioSupervisor:
                     "running": False,
                     "live_eligible": f["live_eligible"],
                     "kind": meta["kind"], "label": meta["label"],
-                    "probe_complete": self._probe_complete(name, meta["kind"]),
                     "snapshot": {}, "position": None, "risk": None,
                 })
         pending = []
