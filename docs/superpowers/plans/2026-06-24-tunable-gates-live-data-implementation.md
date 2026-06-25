@@ -606,7 +606,7 @@ git commit -m "feat: kind/label on StrategyProfile, surfaced in /api/strategies 
 **Interfaces:**
 - Produces: `vwap_pullback_profile(symbol) -> dict`, `ema_trend_profile(symbol) -> dict`, `fvg_retrace_profile(symbol) -> dict`, `eth_rel_strength_profile(symbol) -> dict` — each a valid profile dict with `kind="researched"`. `RESEARCHED_PRESETS: dict[str, callable]` and `RESEARCHED_META: list[dict]`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_presets.py`:
 
@@ -640,12 +640,12 @@ def test_eth_rel_strength_uses_btc_benchmark():
     assert eth_rel_strength_profile("ETH/USD")["benchmark_symbol"] == "BTC/USD"
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_presets.py::test_researched_preset_builders_are_valid -q`
 Expected: FAIL with `ImportError` (builders not defined).
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Append to `src/swingbot/presets.py`:
 
@@ -721,12 +721,12 @@ RESEARCHED_META = [
 ]
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_presets.py -q`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 .venv/bin/ruff check src/

@@ -115,3 +115,74 @@ def build_candidates(symbol: str, risk: str, style: str, ai: bool = False,
     strict["entry_threshold"] = round(strict["entry_threshold"] + 0.1, 3)
     out.append({"label": "Balanced (stricter)", "profile": strict})
     return out[:max_candidates]
+
+
+_DEMO_LABEL = "backtested negative-edge — demo only"
+
+
+def vwap_pullback_profile(symbol: str = "BTC/USD") -> dict:
+    return {
+        "symbol": symbol, "timeframe": "15m", "kind": "researched",
+        "label": f"VWAP pullback ({_DEMO_LABEL})",
+        "signals": {
+            "vwap": {"weight": 0.4, "window": 96, "max_dist": 0.03},
+            "oversold": {"weight": 0.3, "oversold_level": 45, "period": 14},
+            "ema_trend": {"weight": 0.3, "fast": 12, "slow": 26, "band": 0.01},
+        },
+        "entry_threshold": 0.35, "regime_ma_period": 50,
+        "bracket_mode": "atr", "stop_atr_mult": 1.2, "take_profit_atr_mult": 2.0,
+    }
+
+
+def ema_trend_profile(symbol: str = "BTC/USD") -> dict:
+    return {
+        "symbol": symbol, "timeframe": "15m", "kind": "researched",
+        "label": f"EMA trend-momentum ({_DEMO_LABEL})",
+        "signals": {"ema_trend": {"weight": 1.0, "fast": 12, "slow": 26, "band": 0.01}},
+        "entry_threshold": 0.3, "regime_ma_period": 50,
+        "bracket_mode": "atr", "stop_atr_mult": 1.5, "take_profit_atr_mult": 3.0,
+    }
+
+
+def fvg_retrace_profile(symbol: str = "BTC/USD") -> dict:
+    return {
+        "symbol": symbol, "timeframe": "15m", "kind": "researched",
+        "label": f"FVG retrace ({_DEMO_LABEL})",
+        "signals": {
+            "fvg": {"weight": 0.6, "lookback": 50, "min_gap_pct": 0.0005},
+            "ema_trend": {"weight": 0.4, "fast": 12, "slow": 26, "band": 0.01},
+        },
+        "entry_threshold": 0.35, "regime_ma_period": 50,
+        "bracket_mode": "atr", "stop_atr_mult": 1.5, "take_profit_atr_mult": 2.0,
+    }
+
+
+def eth_rel_strength_profile(symbol: str = "ETH/USD") -> dict:
+    return {
+        "symbol": symbol, "benchmark_symbol": "BTC/USD", "timeframe": "15m",
+        "kind": "researched", "label": f"ETH relative strength ({_DEMO_LABEL})",
+        "signals": {
+            "relative_strength": {"weight": 0.4, "band": 0.02, "lookback": 96},
+            "ema_trend": {"weight": 0.3, "fast": 12, "slow": 26, "band": 0.01},
+            "vwap": {"weight": 0.3, "window": 96, "max_dist": 0.03},
+        },
+        "entry_threshold": 0.35, "regime_ma_period": 50,
+        "bracket_mode": "atr", "stop_atr_mult": 1.5, "take_profit_atr_mult": 2.0,
+    }
+
+
+RESEARCHED_PRESETS = {
+    "vwap_pullback": vwap_pullback_profile,
+    "ema_trend": ema_trend_profile,
+    "fvg_retrace": fvg_retrace_profile,
+    "eth_rel_strength": eth_rel_strength_profile,
+}
+
+RESEARCHED_META = [
+    {"preset": "vwap_pullback", "label": "VWAP pullback",
+     "signals": ["vwap", "oversold", "ema_trend"]},
+    {"preset": "ema_trend", "label": "EMA trend-momentum", "signals": ["ema_trend"]},
+    {"preset": "fvg_retrace", "label": "FVG retrace", "signals": ["fvg", "ema_trend"]},
+    {"preset": "eth_rel_strength", "label": "ETH relative strength",
+     "signals": ["relative_strength", "ema_trend", "vwap"]},
+]

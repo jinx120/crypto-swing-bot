@@ -50,3 +50,32 @@ def test_build_candidates_rejects_bad_knobs():
         build_candidates("TRX/USD", "nope", "swing")
     with pytest.raises(ValueError):
         build_candidates("TRX/USD", "balanced", "nope")
+
+
+def test_researched_preset_builders_are_valid():
+    from swingbot.presets import (
+        RESEARCHED_PRESETS, RESEARCHED_META,
+        vwap_pullback_profile, ema_trend_profile,
+        fvg_retrace_profile, eth_rel_strength_profile,
+    )
+    builders = {
+        "vwap_pullback": (vwap_pullback_profile, {"vwap", "oversold", "ema_trend"}),
+        "ema_trend": (ema_trend_profile, {"ema_trend"}),
+        "fvg_retrace": (fvg_retrace_profile, {"fvg", "ema_trend"}),
+        "eth_rel_strength": (eth_rel_strength_profile,
+                             {"relative_strength", "ema_trend", "vwap"}),
+    }
+    for key, (fn, sigs) in builders.items():
+        p = fn("ETH/USD")
+        StrategyProfile.from_dict(p)
+        assert p["kind"] == "researched"
+        assert p["label"]
+        assert set(p["signals"]) == sigs
+        assert p["symbol"] == "ETH/USD"
+        assert RESEARCHED_PRESETS[key] is fn
+    assert {m["preset"] for m in RESEARCHED_META} == set(builders)
+
+
+def test_eth_rel_strength_uses_btc_benchmark():
+    from swingbot.presets import eth_rel_strength_profile
+    assert eth_rel_strength_profile("ETH/USD")["benchmark_symbol"] == "BTC/USD"
