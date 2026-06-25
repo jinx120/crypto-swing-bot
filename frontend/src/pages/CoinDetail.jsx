@@ -11,6 +11,7 @@ import LiveStatsPanel from '../components/detail/LiveStatsPanel.jsx'
 import RecentTradesPanel from '../components/detail/RecentTradesPanel.jsx'
 import BacktestComparisonPanel from '../components/detail/BacktestComparisonPanel.jsx'
 import JournalFeedPanel from '../components/detail/JournalFeedPanel.jsx'
+import GatesParametersPanel from '../components/detail/GatesParametersPanel.jsx'
 
 export default function CoinDetail() {
   const { name } = useParams()
@@ -58,6 +59,7 @@ export default function CoinDetail() {
         </div>
       ) : (
         <>
+          <GatesParametersPanel name={strategyName} />
           <ChartPanel symbol={symbol} strategy={strategyName} />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <CurrentPositionPanel strategy={strat} />

@@ -960,7 +960,7 @@ git commit -m "feat(frontend): buildProfilePatch helper, researched client metho
 **Interfaces:**
 - Consumes: `api.getStrategyProfile(name)`, `api.updateStrategyProfile(name, patch)`, `buildProfilePatch`, `<Switch>`.
 
-- [ ] **Step 1: Create the panel**
+- [x] **Step 1: Create the panel**
 
 Create `frontend/src/components/detail/GatesParametersPanel.jsx`:
 
@@ -1086,7 +1086,7 @@ export default function GatesParametersPanel({ name }) {
 }
 ```
 
-- [ ] **Step 2: Mount it in CoinDetail**
+- [x] **Step 2: Mount it in CoinDetail**
 
 In `frontend/src/pages/CoinDetail.jsx`, add the import (after the `JournalFeedPanel` import, line 13):
 
@@ -1100,12 +1100,12 @@ In the rendered panels block (inside the `<>...</>` after `<ChartPanel .../>`, ~
           <GatesParametersPanel name={strategyName} />
 ```
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 4: Commit + live**
+- [x] **Step 4: Commit + live**
 
 ```bash
 git add frontend/src/components/detail/GatesParametersPanel.jsx frontend/src/pages/CoinDetail.jsx
