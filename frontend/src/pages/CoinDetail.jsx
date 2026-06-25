@@ -5,6 +5,7 @@ import { api } from '../api.js'
 import { Button } from '../components/ui/button.jsx'
 import { Badge } from '../components/ui/badge.jsx'
 import { cardStatus } from '../lib/derive.js'
+import useLivePrice from '../components/useLivePrice.js'
 import ChartPanel from '../components/detail/ChartPanel.jsx'
 import CurrentPositionPanel from '../components/detail/CurrentPositionPanel.jsx'
 import LiveStatsPanel from '../components/detail/LiveStatsPanel.jsx'
@@ -27,6 +28,8 @@ export default function CoinDetail() {
 
   const strat = (state?.strategies || []).find((s) => s.name === strategyName)
   const symbol = strat?.symbol
+  const prices = useLivePrice(symbol ? [symbol] : [])
+  const live = symbol ? prices[symbol] : null
   const status = strat ? cardStatus(strat) : 'armed'
   const hasPosition = !!strat?.position && status !== 'armed'
 
@@ -44,6 +47,11 @@ export default function CoinDetail() {
         <Link to="/" className="text-muted-foreground hover:text-foreground"><ArrowLeft className="h-5 w-5" /></Link>
         <h1 className="text-lg font-semibold">{symbol || strategyName}</h1>
         <Badge variant="outline">{status}</Badge>
+        {live?.price != null && (
+          <span className="font-mono text-sm text-muted-foreground">
+            ${Number(live.price).toFixed(2)}{live.stale ? ' (stale)' : ''}
+          </span>
+        )}
         <div className="ml-auto flex gap-2">
           {status === 'armed'
             ? <Button size="sm" variant="outline" disabled={busy} onClick={() => act(() => api.arm(strategyName))}>arm</Button>

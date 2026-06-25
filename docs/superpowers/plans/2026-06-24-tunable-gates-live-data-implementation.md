@@ -1504,7 +1504,7 @@ Live-verify (criterion 4): `time curl -s "localhost:8000/api/price?symbols=BTC/U
 **Interfaces:**
 - Produces: `api.price(symbols: string[])`; `useLivePrice(symbols, intervalMs=3000) -> pricesMap`; `livePriceFor(prices, symbol) -> {price, stale}|null`.
 
-- [ ] **Step 1: Write the failing helper test**
+- [x] **Step 1: Write the failing helper test**
 
 Append to `frontend/src/lib/derive.test.js`:
 
@@ -1521,12 +1521,12 @@ describe('livePriceFor', () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd frontend && npx vitest run src/lib/derive.test.js`
 Expected: FAIL (`livePriceFor` not exported).
 
-- [ ] **Step 3: Implement helper, api method, and hook**
+- [x] **Step 3: Implement helper, api method, and hook**
 
 Append to `frontend/src/lib/derive.js`:
 
@@ -1573,7 +1573,7 @@ export default function useLivePrice(symbols, intervalMs = 3000) {
 }
 ```
 
-- [ ] **Step 4: Wire into Mission Control + grid + card**
+- [x] **Step 4: Wire into Mission Control + grid + card**
 
 In `frontend/src/pages/MissionControl.jsx`: import the hook and derive symbols from state, then pass `prices` to `CoinsGrid`.
 Add imports:
@@ -1625,14 +1625,14 @@ In the header `<h1>` row, after the `<Badge variant="outline">{status}</Badge>`:
         )}
 ```
 
-- [ ] **Step 5: Run tests + build**
+- [x] **Step 5: Run tests + build**
 
 ```bash
 cd frontend && npx vitest run && npm run build
 ```
 Expected: PASS + build green.
 
-- [ ] **Step 6: Commit + live**
+- [x] **Step 6: Commit + live**
 
 ```bash
 git add frontend/src/components/useLivePrice.js frontend/src/api.js \

@@ -94,3 +94,8 @@ export function buildProfilePatch(cur, edits) {
   }
   return patch
 }
+
+export function livePriceFor(prices, symbol) {
+  const q = prices?.[symbol]
+  return q ? { price: q.price, stale: !!q.stale } : null
+}

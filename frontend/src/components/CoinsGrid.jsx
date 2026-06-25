@@ -2,7 +2,7 @@ import { Plus } from 'lucide-react'
 import CoinCard from './CoinCard.jsx'
 import { Button } from './ui/button.jsx'
 
-export default function CoinsGrid({ state, health, onChange, onAdd }) {
+export default function CoinsGrid({ state, health, prices, onChange, onAdd }) {
   const strategies = state?.strategies || []
   return (
     <section className="space-y-3">
@@ -19,7 +19,7 @@ export default function CoinsGrid({ state, health, onChange, onAdd }) {
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {strategies.map((s) => (
-            <CoinCard key={s.name} strategy={s} health={health} onChange={onChange} />
+            <CoinCard key={s.name} strategy={s} health={health} price={prices?.[s.symbol]} onChange={onChange} />
           ))}
         </div>
       )}

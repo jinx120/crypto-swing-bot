@@ -49,6 +49,8 @@ export const api = {
     q.set('limit', String(limit))
     return req('GET', `/api/candles?${q.toString()}`)
   },
+  price: (symbols) =>
+    req('GET', `/api/price?symbols=${encodeURIComponent((symbols || []).join(','))}`),
   // --- portfolio / arming ---
   strategies: () => req('GET', '/api/strategies'),
   arm: (name) => req('POST', '/api/strategies/arm', { name }),

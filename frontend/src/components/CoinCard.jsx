@@ -10,7 +10,7 @@ import { cardStatus, lastDecision } from '../lib/derive.js'
 
 const STATUS_VARIANT = { long: 'up', short: 'down', flat: 'default', armed: 'outline' }
 
-export default function CoinCard({ strategy, health, onChange }) {
+export default function CoinCard({ strategy, health, onChange, price }) {
   const nav = useNavigate()
   const [busy, setBusy] = useState(false)
   const status = cardStatus(strategy)
@@ -32,8 +32,18 @@ export default function CoinCard({ strategy, health, onChange }) {
       <CardContent className="space-y-3 p-4">
         <div className="flex items-center justify-between">
           <span className="font-semibold">{strategy.symbol || strategy.label}</span>
-          <Badge variant={STATUS_VARIANT[status]}>{status}</Badge>
+          <div className="flex items-center gap-1">
+            <Badge variant={STATUS_VARIANT[status]}>{status}</Badge>
+            {strategy.kind === 'researched' && (
+              <Badge variant="outline" className="text-down">demo</Badge>
+            )}
+          </div>
         </div>
+        {price?.price != null && (
+          <div className="font-mono text-xs text-muted-foreground">
+            ${Number(price.price).toFixed(2)}{price.stale ? ' (stale)' : ''}
+          </div>
+        )}
         <div className="font-mono tabular-nums text-sm">
           {hasPosition ? (
             <>

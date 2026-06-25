@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   loopState, modeBadge, equityOf, dayPnl, dayPnlPct, reliabilityPct,
   brokerUnauthorized, cardStatus, availableToAdd, lastDecision, buildProfilePatch,
+  livePriceFor,
 } from './derive.js'
 
 describe('loopState', () => {
@@ -95,5 +96,14 @@ describe('buildProfilePatch', () => {
     const patch = buildProfilePatch({ allowed_regimes: ['uptrend', 'neutral'] },
       { allowed_regimes: ['uptrend', 'neutral', 'downtrend'] })
     expect(patch.allowed_regimes).toEqual(['uptrend', 'neutral', 'downtrend'])
+  })
+})
+
+describe('livePriceFor', () => {
+  it('returns the quote for a symbol or null', () => {
+    const prices = { 'BTC/USD': { price: 60810.2, stale: false } }
+    expect(livePriceFor(prices, 'BTC/USD')).toEqual({ price: 60810.2, stale: false })
+    expect(livePriceFor(prices, 'ETH/USD')).toBeNull()
+    expect(livePriceFor(null, 'BTC/USD')).toBeNull()
   })
 })
