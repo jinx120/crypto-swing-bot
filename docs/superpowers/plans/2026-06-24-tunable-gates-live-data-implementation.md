@@ -1810,7 +1810,7 @@ git commit -m "feat(frontend): skeletons + localStorage hydration on Mission Con
 **Interfaces:**
 - Consumes: `readCache`/`writeCache`.
 
-- [ ] **Step 1: Hydrate Coin Detail state from cache**
+- [x] **Step 1: Hydrate Coin Detail state from cache**
 
 In `frontend/src/pages/CoinDetail.jsx`, import the cache helpers:
 ```javascript
@@ -1827,12 +1827,12 @@ Change the state initializer and the `refresh` writer:
 ```
 The shared `swingbot:state` key means navigating from Mission Control paints the coin immediately from the warm cache. The per-panel children (`ChartPanel`, `BacktestComparisonPanel`, `LiveStatsPanel`, etc.) already poll independently via `usePolling`, so they render their own shells and never block the page — no change needed there.
 
-- [ ] **Step 2: Build**
+- [x] **Step 2: Build**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 3: Full gate + commit + live (criterion 5 + 6)**
+- [x] **Step 3: Full gate + commit + live (criterion 5 + 6)**
 
 ```bash
 .venv/bin/python -m pytest -q

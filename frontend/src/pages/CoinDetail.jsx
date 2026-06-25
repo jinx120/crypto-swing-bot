@@ -5,6 +5,7 @@ import { api } from '../api.js'
 import { Button } from '../components/ui/button.jsx'
 import { Badge } from '../components/ui/badge.jsx'
 import { cardStatus } from '../lib/derive.js'
+import { readCache, writeCache } from '../lib/cache.js'
 import useLivePrice from '../components/useLivePrice.js'
 import ChartPanel from '../components/detail/ChartPanel.jsx'
 import CurrentPositionPanel from '../components/detail/CurrentPositionPanel.jsx'
@@ -18,11 +19,11 @@ export default function CoinDetail() {
   const { name } = useParams()
   const strategyName = decodeURIComponent(name)
   const nav = useNavigate()
-  const [state, setState] = useState(null)
+  const [state, setState] = useState(() => readCache('swingbot:state'))
   const [busy, setBusy] = useState(false)
 
   const refresh = useCallback(async () => {
-    try { setState(await api.state()) } catch { /* keep last */ }
+    try { const s = await api.state(); setState(s); writeCache('swingbot:state', s) } catch { /* keep last */ }
   }, [])
   useEffect(() => { refresh(); const id = setInterval(refresh, 3000); return () => clearInterval(id) }, [refresh])
 
