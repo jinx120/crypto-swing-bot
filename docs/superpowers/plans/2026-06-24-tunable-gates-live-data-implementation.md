@@ -1385,7 +1385,7 @@ git commit -m "feat: PriceCache (per-symbol TTL + stale fallback)"
 - Consumes: `market._provider()` → provider with `get_latest_prices(symbols) -> {sym: float}`; `PriceCache`.
 - Produces: `GET /api/price?symbols=BTC/USD,ETH/USD` → `{sym: {"price","ts","stale"}}`; `{}` when no symbols or no market.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_web_price.py`:
 
@@ -1434,12 +1434,12 @@ def test_price_empty_when_no_symbols():
     assert _client(FakeMarket()).get("/api/price").json() == {}
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_web_price.py -q`
 Expected: FAIL (404 — route missing).
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 In `src/swingbot/web.py`, add the import near the top (after the `RebalanceSettings` import, line 19):
 
@@ -1475,12 +1475,12 @@ In the `# ---- read ----` block, add the route (e.g. after `/api/candles`, ~line
         return cache.get(syms)
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_web_price.py -q`
 Expected: PASS.
 
-- [ ] **Step 5: Commit + live**
+- [x] **Step 5: Commit + live**
 
 ```bash
 .venv/bin/python -m pytest -q

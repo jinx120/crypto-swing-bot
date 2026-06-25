@@ -18,6 +18,7 @@ from swingbot.presets import RESEARCHED_META, RESEARCHED_PRESETS
 from swingbot.profiles import ProfileStore
 from swingbot.supervisor import LifecycleError
 from swingbot.rebalance import RebalanceSettings
+from swingbot.price_cache import PriceCache
 
 _DIST = str(pathlib.Path(__file__).parent.parent.parent / "frontend" / "dist")
 
@@ -150,6 +151,18 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         if token and x_token != token:
             raise HTTPException(status_code=401, detail="bad or missing token")
 
+    _price_holder: dict = {}
+
+    def _price_cache():
+        if "pc" not in _price_holder and market is not None:
+            def fetch(syms):
+                prov = market._provider()
+                if prov is None or not hasattr(prov, "get_latest_prices"):
+                    return {}
+                return prov.get_latest_prices(syms)
+            _price_holder["pc"] = PriceCache(fetch, ttl=2.0)
+        return _price_holder.get("pc")
+
     # ---- read ----
     @app.get("/api/state")
     def state():
@@ -196,6 +209,14 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         else:
             bars = []
         return {"symbol": symbol, "timeframe": timeframe, "candles": bars}
+
+    @app.get("/api/price")
+    def price(symbols: str = ""):
+        syms = [s for s in symbols.split(",") if s]
+        cache = _price_cache()
+        if not syms or cache is None:
+            return {}
+        return cache.get(syms)
 
     # ---- strategies / arming ----
     @app.get("/api/strategies")
