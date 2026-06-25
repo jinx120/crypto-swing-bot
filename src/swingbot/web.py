@@ -69,6 +69,30 @@ class WatchlistBody(BaseModel):
     symbols: list[str]
 
 
+class ProfilePatchBody(BaseModel):
+    patch: dict
+
+
+_PROFILE_PATCH_KEYS = {
+    "entry_threshold",
+    "allowed_regimes",
+    "regime_ma_period",
+    "signals",
+    "stop_atr_mult",
+    "take_profit_atr_mult",
+    "tp_pct",
+    "sl_pct",
+    "bracket_mode",
+    "max_hold_bars",
+    "risk_per_trade",
+    "max_position_frac",
+    "daily_loss_limit_pct",
+    "max_consecutive_losses",
+    "max_concurrent",
+    "cooldown_minutes",
+}
+
+
 def _kronos_profile_name(symbol: str) -> str:
     return f"kronos-{symbol.replace('/', '-').lower()}"
 
@@ -203,6 +227,33 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         return {"ok": True}
+
+    @app.get("/api/strategies/{name}/profile")
+    def get_strategy_profile(name: str):
+        p = profiles.get(name)
+        if p is None:
+            raise HTTPException(status_code=404, detail=f"no strategy {name!r}")
+        return {"name": name, "profile": p}
+
+    @app.put("/api/strategies/{name}/profile")
+    def update_strategy_profile(
+        name: str,
+        body: ProfilePatchBody,
+        _=Depends(require_token),
+    ):
+        cur = profiles.get(name)
+        if cur is None:
+            raise HTTPException(status_code=404, detail=f"no strategy {name!r}")
+        bad = set(body.patch) - _PROFILE_PATCH_KEYS
+        if bad:
+            raise HTTPException(status_code=400, detail=f"non-tunable keys: {sorted(bad)}")
+        merged = {**cur, **body.patch}
+        try:
+            profiles.save(name, merged)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        controller.reload()
+        return {"name": name, "profile": merged}
 
     # ---- portfolio settings ----
     @app.get("/api/portfolio/settings")

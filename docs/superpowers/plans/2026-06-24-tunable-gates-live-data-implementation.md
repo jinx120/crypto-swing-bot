@@ -78,7 +78,7 @@ Delivers success criteria 1–2: a param changes live with no rebuild, and the r
 - Consumes: `profiles.get(name) -> dict|None`, `profiles.save(name, dict)` (raises `ValueError` on invalid), `controller.reload()`.
 - Produces: `PUT /api/strategies/{name}/profile` body `{"patch": {...}}` → `200 {"name","profile"}`; `404` unknown strategy; `400` non-tunable key or invalid value. `GET /api/strategies/{name}/profile` → `{"name","profile"}` or `404`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_web_strategy_profile.py`:
 
@@ -153,12 +153,12 @@ def test_put_profile_requires_token(tmp_path):
                  json={"patch": {"entry_threshold": 0.2}}).status_code == 401
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_web_strategy_profile.py -q`
 Expected: FAIL (404 for the new routes — they don't exist yet).
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 In `src/swingbot/web.py`, add near the other module-level `BaseModel`s (after `class WatchlistBody` ~line 69):
 
@@ -204,12 +204,12 @@ In the `# ---- strategies / arming ----` block, after the `live_eligible` route 
         return {"name": name, "profile": merged}
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_web_strategy_profile.py -q`
 Expected: PASS (6 tests).
 
-- [ ] **Step 5: Lint + commit**
+- [x] **Step 5: Lint + commit**
 
 ```bash
 .venv/bin/ruff check src/
