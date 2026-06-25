@@ -395,7 +395,7 @@ git commit -m "feat(types): add DecisionCode.GATE_BLOCKED"
 - Consumes: `ConfluenceResult.signals[name].score` (raw per-signal score), `self.profile.signals[name]` (reads `gate`/`min_score`).
 - Produces: `DecisionResult(DecisionCode.GATE_BLOCKED, "<signal> gate not satisfied", {"signal","score","min_score"})` when a gated signal's raw score `< min_score`; otherwise `None` (pipeline continues).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_orchestrator_decisions.py` (it already imports `ConfluenceResult`, `RegimeResult`, `Regime`, `DecisionCode`; add `SignalResult` to that import block):
 
@@ -437,12 +437,12 @@ def test_gate_satisfied_lets_entry_proceed(tmp_path, monkeypatch):
     assert orch._maybe_enter(T0, 1000).code is DecisionCode.ORDER_SUBMITTED
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_orchestrator_decisions.py::test_gate_blocks_when_raw_signal_score_below_min -q`
 Expected: FAIL (`ORDER_SUBMITTED`, not `GATE_BLOCKED` — gate not enforced yet).
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 In `src/swingbot/orchestrator.py`, in `_maybe_enter`, immediately after `conf = self.engine.evaluate(ctx)` (line 164) and before `if not conf.passed:`, insert:
 
@@ -474,12 +474,12 @@ Add this method to the `Orchestrator` class (e.g. right after `_maybe_enter`):
         return None
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_orchestrator_decisions.py -q`
 Expected: PASS (existing + 2 new).
 
-- [ ] **Step 5: Full gate + commit + live**
+- [x] **Step 5: Full gate + commit + live**
 
 ```bash
 .venv/bin/python -m pytest -q

@@ -17,6 +17,7 @@ from swingbot.types import (
     OrderStatus,
     Regime,
     RegimeResult,
+    SignalResult,
 )
 
 T0 = datetime(2026, 1, 1, 12, tzinfo=timezone.utc)
@@ -128,6 +129,47 @@ def test_strategy_and_portfolio_gate_decision_codes_are_stable(tmp_path, monkeyp
 
     orch = _orch(tmp_path / "portfolio", lambda *args: PortfolioDecision(False, "cap"))
     assert orch._maybe_enter(T0, 1000).code is DecisionCode.PORTFOLIO_BLOCKED
+
+
+def test_gate_blocks_when_raw_signal_score_below_min(tmp_path, monkeypatch):
+    profile = StrategyProfile.from_dict({
+        "symbol": "TRX/USD", "timeframe": "15m",
+        "signals": {"oversold": {"weight": 1.0, "gate": True, "min_score": 0.5}},
+        "entry_threshold": 0.25, "regime_ma_period": 50,
+    })
+    state = StateStore(str((tmp_path / "gate")) + ".db")
+    orch = Orchestrator(
+        profile, Data(), Broker(), state,
+        RiskManager(profile, state.load_risk_state()), TradeJournal()
+    )
+    monkeypatch.setattr(orch.regime, "evaluate", lambda ctx: RegimeResult(Regime.UPTREND))
+    monkeypatch.setattr(orch.engine, "evaluate", lambda ctx: ConfluenceResult(
+        1.0, 0.25, True, {"oversold": 0.3},
+        {"oversold": SignalResult("oversold", 0.3)}
+    ))
+    r = orch._maybe_enter(T0, 1000)
+    assert r.code is DecisionCode.GATE_BLOCKED
+    assert r.details["signal"] == "oversold"
+
+
+def test_gate_satisfied_lets_entry_proceed(tmp_path, monkeypatch):
+    profile = StrategyProfile.from_dict({
+        "symbol": "TRX/USD", "timeframe": "15m",
+        "signals": {"oversold": {"weight": 1.0, "gate": True, "min_score": 0.5}},
+        "entry_threshold": 0.25, "regime_ma_period": 50, "atr_period": 14,
+        "stop_atr_mult": 2.0, "take_profit_atr_mult": 2.0, "risk_per_trade": 0.02,
+    })
+    state = StateStore(str((tmp_path / "ok")) + ".db")
+    orch = Orchestrator(
+        profile, Data(), Broker(), state,
+        RiskManager(profile, state.load_risk_state()), TradeJournal()
+    )
+    monkeypatch.setattr(orch.regime, "evaluate", lambda ctx: RegimeResult(Regime.UPTREND))
+    monkeypatch.setattr(orch.engine, "evaluate", lambda ctx: ConfluenceResult(
+        1.0, 0.25, True, {"oversold": 0.6},
+        {"oversold": SignalResult("oversold", 0.6)}
+    ))
+    assert orch._maybe_enter(T0, 1000).code is DecisionCode.ORDER_SUBMITTED
 
 
 def test_tick_and_flatten_return_decision_results(tmp_path):

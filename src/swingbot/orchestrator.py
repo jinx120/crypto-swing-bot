@@ -162,6 +162,9 @@ class Orchestrator:
                 {"regime": reg.regime.value},
             )
         conf = self.engine.evaluate(ctx)
+        gate_block = self._check_gates(conf)
+        if gate_block is not None:
+            return gate_block
         if not conf.passed:
             details = {"score": conf.score, "threshold": conf.threshold}
             kronos = conf.signals.get("kronos_forecast")
@@ -235,6 +238,21 @@ class Orchestrator:
                 "score": conf.score,
             },
         )
+
+    def _check_gates(self, conf) -> DecisionResult | None:
+        for name, params in self.profile.signals.items():
+            if not params.get("gate", False):
+                continue
+            min_score = float(params.get("min_score", 0.0))
+            sig = conf.signals.get(name)
+            score = sig.score if sig is not None else 0.0
+            if score < min_score:
+                return DecisionResult(
+                    DecisionCode.GATE_BLOCKED,
+                    f"{name} gate not satisfied",
+                    {"signal": name, "score": score, "min_score": min_score},
+                )
+        return None
 
     def _reconcile_pending(self, pending: PendingOrder, now: datetime) -> DecisionResult:
         if pending.broker_order_id is not None:
