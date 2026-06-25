@@ -252,14 +252,14 @@ git commit -m "feat(api): client methods for strategy-profile get/update"
 
 **Files:** none (operational). This is the Phase 1 live-verify deliverable.
 
-- [ ] **Step 1: Rebuild + restart the container**
+- [x] **Step 1: Rebuild + restart the container**
 
 ```bash
 cd /home/redji/crypto-swing-bot
 docker compose build swingbot && docker compose up -d swingbot
 ```
 
-- [ ] **Step 2: Flip the regime gate OFF for the four armed kronos strategies**
+- [x] **Step 2: Flip the regime gate OFF for the four armed kronos strategies**
 
 ```bash
 for n in kronos-btc-usd kronos-eth-usd kronos-sol-usd kronos-xrp-usd; do
@@ -270,7 +270,7 @@ done
 ```
 Expected: each returns `200` JSON with `"allowed_regimes":["uptrend","neutral","downtrend"]`. (If a name is absent, list live names with `curl -s localhost:8000/api/strategies | python3 -m json.tool` and repeat for the real names.)
 
-- [ ] **Step 3: Confirm the unblock (criterion 1)**
+- [x] **Step 3: Confirm the unblock (criterion 1)**
 
 Wait for 1–2 closed 15m bars, then:
 ```bash
@@ -1251,7 +1251,7 @@ Delivers success criterion 4.
 **Interfaces:**
 - Produces: `PriceCache(fetch, ttl=2.0, clock=time.monotonic)` with `.get(symbols) -> {symbol: {"price": float|None, "ts": str|None, "stale": bool}}`. `fetch(symbols) -> {symbol: float}`; on `fetch` exception, serves last cached and marks `stale=True`; only fetches symbols whose cache entry is missing or older than `ttl`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_price_cache.py`:
 
@@ -1302,12 +1302,12 @@ def test_unknown_symbol_after_failed_first_fetch_is_null_stale():
     assert out["ETH/USD"] == {"price": None, "ts": None, "stale": True}
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_price_cache.py -q`
 Expected: FAIL (`ModuleNotFoundError: swingbot.price_cache`).
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/swingbot/price_cache.py`:
 
@@ -1362,12 +1362,12 @@ class PriceCache:
         return entry is None or (now - entry[1]) > self._ttl
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_price_cache.py -q`
 Expected: PASS (3 tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 .venv/bin/ruff check src/
