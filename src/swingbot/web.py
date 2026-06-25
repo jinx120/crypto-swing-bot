@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from swingbot.data.market import timeframe_seconds
 from swingbot.universe import fallback_universe
 from swingbot.kronos_preset import kronos_bracket_profile
+from swingbot.presets import RESEARCHED_META, RESEARCHED_PRESETS
 from swingbot.profiles import ProfileStore
 from swingbot.supervisor import LifecycleError
 from swingbot.rebalance import RebalanceSettings
@@ -71,6 +72,11 @@ class WatchlistBody(BaseModel):
 
 class ProfilePatchBody(BaseModel):
     patch: dict
+
+
+class ResearchedBody(BaseModel):
+    preset: str
+    symbol: str
 
 
 _PROFILE_PATCH_KEYS = {
@@ -228,6 +234,24 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         return {"ok": True}
+
+    @app.get("/api/strategies/researched")
+    def list_researched():
+        return RESEARCHED_META
+
+    @app.post("/api/strategies/researched")
+    def add_researched(body: ResearchedBody, _=Depends(require_token)):
+        builder = RESEARCHED_PRESETS.get(body.preset)
+        if builder is None:
+            raise HTTPException(status_code=400, detail=f"unknown preset {body.preset!r}")
+        name = f"researched-{body.preset}-{body.symbol.replace('/', '-').lower()}"
+        try:
+            profiles.save(name, builder(body.symbol))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        profiles.arm(name)
+        controller.reload()
+        return {"name": name}
 
     @app.get("/api/strategies/{name}/profile")
     def get_strategy_profile(name: str):

@@ -744,7 +744,7 @@ git commit -m "feat(presets): four researched standalone preset builders (kind=r
 - Consumes: `RESEARCHED_PRESETS`, `RESEARCHED_META`, `profiles.save`, `profiles.arm`, `controller.reload`.
 - Produces: `GET /api/strategies/researched -> RESEARCHED_META`; `POST /api/strategies/researched` body `{"preset","symbol"}` → `200 {"name"}` (saves + arms + reload); `400` on unknown preset.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_web_strategy.py` (reuse its `_Ctl`/`FakeMarket`; this test uses a real `ProfileStore`):
 
@@ -780,12 +780,12 @@ def test_researched_listing_and_add(tmp_path):
                   headers={"X-Token": "t"}).status_code == 400
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_web_strategy.py::test_researched_listing_and_add -q`
 Expected: FAIL (404 — routes don't exist).
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 In `src/swingbot/web.py`, add to the imports near the top (after the `kronos_bracket_profile` import, line 16):
 
@@ -823,12 +823,12 @@ Add the routes in the `# ---- strategies / arming ----` block (after the profile
         return {"name": name}
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_web_strategy.py -q`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 .venv/bin/ruff check src/

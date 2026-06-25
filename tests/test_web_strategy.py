@@ -64,3 +64,42 @@ def test_strategies_list_generic_fields():
     assert rows["my_custom"]["symbol"] == "ETH/USD"
     assert rows["my_custom"]["armed"] is False
     assert all("kind" in r and "label" in r for r in rows.values())
+
+
+def test_researched_listing_and_add(tmp_path):
+    from swingbot.profiles import ProfileStore
+
+    class Ctl(_Ctl):
+        def __init__(self):
+            self.reloaded = 0
+
+        def reload(self):
+            self.reloaded += 1
+
+    profiles = ProfileStore(str(tmp_path / "p.db"))
+    ctl = Ctl()
+    app = create_app(ctl, profiles=profiles, creds=None, token="t",
+                     store=None, market=FakeMarket())
+    c = TestClient(app)
+
+    listed = c.get("/api/strategies/researched").json()
+    assert {m["preset"] for m in listed} == {
+        "vwap_pullback", "ema_trend", "fvg_retrace", "eth_rel_strength"
+    }
+
+    r = c.post(
+        "/api/strategies/researched",
+        json={"preset": "ema_trend", "symbol": "SOL/USD"},
+        headers={"X-Token": "t"},
+    )
+    assert r.status_code == 200
+    name = r.json()["name"]
+    assert name in profiles.list_armed()
+    assert profiles.get(name)["kind"] == "researched"
+    assert ctl.reloaded == 1
+
+    assert c.post(
+        "/api/strategies/researched",
+        json={"preset": "nope", "symbol": "SOL/USD"},
+        headers={"X-Token": "t"},
+    ).status_code == 400
