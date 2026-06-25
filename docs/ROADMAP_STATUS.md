@@ -4,13 +4,121 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-06-20
+**Last updated:** 2026-06-22
+
+---
+
+## ▶ LATEST SESSION (2026-06-22 PM) — high-frequency demo retune + live decision feed
+
+User: "weeks of this and no trades — I don't care if it loses money, just show frequency trades,"
+plus "the journal only ever shows one IDLE row." Diagnosed (not broken): the bot was healthy and
+evaluating every closed 15m bar, but the Kronos `entry_threshold` was **1.0** while forecast scores
+run ~0.1–0.5 (`score = forecast_pct_change / 0.0075`), so it essentially never entered. And the
+dashboard "Decision Journal" was fed only `health.last_decisions_by_strategy` (latest tick per
+strategy ⇒ almost always IDLE); the append-only decision history was never surfaced.
+
+**Two changes shipped (code + DB reseed + rebuild, all live-verified):**
+1. **Decision feed.** `TelemetryStore.recent_decisions()` (SQL filter `decision_code != 'IDLE'`) →
+   `PortfolioSupervisor.decisions()` → `GET /api/decisions?strategy&limit`. Telemetry retention
+   200→**2000** (≈1.5 days of per-bar history). Frontend `LiveJournal.jsx` now polls
+   `api.decisions()` and renders the real stream. (`recent_decisions` test added; the phase3
+   "exactly latest 200" test updated — reliability window stays 200, decoupled from retention.)
+2. **Frequency retune** in `kronos_preset.py` (now a high-frequency, NOT-profitable demo profile):
+   `entry_threshold 1.0→0.05`, `tp/sl 1.5%/1%→0.6%/0.5%`, added `max_hold_bars 8` (2h),
+   `cooldown_minutes 0`, `daily_loss_limit_pct 0.95` + `max_consecutive_losses 100` (per-strategy
+   auto-halt effectively off). Portfolio `portfolio_daily_loss_limit_pct`→0.95 too.
+   **The 5 persisted `kronos-*` profiles were frozen in `~/.swingbot/swingbot.db` (ProfileStore), so
+   editing the preset alone does nothing — they were reseeded in the DB while the container was stopped.**
+   On restart BTC immediately read `score 0.51 > 0.05 passed=True`; first BUY expected at the 19:00Z bar close.
+3. 515 passed / 5 skipped, ruff clean, frontend build + vitest green. Container rebuilt & healthy.
+
+**To revert to selective trading:** raise `entry_threshold` in `kronos_preset.py` back toward ~0.5–1.0,
+widen brackets, restore breakers — then reseed the DB profiles (edit alone won't touch stored rows).
+
+---
+
+## ▶ LATEST SESSION (2026-06-22) — researched-strategy backtest: NO deployable 15m edge → keep Kronos-only
+
+The S210 deep-research output (5 TA strategies in the 6 signal primitives) was acted on. User picked
+the recommended 3 (#1 VWAP pullback, #2 EMA trend-momentum, #4 ETH relative-strength) for backtest,
+goal "full pipeline to live paper." **Outcome: nothing deployable; deploy none; live bot stays Kronos-only.**
+
+- **Data:** backfilled Coinbase 15m BTC/USD+ETH/USD **2022-01-01→2026-06-22** (~156k bars each) into a
+  `/tmp/swingbot-bt` data dir (BTC/ETH 15m were NOT in the archive before — only alts; host `~/.swingbot/candles.db`
+  is root-owned/read-only so backtest data lives in /tmp, which is ephemeral — re-backfill after reboot, ~8 min).
+- **Harness:** `lab/strategy_backtest.py` (`run_backtest_fast`: vectorized scores+regime, real broker/exits;
+  **validated bit-for-bit == `swingbot.backtest.run_backtest`** on 8k bars — the prod harness is O(n²) and
+  infeasible at 156k bars). Diagnostics: `lab/strategy_diag.py`, `lab/strategy_htf.py`.
+- **Verdict (full evidence in `docs/STRATEGY_BACKTEST_FINDINGS.md`):** even at **0 bps cost** there is no edge
+  — #1 negative gross, #2/#4 PF≈1.01 (random). 15m ATR is only ~0.29% (BTC) so 2×ATR TP < the 0.6% round trip.
+  Higher-TF check: only **#2 EMA on 4h** has a thin, cost-fragile edge (PF~1.1 gross, breakeven by 25 bps,
+  negative at the 60 bps profile default). #1/#4 dead at every TF. Net loss every year incl. the 2024 bull.
+- **Kronos confirmation TESTED on GPU** (the container has torch 2.6+cu126 / RTX 3050; host venv doesn't).
+  `lab/kronos_precompute.py` cached 4h forecasts (9286/symbol, ~32min each on GPU); `lab/strategy_kronos.py`
+  compared on host: **EMA+Kronos ≈ EMA-core (Kronos adds ~nothing)**; Kronos-only is the same thin ~PF1.1
+  trend edge that dies by 25–60 bps. Kronos does NOT rescue the strategies. (15m Kronos = ~9h inference, not run.)
+- **No code/container change** — pure analysis; live bot untouched (still the clean Kronos-only paper trader).
+  `lab/*` harness + the findings doc are uncommitted on the host tree.
+
+---
+
+## ▶ LATEST SESSION (2026-06-21 PM) — two user-reported fixes, LIVE-VERIFIED
+
+**1. "no fresh closed bar" red ERROR fixed (was a mislabel, not a data bug).** Coinbase candles are
+current; the bot correctly acts only in the 120s window after each 15m close, but it was recording the
+other ~13 min of every 15 min as `ingest:failed` + `DecisionCode.ERROR` "no fresh closed bar available"
+→ every card showed red ERROR and reliability read 14% (≈ 120s fresh ÷ 900s bar). Now `supervisor._warm`
+classifies three states: **ok** (fresh → act), **idle** (latest closed bar still current, just past the
+act-now grace → new `DecisionCode.IDLE` "waiting for next closed bar", counts as a healthy completed
+ingest), **failed/ERROR** only when the provider falls a *full bar* behind (`now > bar_ts + 2·tf + 120s`)
+or there is no bar. Trade cadence unchanged (still once per fresh bar). New enum `DecisionCode.IDLE`
+(contract test updated). Tests: `test_between_bars_idle_is_not_an_error`,
+`test_provider_fallen_a_full_bar_behind_records_error`. Live: both cards now read `IDLE · waiting for next
+closed bar`; reliability self-heals to ~100% as old ERROR cycles roll out of the 200-cycle window.
+
+**2. Token auth fully removed (user: "security not needed", multi-device testing).** `require_token` now
+enforces **only when a token is configured**; `webmain` ships **no token** (`SWINGBOT_TOKEN` dropped from
+`docker-compose.yml`, `SWINGBOT_LOCAL_TRUST` gone) → every endpoint open, no token ever needed on any
+device. Removed: `/api/auth/bootstrap` endpoint + `local_trust` param (web.py), `_ensure_token`/`secrets`
+(webmain), `tests/test_auth_bootstrap.py`, and all frontend token plumbing (`TokenGate.jsx` deleted,
+`ensureToken`/`getToken`/`setToken`/`X-Token`/`authBootstrap` stripped from `api.js`/`main.jsx`,
+TokenGate removed from Settings). Live: `PUT /api/data-source` with **no token → 200** (was 401),
+`GET /api/auth/bootstrap → 404`, Settings page no longer shows the API-token panel.
+
+**Gates:** backend **514 passed, 5 skipped**, ruff clean; frontend build green, **12/12** vitest. Container
+rebuilt + restarted. **Changes are LIVE but UNCOMMITTED** on the host working tree — commit/push when ready.
 
 ---
 
 ## ▶ NEXT ACTION
 
-**▶ EXECUTE (in progress, via Codex VM bridge) — "Kronos POC Paper Trader".** Plan:
+**▶ EXECUTE — "Tunable Gates, Live Data & Faster UI" (2026-06-24).** Phase: EXECUTE.
+Spec `docs/superpowers/specs/2026-06-24-tunable-gates-live-data-design.md` (committed `ba16ff1`).
+Plan **`docs/superpowers/plans/2026-06-24-tunable-gates-live-data-implementation.md`** — 5 phases,
+TDD, each shippable/live-verifiable, full non-placeholder code per task. To resume: load
+`superpowers:executing-plans` (or `subagent-driven-development`), find the first unchecked `- [ ]`,
+continue; tick + commit per task; Docker rebuild per backend change (standing rule).
+
+- **Phase 1** (Tasks 1.1–1.3): `PUT/GET /api/strategies/{name}/profile` (whitelist + hot-reload) +
+  flip the regime gate OFF live for the 4 kronos strategies → unblocks trading. *Highest value — do first.*
+- **Phase 2** (2.1–2.3): gate layer — `build_signals` strips `gate`/`min_score`, new `DecisionCode.GATE_BLOCKED`,
+  orchestrator `_check_gates` between regime and confluence-threshold checks.
+- **Phase 3** (3.1–3.6): `kind`/`label` on `StrategyProfile`; four researched preset builders +
+  `GET/POST /api/strategies/researched`; frontend Gates & Parameters panel + badged Add-dialog option.
+- **Phase 4** (4.1–4.3): `PriceCache` + `GET /api/price` (2s TTL) + `useLivePrice` 3s poller.
+- **Phase 5** (5.1–5.3): `localStorage` SWR hydration + skeletons → instant paint.
+
+**Root cause this addresses:** the live bot took no trades because every decision died at
+`REGIME_BLOCKED` (4h SMA filter classifies BTC/ETH/SOL/XRP as DOWNTREND; `allowed_regimes=(UPTREND,NEUTRAL)`
+vetoes despite passing Kronos scores). No UI param tuning existed without a code edit + DB reseed + rebuild.
+
+**Prior CURRENT STATE (2026-06-22, superseded):** Kronos POC complete + live; researched-strategy
+backtest done with a "deploy none" verdict (`docs/STRATEGY_BACKTEST_FINDINGS.md`). This sub-project
+re-introduces those signals as opt-in gates + badged demo strategies, not as a profitability claim.
+
+---
+
+**▶ EXECUTE (DONE) — "Kronos POC Paper Trader".** Plan:
 **`docs/superpowers/plans/2026-06-20-kronos-poc-paper-trader-implementation.md`** (24 tasks, 6 phases A–F).
 Codex (gpt-5.5, VM bridge) implements code+TDD+commits+push per task; **clawd docker-rebuilds + live-verifies
 per phase** (Codex has no live container). To resume mid-execution: check `origin/core-engine` HEAD + the
