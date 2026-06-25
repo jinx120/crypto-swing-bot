@@ -355,16 +355,16 @@ git commit -m "feat(confluence): strip reserved gate/min_score keys in build_sig
 - Modify: `src/swingbot/types.py:36` (insert after `REGIME_BLOCKED`)
 - Test: `tests/test_types_decisions.py:14-34`
 
-- [ ] **Step 1: Update the contract test (failing)**
+- [x] **Step 1: Update the contract test (failing)**
 
 In `tests/test_types_decisions.py`, add `"GATE_BLOCKED",` to the expected set in `test_decision_codes_match_phase3_api_contract` (after `"REGIME_BLOCKED",`).
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_types_decisions.py::test_decision_codes_match_phase3_api_contract -q`
 Expected: FAIL (set mismatch — enum lacks `GATE_BLOCKED`).
 
-- [ ] **Step 3: Add the enum member**
+- [x] **Step 3: Add the enum member**
 
 In `src/swingbot/types.py`, in `class DecisionCode`, add after the `REGIME_BLOCKED` line:
 
@@ -372,12 +372,12 @@ In `src/swingbot/types.py`, in `class DecisionCode`, add after the `REGIME_BLOCK
     GATE_BLOCKED = "GATE_BLOCKED"
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_types_decisions.py -q`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 .venv/bin/ruff check src/

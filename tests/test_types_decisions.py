@@ -18,6 +18,7 @@ def test_decision_codes_match_phase3_api_contract():
         "BROKER_POSITION_EXISTS",
         "RISK_BLOCKED",
         "REGIME_BLOCKED",
+        "GATE_BLOCKED",
         "SIGNAL_BELOW_THRESHOLD",
         "ATR_INVALID",
         "SIZE_ZERO",
