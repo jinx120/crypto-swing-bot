@@ -1122,7 +1122,7 @@ Live-verify: open `http://localhost:8000/#/coin/kronos-btc-usd`, expand the pane
 **Interfaces:**
 - Consumes: `api.listResearched()`, `api.addResearched(preset, symbol)`, `api.universe()`.
 
-- [ ] **Step 1: Add a researched section to the dialog**
+- [x] **Step 1: Add a researched section to the dialog**
 
 In `frontend/src/components/AddCoinDialog.jsx`, extend the component to load researched presets and render a second section with the demo badge. Replace the body with:
 
@@ -1222,12 +1222,12 @@ export default function AddCoinDialog({ open, onOpenChange, onAdded }) {
 }
 ```
 
-- [ ] **Step 2: Build**
+- [x] **Step 2: Build**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 3: Commit + live**
+- [x] **Step 3: Commit + live**
 
 ```bash
 git add frontend/src/components/AddCoinDialog.jsx
