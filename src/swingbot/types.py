@@ -45,6 +45,7 @@ class DecisionCode(str, Enum):
     MANAGED_NO_EXIT = "MANAGED_NO_EXIT"
     EXIT_SUBMITTED = "EXIT_SUBMITTED"
     EXITED = "EXITED"
+    IDLE = "IDLE"
     ERROR = "ERROR"
 
 

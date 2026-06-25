@@ -148,7 +148,9 @@ class PortfolioSupervisor:
         self._rebalance_targets: dict = {}
         self._rebalancer: Rebalancer | None = None
         self._store: StateStore | None = None
-        self._telemetry = TelemetryStore(state_db)
+        # Deep retention so the decision feed keeps ~1.5 days of per-bar history
+        # despite the 60s idle-poll cadence dominating the record stream.
+        self._telemetry = TelemetryStore(state_db, retention=2000)
         self._trade_store = TradeStore(state_db)
         self._provider: CachedProvider | None = None
         self._summary: dict = {}
@@ -399,8 +401,11 @@ class PortfolioSupervisor:
             orch.paused = bool(self.paused)
             orch.halted = bool(self._portfolio_risk.state.kill_switch_active)
             cycle_id = uuid4().hex
+            ingest_outcome = ingest[name]["outcome"]
             stages = {
-                "ingest": ingest[name]["outcome"],
+                # "idle" (healthy between-bars wait) is a completed ingest, not a
+                # failure — record it as "ok" so reliability reflects real health.
+                "ingest": "ok" if ingest_outcome == "idle" else ingest_outcome,
                 "reconcile": "ok",
                 "manage": "skipped",
                 "decide": "skipped",
@@ -429,7 +434,18 @@ class PortfolioSupervisor:
 
             position_exists = s["view"].load_position() is not None
             required_stage = "manage" if position_exists else "decide"
-            if not reconcile_ok or stages["ingest"] == "failed":
+            if reconcile_ok and ingest_outcome == "idle":
+                # Healthy between-bars idle: we hold the latest closed bar but are
+                # past the act-now window. Skip the decision (the bot acts once per
+                # freshly-closed bar) and record a calm IDLE — never a red ERROR.
+                bar_ts = ingest[name]["bar_ts"]
+                decision = DecisionResult(
+                    DecisionCode.IDLE,
+                    "waiting for next closed bar",
+                    {"stage": "idle",
+                     "bar_ts": bar_ts.isoformat() if bar_ts else None},
+                )
+            elif not reconcile_ok or stages["ingest"] == "failed":
                 stages[required_stage] = "failed"
                 if stages["ingest"] == "failed":
                     decision = DecisionResult(
@@ -636,10 +652,30 @@ class PortfolioSupervisor:
                     timeframe=profile.timeframe,
                     now=now,
                 )
-                if error is None and not freshness.fresh:
-                    error = "no fresh closed bar available"
+                # Three states, not two:
+                #   ok     — a freshly-closed bar is within the act-now grace; run
+                #            the strategy this cycle.
+                #   idle   — the latest closed bar exists and is still the current
+                #            one, we're just past the act-now grace (between-bars
+                #            idle). Healthy; wait for the next bar — NOT an error.
+                #   failed — refresh raised, there is no closed bar at all, or the
+                #            provider has fallen a full bar behind (genuinely stale).
+                outcome = "ok"
+                if error is not None:
+                    outcome = "failed"
+                elif freshness.bar_ts is None:
+                    outcome = "failed"
+                    error = "no closed bar available"
+                elif not freshness.fresh:
+                    tf_secs = timeframe_seconds(profile.timeframe)
+                    deadline = freshness.bar_ts + timedelta(seconds=2 * tf_secs + 120)
+                    if now <= deadline:
+                        outcome = "idle"
+                    else:
+                        outcome = "failed"
+                        error = "market data stale"
                 results[name] = {
-                    "outcome": "failed" if error else "ok",
+                    "outcome": outcome,
                     "bar_ts": freshness.bar_ts,
                     "fresh": freshness.fresh,
                     "error": error,
@@ -932,6 +968,12 @@ class PortfolioSupervisor:
     @_state_locked
     def journal(self, strategy: str | None = None) -> list[dict]:
         return [_trade_dict(t) for t in self._trades(strategy)]
+
+    def decisions(self, strategy: str | None = None, limit: int = 50) -> list[dict]:
+        """Recent per-bar decision stream (telemetry, idle ticks excluded)."""
+        with self._state_lock:
+            rows = self._telemetry.recent_decisions(limit=limit, strategy=strategy)
+        return [_cycle_dict(row) for row in rows]
 
     @_state_locked
     def metrics(self, strategy: str | None = None) -> dict:

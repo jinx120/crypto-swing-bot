@@ -11,17 +11,23 @@ def test_preset_is_a_valid_kronos_pct_strategy():
     p = StrategyProfile.from_dict(d)
     assert p.symbol == "ETH/USD"
     assert p.timeframe == "15m"
-    assert p.bracket_mode == "pct" and p.tp_pct == 0.015 and p.sl_pct == 0.01
+    assert p.bracket_mode == "pct" and p.tp_pct == 0.006 and p.sl_pct == 0.005
     assert "kronos_forecast" in p.signals
     sig = p.signals["kronos_forecast"]
     assert sig["threshold_pct"] == 0.0075 and sig["neutral_on_error"] is False
-    assert p.entry_threshold == 1.0
+    assert p.entry_threshold == 0.05
 
 
-def test_entry_threshold_fires_at_075pct():
+def test_high_frequency_preset_is_aggressive():
     d = kronos_bracket_profile("BTC/USD")
-    assert d["entry_threshold"] == 1.0
+    # low threshold + single full-weight signal => fires on almost any up-forecast
+    assert d["entry_threshold"] == 0.05
     assert d["signals"]["kronos_forecast"]["weight"] == 1.0
+    # fast recycle + no self-halting so trades stay frequent
+    assert d["max_hold_bars"] == 8
+    assert d["cooldown_minutes"] == 0
+    assert d["daily_loss_limit_pct"] >= 0.95
+    assert d["max_consecutive_losses"] >= 100
 
 
 class FakeController:

@@ -17,6 +17,7 @@ def _record(
     manage: str = "skipped",
     decide: str = "ok",
     persist: str = "ok",
+    decision_code: DecisionCode = DecisionCode.SIGNAL_BELOW_THRESHOLD,
 ) -> CycleRecord:
     started = T0 + timedelta(seconds=offset)
     return CycleRecord(
@@ -30,7 +31,7 @@ def _record(
         manage=manage,
         decide=decide,
         persist=persist,
-        decision_code=DecisionCode.SIGNAL_BELOW_THRESHOLD,
+        decision_code=decision_code,
         decision_reason="score below threshold",
         decision_details={"score": 0.2},
     )
@@ -52,6 +53,21 @@ def test_cycle_store_survives_reopen(tmp_path):
     store.close()
 
     assert TelemetryStore(path).recent(limit=200, strategy="btc")[0].cycle_id == "c1"
+
+
+def test_recent_decisions_excludes_idle_ticks(tmp_path):
+    store = TelemetryStore(str(tmp_path / "state.db"))
+    # interleave idle polls with real per-bar decisions
+    store.record(_record("idle1", offset=0, decide="skipped",
+                         decision_code=DecisionCode.IDLE))
+    store.record(_record("dec1", offset=1))                       # decision
+    store.record(_record("idle2", offset=2, decide="skipped",
+                         decision_code=DecisionCode.IDLE))
+    store.record(_record("dec2", offset=3))                       # decision
+
+    rows = store.recent_decisions(limit=50, strategy="btc")
+    assert [r.cycle_id for r in rows] == ["dec2", "dec1"]
+    assert all(r.decision_code is not DecisionCode.IDLE for r in rows)
 
 
 def test_retention_keeps_latest_200_per_strategy(tmp_path):

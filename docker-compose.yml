@@ -10,10 +10,8 @@ services:
       - HF_HOME=/hf-cache
       # autodash reads the live core-engine SQLite DBs (journal/state/candles)
       - CORE_ENGINE_DATA=/core-engine-data
-      # Autonomous auth: pin a deterministic token and let the localhost frontend
-      # self-bootstrap it (single-user trusted host). Change SWINGBOT_TOKEN to rotate.
-      - SWINGBOT_TOKEN=${SWINGBOT_TOKEN:-swingbot-local}
-      - SWINGBOT_LOCAL_TRUST=1
+      # Auth is disabled (no SWINGBOT_TOKEN): single-user paper bot reached from
+      # several personal devices. Set SWINGBOT_TOKEN to re-enable token auth.
     ports:
       - "8000:8000"
     volumes:

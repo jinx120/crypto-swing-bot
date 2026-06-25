@@ -89,6 +89,35 @@ def test_warm_failure_records_ingest_failure_and_submits_no_order(tmp_path):
     assert broker.buys == []
 
 
+def test_between_bars_idle_is_not_an_error(tmp_path):
+    # Five minutes past the last close: outside the act-now window but the latest
+    # closed bar is still the current one. This is healthy idle, not an error: it
+    # must not be an ERROR, must not tank the ingest reliability, and must place
+    # no order (the bot only acts once per freshly-closed bar).
+    sup, broker, market = _supervisor(tmp_path, ["BTC/USD"])
+
+    sup.tick_all(T0 + timedelta(minutes=5))
+
+    row = sup._telemetry.recent(strategy="btc")[0]
+    assert row.decision_code is DecisionCode.IDLE
+    assert row.ingest == "ok"
+    assert row.decide == "skipped"
+    assert broker.buys == []
+
+
+def test_provider_fallen_a_full_bar_behind_records_error(tmp_path):
+    # 40 minutes past the last bar: the provider has missed a full bar — genuinely
+    # stale data, which should still surface as an ERROR.
+    sup, broker, market = _supervisor(tmp_path, ["BTC/USD"])
+
+    sup.tick_all(T0 + timedelta(minutes=40))
+
+    row = sup._telemetry.recent(strategy="btc")[0]
+    assert row.ingest == "failed"
+    assert row.decision_code is DecisionCode.ERROR
+    assert broker.buys == []
+
+
 def test_reconcile_exception_records_failure_and_preserves_position(tmp_path):
     sup, broker, market = _supervisor(tmp_path, ["BTC/USD"])
     position = _position()

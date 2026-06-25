@@ -226,7 +226,14 @@ class Orchestrator:
         return DecisionResult(
             DecisionCode.ORDER_SUBMITTED,
             "buy order submitted",
-            {"order_id": order.order_id, "client_order_id": pending.client_order_id},
+            {
+                "order_id": order.order_id,
+                "client_order_id": pending.client_order_id,
+                "entry_price": price,
+                "stop": stop,
+                "tp": tp,
+                "score": conf.score,
+            },
         )
 
     def _reconcile_pending(self, pending: PendingOrder, now: datetime) -> DecisionResult:

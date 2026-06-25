@@ -87,7 +87,7 @@ class AdvisorRevertBody(BaseModel):
 
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
                backfiller=None, poller=None, advisor_journal=None,
-               auto_dashboard=None, local_trust: bool = False) -> FastAPI:
+               auto_dashboard=None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
         try:
@@ -114,16 +114,11 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         app.include_router(build_auto_router(auto_dashboard))
 
     def require_token(x_token: str | None = Header(default=None)):
-        if x_token != token:
+        # Auth is opt-in: enforced only when the app is built with a non-empty
+        # token. Shipped with no token (single-user paper bot reached from several
+        # personal devices) so every endpoint is open and no token is ever needed.
+        if token and x_token != token:
             raise HTTPException(status_code=401, detail="bad or missing token")
-
-    @app.get("/api/auth/bootstrap")
-    def auth_bootstrap():
-        # Hands-off token delivery for a trusted single-user localhost deployment.
-        # Off by default; enabled only when the operator sets SWINGBOT_LOCAL_TRUST=1.
-        if not local_trust:
-            raise HTTPException(status_code=403, detail="bootstrap disabled")
-        return {"token": token}
 
     # ---- read ----
     @app.get("/api/state")
@@ -133,6 +128,10 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     @app.get("/api/journal")
     def journal(strategy: str | None = None):
         return controller.journal(strategy)
+
+    @app.get("/api/decisions")
+    def decisions(strategy: str | None = None, limit: int = 50):
+        return controller.decisions(strategy, limit)
 
     @app.get("/api/metrics")
     def metrics(strategy: str | None = None):

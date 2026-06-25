@@ -6,7 +6,7 @@ import { Button } from './ui/button.jsx'
 import { Badge } from './ui/badge.jsx'
 import { cn } from '../lib/utils.js'
 import {
-  loopState, modeBadge, equityOf, dayPnl, dayPnlPct, reliabilityPct, brokerUnauthorized,
+  loopState, modeBadge, equityOf, dayPnl, dayPnlPct, openPnl, reliabilityPct, brokerUnauthorized,
 } from '../lib/derive.js'
 
 function Dot({ ok, label }) {
@@ -24,6 +24,7 @@ export default function StatusStrip({ state, health, onChange }) {
   const eq = equityOf(state)
   const pnl = dayPnl(state)
   const pct = dayPnlPct(state)
+  const open = openPnl(state)
   const rel = reliabilityPct(health)
   const noBroker = brokerUnauthorized(health)
 
@@ -53,6 +54,12 @@ export default function StatusStrip({ state, health, onChange }) {
           <span className={cn('font-mono tabular-nums font-semibold', (pnl ?? 0) >= 0 ? 'text-up' : 'text-down')}>
             {pnl == null ? '—' : `${pnl >= 0 ? '▲ +' : '▼ '}${pnl.toFixed(2)}`}
             {pct != null && ` (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`}
+          </span>
+        </div>
+        <div className="text-sm">
+          open{' '}
+          <span className={cn('font-mono tabular-nums font-semibold', (open ?? 0) >= 0 ? 'text-up' : 'text-down')}>
+            {open == null ? '—' : `${open >= 0 ? '+' : ''}${open.toFixed(2)}`}
           </span>
         </div>
         <div className="ml-auto flex items-center gap-4">

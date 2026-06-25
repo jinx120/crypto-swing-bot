@@ -29,6 +29,23 @@ export function dayPnlPct(state) {
   return (p / eq) * 100
 }
 
+// Live unrealized P&L summed across every open position. Updates each state
+// poll because each position's `unrealized` is marked to the latest price.
+// Returns null when no position reports an unrealized value (so the UI shows
+// an em-dash rather than a misleading 0.00).
+export function openPnl(state) {
+  let sum = 0
+  let any = false
+  for (const s of state?.strategies || []) {
+    const u = s?.position?.unrealized
+    if (typeof u === 'number') {
+      sum += u
+      any = true
+    }
+  }
+  return any ? sum : null
+}
+
 export function reliabilityPct(health) {
   const r = health?.reliability?.cycle_completion_ratio
   return typeof r === 'number' ? r * 100 : null

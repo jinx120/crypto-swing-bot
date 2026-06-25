@@ -43,6 +43,12 @@ export default function CoinCard({ strategy, health, onChange }) {
               <div className={cn('text-lg font-semibold', (unreal ?? 0) >= 0 ? 'text-up' : 'text-down')}>
                 {unreal == null ? '—' : `${unreal >= 0 ? '+' : ''}${unreal.toFixed(2)}`}
               </div>
+              {(pos.tp != null || pos.stop != null) && (
+                <div className="flex gap-3 text-xs text-muted-foreground">
+                  <span>🎯 {pos.tp != null ? Number(pos.tp).toFixed(2) : '—'}</span>
+                  <span>🛑 {pos.stop != null ? Number(pos.stop).toFixed(2) : '—'}</span>
+                </div>
+              )}
             </>
           ) : (
             <div className="text-muted-foreground">—</div>

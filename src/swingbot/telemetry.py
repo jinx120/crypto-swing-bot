@@ -215,6 +215,25 @@ class TelemetryStore:
             rows = self._conn.execute(query, params).fetchall()
         return [self._from_row(row) for row in rows]
 
+    def recent_decisions(
+        self, limit: int = 50, strategy: str | None = None
+    ) -> list[CycleRecord]:
+        """Recent cycles where an actual decision was made (excludes IDLE ticks).
+
+        This is the per-bar play-by-play: entries, exits, blocks, and
+        below-threshold holds — without the between-bar idle polling noise.
+        """
+        query = "SELECT * FROM cycle_records WHERE decision_code != 'IDLE'"
+        params: list = []
+        if strategy is not None:
+            query += " AND strategy = ?"
+            params.append(strategy)
+        query += " ORDER BY completed_at DESC, cycle_id DESC LIMIT ?"
+        params.append(limit)
+        with self._lock:
+            rows = self._conn.execute(query, params).fetchall()
+        return [self._from_row(row) for row in rows]
+
     def reliability(self, limit: int = 200, strategy: str | None = None) -> dict:
         rows = self.recent(limit=limit, strategy=strategy)
         stages = {}

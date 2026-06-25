@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import secrets
 
 import uvicorn
 
@@ -22,23 +21,12 @@ DATA_DIR = os.environ.get("SWINGBOT_DATA_DIR", os.path.expanduser("~/.swingbot")
 PORT = int(os.environ.get("SWINGBOT_PORT", "8000"))
 
 
-def _ensure_token(path: str) -> str:
-    env_tok = os.environ.get("SWINGBOT_TOKEN")
-    if env_tok:
-        return env_tok.strip()
-    if os.path.exists(path):
-        with open(path) as f:
-            return f.read().strip()
-    tok = secrets.token_urlsafe(24)
-    with open(path, "w") as f:
-        f.write(tok)
-    os.chmod(path, 0o600)
-    return tok
-
-
 def main() -> None:
     os.makedirs(DATA_DIR, exist_ok=True)
-    token = _ensure_token(os.path.join(DATA_DIR, "token"))
+    # Auth intentionally disabled: this is a single-user paper-trading bot accessed
+    # from several personal devices (Tailscale), so no API token is required. Set
+    # SWINGBOT_TOKEN to re-enable per-request enforcement if ever needed.
+    token = (os.environ.get("SWINGBOT_TOKEN") or "").strip()
     profiles = ProfileStore(os.path.join(DATA_DIR, "swingbot.db"))
     creds = CredentialStore(os.path.join(DATA_DIR, "credentials.json"))
     store = CandleStore(os.path.join(DATA_DIR, "candles.db"))
@@ -69,10 +57,9 @@ def main() -> None:
     app = create_app(controller=supervisor, profiles=profiles, creds=creds,
                      token=token, store=store, market=market, backfiller=backfiller,
                      poller=poller, advisor_journal=advisor_journal,
-                     auto_dashboard=auto_dashboard,
-                     local_trust=os.environ.get("SWINGBOT_LOCAL_TRUST") == "1")
+                     auto_dashboard=auto_dashboard)
     app.state.archive_config = archive_cfg
-    print(f"[swingbot-web] token: {token}")
+    print(f"[swingbot-web] auth: {'token required' if token else 'disabled (no token)'}")
     print(f"[swingbot-web] http://{HOST}:{PORT}")
     uvicorn.run(app, host=HOST, port=PORT)
 

@@ -218,8 +218,10 @@ def test_health_reliability_uses_exactly_latest_200_completed_cycles(tmp_path):
 
     health = sup.trading_health()
 
+    # Reliability window is fixed at the latest 200 completed cycles, decoupled
+    # from telemetry retention (now 2000 so the decision feed keeps deep history).
     assert health["reliability"]["completed_cycles"] == 200
-    assert len(sup._telemetry.recent(limit=300, strategy="btc")) == 200
+    assert len(sup._telemetry.recent(limit=300, strategy="btc")) == 205
 
 
 def test_desired_but_not_running_is_unhealthy_with_perfect_reliability(tmp_path):

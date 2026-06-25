@@ -29,6 +29,7 @@ def test_decision_codes_match_phase3_api_contract():
         "MANAGED_NO_EXIT",
         "EXIT_SUBMITTED",
         "EXITED",
+        "IDLE",
         "ERROR",
     }
 

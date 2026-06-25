@@ -4,7 +4,6 @@ import RiskDialPanel from '../components/settings/RiskDialPanel.jsx'
 import TuningJournalPanel from '../components/settings/TuningJournalPanel.jsx'
 import AdvancedControls from '../components/settings/AdvancedControls.jsx'
 import RebalancePanel from '../components/RebalancePanel.jsx'
-import TokenGate from '../components/TokenGate.jsx'
 
 export default function Settings() {
   return (
@@ -16,7 +15,6 @@ export default function Settings() {
       <RebalancePanel />
       <TuningJournalPanel />
       <AdvancedControls />
-      <TokenGate />
     </div>
   )
 }
