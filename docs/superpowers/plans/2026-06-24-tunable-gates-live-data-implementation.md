@@ -1844,7 +1844,7 @@ docker compose build swingbot && docker compose up -d swingbot
 ```
 Live-verify (criterion 5): hard-reload `http://localhost:8000/#/` — Mission Control paints cached cards/status immediately (no ~10s blank), then revalidates. Optionally confirm with a Playwright snapshot like prior smokes.
 
-- [ ] **Step 4: Update the roadmap**
+- [x] **Step 4: Update the roadmap**
 
 Update `crypto-swing-bot/docs/ROADMAP_STATUS.md` NEXT ACTION + add a LATEST SESSION block summarizing the five shipped phases, the new endpoints, and the regime-off unblock. Commit:
 ```bash

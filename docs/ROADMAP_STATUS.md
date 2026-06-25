@@ -4,7 +4,40 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-06-22
+**Last updated:** 2026-06-25
+
+---
+
+## ▶ LATEST SESSION (2026-06-25) — Tunable Gates, Researched Strategies, Live Data & Faster UI — SHIPPED + LIVE
+
+Executed the full 5-phase plan `docs/superpowers/plans/2026-06-24-tunable-gates-live-data-implementation.md`
+(15 tasks). **Codex (gpt-5.5, VM bridge) implemented Phases 1–3** (code+TDD+commit+push per task); **clawd
+docker-rebuilt + live-verified per phase and implemented Phases 4–5 inline** (Codex hit its weekly usage
+limit after Phase 3; resumes Jun 26). All on `core-engine`, pushed to origin (**`d5c9a5e`**). Final gate:
+**533 passed, 5 skipped**, ruff clean, frontend build + **18 vitest** green.
+
+**Shipped + live-verified on `:8000`:**
+1. **Phase 1 — regime unblock (THE fix).** New `PUT/GET /api/strategies/{name}/profile` (16-key whitelist +
+   `controller.reload()` hot-reload — change a param live, no rebuild). Flipped `allowed_regimes` →
+   `[uptrend,neutral,downtrend]` for the 4 armed kronos strategies. **Result: after weeks of zero trades the
+   06:00 bar produced a real `ORDER_SUBMITTED` (kronos-eth-usd buy); all 4 now hold positions.** Baseline was
+   34/40 `REGIME_BLOCKED` (root cause confirmed). Regime-off persists in ProfileStore across rebuilds.
+2. **Phase 2 — gate layer.** `build_signals` strips reserved `gate`/`min_score`; new `DecisionCode.GATE_BLOCKED`;
+   orchestrator `_check_gates` hard-veto between regime and confluence. **Dormant until a gate is configured.**
+   Unit-tested (2 gate tests); live GATE_BLOCKED smoke deferred (all 4 strategies positioned → entry path not
+   exercised; not worth flattening a live position to demo unit-tested logic).
+3. **Phase 3 — kind/label + researched presets + UI.** `kind`/`label` on StrategyProfile + `/api/strategies` +
+   `status()`. Four badged "backtested negative-edge — demo only" presets (vwap_pullback, ema_trend, fvg_retrace,
+   eth_rel_strength) via `GET/POST /api/strategies/researched`. Gates & Parameters panel on Coin Detail;
+   researched option in the Add dialog.
+4. **Phase 4 — live price feed.** `PriceCache` (2s TTL + stale fallback) + `GET /api/price` + `useLivePrice` 3s
+   poller; live price on cards + coin header. Verified cold 1.46s → cached **0.011s** (≤1 upstream call / 2s).
+5. **Phase 5 — faster load.** `localStorage` SWR cache (readCache/writeCache) + skeletons + hydration on Mission
+   Control + Coin Detail → instant paint from warm cache.
+
+**Op note (carry forward):** every `docker compose build` cold-starts the in-container candle cache, so the first
+bar after a rebuild often logs a transient Coinbase **429** ingest ERROR across all strategies; it self-heals on
+the next bar (verified twice this session). Not a bug.
 
 ---
 
@@ -92,12 +125,12 @@ rebuilt + restarted. **Changes are LIVE but UNCOMMITTED** on the host working tr
 
 ## ▶ NEXT ACTION
 
-**▶ EXECUTE — "Tunable Gates, Live Data & Faster UI" (2026-06-24).** Phase: EXECUTE.
-Spec `docs/superpowers/specs/2026-06-24-tunable-gates-live-data-design.md` (committed `ba16ff1`).
-Plan **`docs/superpowers/plans/2026-06-24-tunable-gates-live-data-implementation.md`** — 5 phases,
-TDD, each shippable/live-verifiable, full non-placeholder code per task. To resume: load
-`superpowers:executing-plans` (or `subagent-driven-development`), find the first unchecked `- [ ]`,
-continue; tick + commit per task; Docker rebuild per backend change (standing rule).
+**▶ DONE — "Tunable Gates, Live Data & Faster UI" SHIPPED + LIVE (2026-06-25).** All 5 phases / 15 tasks
+executed (Codex P1–3 over the VM bridge; clawd P4–5 inline + all docker rebuild/live-verify). Origin
+`core-engine` = `d5c9a5e`. Full detail in the **2026-06-25 LATEST SESSION** block above. The regime-gate
+flip unblocked trading (first live `ORDER_SUBMITTED` after weeks of nothing). **Next roadmap work: none
+queued** — pick the next sub-project, or run the optional live GATE_BLOCKED smoke when a strategy is flat.
+The phase notes below are now historical.
 
 - **Phase 1** (Tasks 1.1–1.3): `PUT/GET /api/strategies/{name}/profile` (whitelist + hot-reload) +
   flip the regime gate OFF live for the 4 kronos strategies → unblocks trading. *Highest value — do first.*
