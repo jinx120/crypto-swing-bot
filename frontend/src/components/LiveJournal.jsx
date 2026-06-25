@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api.js'
 import usePolling from './detail/usePolling.js'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card.jsx'
+import { Skeleton } from './ui/skeleton.jsx'
 import { cn } from '../lib/utils.js'
 import { reliabilityPct } from '../lib/derive.js'
 
@@ -82,7 +83,13 @@ export default function LiveJournal({ health }) {
         </div>
       </CardHeader>
       <CardContent>
-        {rows.length === 0 ? (
+        {data == null ? (
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-full" />
+            <Skeleton className="h-6 w-full" />
+            <Skeleton className="h-6 w-full" />
+          </div>
+        ) : rows.length === 0 ? (
           <div className="text-sm text-muted-foreground">No decisions yet.</div>
         ) : (
           <div className="max-h-[28rem] divide-y divide-border overflow-y-auto">

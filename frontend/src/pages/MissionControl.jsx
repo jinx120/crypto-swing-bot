@@ -7,17 +7,18 @@ import AddCoinDialog from '../components/AddCoinDialog.jsx'
 import AdvisorNotes from '../components/AdvisorNotes.jsx'
 import useLivePrice from '../components/useLivePrice.js'
 import { api } from '../api.js'
+import { readCache, writeCache } from '../lib/cache.js'
 
 export default function MissionControl() {
-  const [state, setState] = useState(null)
-  const [health, setHealth] = useState(null)
+  const [state, setState] = useState(() => readCache('swingbot:state'))
+  const [health, setHealth] = useState(() => readCache('swingbot:health'))
   const [addOpen, setAddOpen] = useState(false)
   const symbols = (state?.strategies || []).map((s) => s.symbol).filter(Boolean)
   const prices = useLivePrice(symbols)
 
   const refresh = useCallback(async () => {
-    try { setState(await api.state()) } catch { /* keep last */ }
-    try { setHealth(await api.tradingHealth()) } catch { /* keep last */ }
+    try { const s = await api.state(); setState(s); writeCache('swingbot:state', s) } catch { /* keep last */ }
+    try { const h = await api.tradingHealth(); setHealth(h); writeCache('swingbot:health', h) } catch { /* keep last */ }
   }, [])
 
   useEffect(() => {

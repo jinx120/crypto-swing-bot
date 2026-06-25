@@ -4,6 +4,7 @@ import { AlertTriangle } from 'lucide-react'
 import { api } from '../api.js'
 import { Button } from './ui/button.jsx'
 import { Badge } from './ui/badge.jsx'
+import { Skeleton } from './ui/skeleton.jsx'
 import { cn } from '../lib/utils.js'
 import {
   loopState, modeBadge, equityOf, dayPnl, dayPnlPct, openPnl, reliabilityPct, brokerUnauthorized,
@@ -35,6 +36,8 @@ export default function StatusStrip({ state, health, onChange }) {
   }
 
   const loopColor = loop === 'RUNNING' ? 'bg-up' : loop === 'PAUSED' ? 'bg-warn' : 'bg-muted-foreground'
+
+  if (!state) return <Skeleton className="h-12 w-full" />
 
   return (
     <div className="space-y-2">

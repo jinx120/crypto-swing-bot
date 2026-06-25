@@ -1740,7 +1740,7 @@ git commit -m "feat(frontend): localStorage SWR cache helpers"
 **Interfaces:**
 - Consumes: `readCache`/`writeCache`. Produces: `<Skeleton className />` placeholder.
 
-- [ ] **Step 1: Create the Skeleton primitive**
+- [x] **Step 1: Create the Skeleton primitive**
 
 Create `frontend/src/components/ui/skeleton.jsx`:
 
@@ -1752,7 +1752,7 @@ export function Skeleton({ className }) {
 }
 ```
 
-- [ ] **Step 2: Hydrate Mission Control from cache**
+- [x] **Step 2: Hydrate Mission Control from cache**
 
 In `frontend/src/pages/MissionControl.jsx`, import the cache helpers:
 ```javascript
@@ -1771,7 +1771,7 @@ In `refresh`, persist on success:
   }, [])
 ```
 
-- [ ] **Step 3: Add skeletons when data is still null**
+- [x] **Step 3: Add skeletons when data is still null**
 
 In `frontend/src/components/StatusStrip.jsx`, at the top of the component, when `state == null` render a skeleton bar. Add near the top of the render (import `Skeleton` from `./ui/skeleton.jsx`):
 ```javascript
@@ -1789,12 +1789,12 @@ In `frontend/src/components/LiveJournal.jsx`, when there are no decisions yet, r
 ```
 (Only in the no-data branch; keep the real list when data exists.)
 
-- [ ] **Step 4: Build**
+- [x] **Step 4: Build**
 
 Run: `cd frontend && npm run build && npx vitest run`
 Expected: build + tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/components/ui/skeleton.jsx frontend/src/pages/MissionControl.jsx \
