@@ -22,3 +22,15 @@ def test_from_dict_populates_defaults_and_overrides():
     assert Regime.UPTREND in p.allowed_regimes
     assert Regime.DOWNTREND not in p.allowed_regimes
     assert p.signals["oversold"]["weight"] == 0.4
+
+
+def test_profile_accepts_kind_and_label():
+    p = StrategyProfile.from_dict({
+        "symbol": "BTC/USD", "signals": {}, "kind": "researched", "label": "VWAP pullback"
+    })
+    assert p.kind == "researched"
+    assert p.label == "VWAP pullback"
+
+
+def test_profile_kind_defaults_to_kronos():
+    assert StrategyProfile.from_dict({"symbol": "BTC/USD", "signals": {}}).kind == "kronos"

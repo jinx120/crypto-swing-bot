@@ -199,6 +199,7 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         for name in profiles.list():
             p = profiles.get(name) or {}
             out.append({"name": name, "symbol": p.get("symbol"),
+                        "kind": p.get("kind", "kronos"), "label": p.get("label", ""),
                         "armed": name in flags, "live_eligible": flags.get(name, False)})
         return out
 

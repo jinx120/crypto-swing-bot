@@ -828,6 +828,8 @@ class PortfolioSupervisor:
                 rs = s["orch"].risk.state
                 strategies.append({
                     "name": name, "symbol": s["profile"].symbol,
+                    "kind": getattr(s["profile"], "kind", "kronos"),
+                    "label": getattr(s["profile"], "label", ""),
                     "running": self._running,
                     "live_eligible": self.profiles.is_live_eligible(name),
                     "snapshot": s["snapshot"],
@@ -844,6 +846,8 @@ class PortfolioSupervisor:
                 symbol = (pdict or {}).get("symbol", "")
                 strategies.append({
                     "name": name, "symbol": symbol,
+                    "kind": (pdict or {}).get("kind", "kronos"),
+                    "label": (pdict or {}).get("label", ""),
                     "running": False,
                     "live_eligible": f["live_eligible"],
                     "snapshot": {}, "position": None, "risk": None,

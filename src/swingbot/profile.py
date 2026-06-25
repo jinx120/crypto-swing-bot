@@ -11,6 +11,8 @@ class StrategyProfile:
     benchmark_symbol: str = "BTC/USD"
     timeframe: str = "15m"
     htf_timeframe: str = "4h"
+    kind: str = "kronos"
+    label: str = ""
 
     # signal config: name -> params dict (must include "weight")
     signals: dict = field(default_factory=dict)

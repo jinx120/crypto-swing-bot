@@ -513,7 +513,7 @@ Delivers Components 3b and 4.
 **Interfaces:**
 - Produces: `StrategyProfile(kind: str = "kronos", label: str = "")`; `/api/strategies` items gain `"kind"`, `"label"`; `status()` strategy entries gain `"kind"`, `"label"`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_profile.py`:
 
@@ -531,12 +531,12 @@ def test_profile_kind_defaults_to_kronos():
     assert StrategyProfile.from_dict({"symbol": "BTC/USD", "signals": {}}).kind == "kronos"
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_profile.py::test_profile_accepts_kind_and_label -q`
 Expected: FAIL with `TypeError: __init__() got an unexpected keyword argument 'kind'`.
 
-- [ ] **Step 3: Add the fields**
+- [x] **Step 3: Add the fields**
 
 In `src/swingbot/profile.py`, inside `@dataclass class StrategyProfile`, add after `htf_timeframe: str = "4h"` (line 13):
 
@@ -546,7 +546,7 @@ In `src/swingbot/profile.py`, inside `@dataclass class StrategyProfile`, add aft
     label: str = ""
 ```
 
-- [ ] **Step 4: Surface in `list_strategies`**
+- [x] **Step 4: Surface in `list_strategies`**
 
 In `src/swingbot/web.py`, replace the `out.append(...)` inside `list_strategies` (lines 177-178) with:
 
@@ -556,7 +556,7 @@ In `src/swingbot/web.py`, replace the `out.append(...)` inside `list_strategies`
                         "armed": name in flags, "live_eligible": flags.get(name, False)})
 ```
 
-- [ ] **Step 5: Surface in `supervisor.status()`**
+- [x] **Step 5: Surface in `supervisor.status()`**
 
 In `src/swingbot/supervisor.py`, in `status()`, add `kind`/`label` to both strategy-dict branches.
 Running branch (the dict starting ~line 829 `strategies.append({"name": name, ...})`): add after `"symbol": s["profile"].symbol,`:
@@ -573,7 +573,7 @@ Not-running branch (~line 845): add after `"name": name, "symbol": symbol,`:
                     "label": (pdict or {}).get("label", ""),
 ```
 
-- [ ] **Step 6: Update the web listing test**
+- [x] **Step 6: Update the web listing test**
 
 In `tests/test_web_strategy.py::test_strategies_list_generic_fields`, assert the new fields exist (additive). After the existing assertions, add:
 
@@ -583,12 +583,12 @@ In `tests/test_web_strategy.py::test_strategies_list_generic_fields`, assert the
 ```
 (If the test's `FakeProfiles.get` returns a dict without `kind`, the endpoint defaults it to `"kronos"` — no change needed there.)
 
-- [ ] **Step 7: Run tests to verify they pass**
+- [x] **Step 7: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_profile.py tests/test_web_strategy.py -q`
 Expected: PASS.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 .venv/bin/ruff check src/

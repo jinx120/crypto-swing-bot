@@ -63,3 +63,4 @@ def test_strategies_list_generic_fields():
     assert rows["btc_trend"]["live_eligible"] is True
     assert rows["my_custom"]["symbol"] == "ETH/USD"
     assert rows["my_custom"]["armed"] is False
+    assert all("kind" in r and "label" in r for r in rows.values())
