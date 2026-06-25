@@ -54,6 +54,10 @@ export const api = {
   arm: (name) => req('POST', '/api/strategies/arm', { name }),
   disarm: (name) => req('POST', '/api/strategies/disarm', { name }),
   setLiveEligible: (name, eligible) => req('POST', '/api/strategies/live-eligible', { name, eligible }),
+  getStrategyProfile: (name) =>
+    req('GET', `/api/strategies/${encodeURIComponent(name)}/profile`),
+  updateStrategyProfile: (name, patch) =>
+    req('PUT', `/api/strategies/${encodeURIComponent(name)}/profile`, { patch }),
   portfolioSettings: () => req('GET', '/api/portfolio/settings'),
   setPortfolioSettings: (patch) => req('PUT', '/api/portfolio/settings', patch),
   getRebalanceStatus: () => req('GET', '/api/rebalance/status'),

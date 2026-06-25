@@ -225,7 +225,7 @@ git commit -m "feat(web): PUT/GET /api/strategies/{name}/profile with whitelist 
 **Interfaces:**
 - Produces: `api.getStrategyProfile(name) -> {name, profile}`; `api.updateStrategyProfile(name, patch) -> {name, profile}`.
 
-- [ ] **Step 1: Add the client methods**
+- [x] **Step 1: Add the client methods**
 
 In `frontend/src/api.js`, after the `setLiveEligible` line (~line 56), add:
 
@@ -236,12 +236,12 @@ In `frontend/src/api.js`, after the `setLiveEligible` line (~line 56), add:
     req('PUT', `/api/strategies/${encodeURIComponent(name)}/profile`, { patch }),
 ```
 
-- [ ] **Step 2: Verify the build**
+- [x] **Step 2: Verify the build**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/api.js
