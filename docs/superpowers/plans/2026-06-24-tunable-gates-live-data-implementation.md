@@ -1659,7 +1659,7 @@ Delivers success criterion 5.
 **Interfaces:**
 - Produces: `readCache(key) -> any|null`; `writeCache(key, data) -> void`. Both swallow all storage errors (quota / no-localStorage).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `frontend/src/lib/cache.test.js`:
 
@@ -1694,12 +1694,12 @@ describe('localStorage cache', () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd frontend && npx vitest run src/lib/cache.test.js`
 Expected: FAIL (`cache.js` does not exist).
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `frontend/src/lib/cache.js`:
 
@@ -1718,12 +1718,12 @@ export function writeCache(key, data) {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd frontend && npx vitest run src/lib/cache.test.js`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/lib/cache.js frontend/src/lib/cache.test.js
