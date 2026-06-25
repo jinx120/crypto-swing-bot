@@ -30,6 +30,21 @@ def test_build_signals_returns_configured_signals():
     sigs = build_signals(_profile())
     assert {s.name for s in sigs} == {"oversold", "vwap"}
 
+
+def test_build_signals_strips_reserved_gate_keys():
+    from swingbot.signals.oversold import OversoldSignal
+
+    profile = StrategyProfile.from_dict({
+        "symbol": "BTC/USD",
+        "signals": {"oversold": {"weight": 1.0, "oversold_level": 45,
+                                 "gate": True, "min_score": 0.4}},
+    })
+    sigs = build_signals(profile)
+    assert len(sigs) == 1
+    assert isinstance(sigs[0], OversoldSignal)
+    assert not hasattr(sigs[0], "gate")
+
+
 def test_confluence_passes_when_score_meets_threshold():
     closes = [float(i) for i in range(40, 19, -1)]   # 40..20
     ctx = MarketContext(candles=_df(closes))

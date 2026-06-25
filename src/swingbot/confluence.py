@@ -19,12 +19,15 @@ _REGISTRY = {
     "ema_trend": EmaTrendSignal,
 }
 
+_RESERVED_SIGNAL_KEYS = {"gate", "min_score"}
+
 
 def build_signals(profile: StrategyProfile) -> list[Signal]:
     signals: list[Signal] = []
     for name, params in profile.signals.items():
         cls = _REGISTRY[name]
-        signals.append(cls(**params))
+        kwargs = {k: v for k, v in params.items() if k not in _RESERVED_SIGNAL_KEYS}
+        signals.append(cls(**kwargs))
     return signals
 
 

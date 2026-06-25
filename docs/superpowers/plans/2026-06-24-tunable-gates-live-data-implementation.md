@@ -293,7 +293,7 @@ Delivers success criterion 3.
 **Interfaces:**
 - Produces: `build_signals(profile)` constructs each signal from `params` minus `{"gate","min_score"}`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_confluence.py`:
 
@@ -314,12 +314,12 @@ def test_build_signals_strips_reserved_gate_keys():
     assert not hasattr(sigs[0], "gate")
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_confluence.py::test_build_signals_strips_reserved_gate_keys -q`
 Expected: FAIL with `TypeError: __init__() got an unexpected keyword argument 'gate'`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Replace `build_signals` in `src/swingbot/confluence.py` (lines 23-28) with:
 
@@ -336,12 +336,12 @@ def build_signals(profile: StrategyProfile) -> list[Signal]:
     return signals
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_confluence.py -q`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 .venv/bin/ruff check src/
