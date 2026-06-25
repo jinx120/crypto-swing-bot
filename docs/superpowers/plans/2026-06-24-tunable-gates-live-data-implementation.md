@@ -847,7 +847,7 @@ git commit -m "feat(web): GET/POST /api/strategies/researched (list + arm badged
 **Interfaces:**
 - Produces: `api.listResearched()`, `api.addResearched(preset, symbol)`; `buildProfilePatch(profile, edits) -> patch` (returns only whitelisted, changed keys); `<Switch checked onCheckedChange />`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `frontend/src/lib/derive.test.js`:
 
@@ -869,12 +869,12 @@ describe('buildProfilePatch', () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd frontend && npx vitest run src/lib/derive.test.js`
 Expected: FAIL (`buildProfilePatch` is not exported).
 
-- [ ] **Step 3: Write the helper**
+- [x] **Step 3: Write the helper**
 
 Append to `frontend/src/lib/derive.js`:
 
@@ -898,7 +898,7 @@ export function buildProfilePatch(cur, edits) {
 }
 ```
 
-- [ ] **Step 4: Add the client methods + Switch primitive**
+- [x] **Step 4: Add the client methods + Switch primitive**
 
 In `frontend/src/api.js`, after the `addResearched` group (near `arm`/`disarm`), add:
 
@@ -936,14 +936,14 @@ export function Switch({ checked, onCheckedChange, disabled }) {
 }
 ```
 
-- [ ] **Step 5: Run tests + build**
+- [x] **Step 5: Run tests + build**
 
 ```bash
 cd frontend && npx vitest run src/lib/derive.test.js && npm run build
 ```
 Expected: PASS + build green.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/src/api.js frontend/src/lib/derive.js \

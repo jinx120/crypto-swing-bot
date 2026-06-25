@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   loopState, modeBadge, equityOf, dayPnl, dayPnlPct, reliabilityPct,
-  brokerUnauthorized, cardStatus, availableToAdd, lastDecision,
+  brokerUnauthorized, cardStatus, availableToAdd, lastDecision, buildProfilePatch,
 } from './derive.js'
 
 describe('loopState', () => {
@@ -81,5 +81,19 @@ describe('lastDecision', () => {
     expect(lastDecision(h, 'btc_trend')).toEqual({ code: 'ENTER', reason: 'xover' })
     expect(lastDecision(h, 'eth_trend')).toBe(null)
     expect(lastDecision(null, 'x')).toBe(null)
+  })
+})
+
+describe('buildProfilePatch', () => {
+  it('returns only whitelisted changed keys', () => {
+    const cur = { symbol: 'BTC/USD', entry_threshold: 0.05, poll_seconds: 60 }
+    const patch = buildProfilePatch(cur, { entry_threshold: 0.2, poll_seconds: 5, symbol: 'X' })
+    expect(patch).toEqual({ entry_threshold: 0.2 })
+  })
+
+  it('encodes regime toggle as allowed_regimes', () => {
+    const patch = buildProfilePatch({ allowed_regimes: ['uptrend', 'neutral'] },
+      { allowed_regimes: ['uptrend', 'neutral', 'downtrend'] })
+    expect(patch.allowed_regimes).toEqual(['uptrend', 'neutral', 'downtrend'])
   })
 })

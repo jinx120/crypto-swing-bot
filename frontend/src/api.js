@@ -58,6 +58,9 @@ export const api = {
     req('GET', `/api/strategies/${encodeURIComponent(name)}/profile`),
   updateStrategyProfile: (name, patch) =>
     req('PUT', `/api/strategies/${encodeURIComponent(name)}/profile`, { patch }),
+  listResearched: () => req('GET', '/api/strategies/researched'),
+  addResearched: (preset, symbol) =>
+    req('POST', '/api/strategies/researched', { preset, symbol }),
   portfolioSettings: () => req('GET', '/api/portfolio/settings'),
   setPortfolioSettings: (patch) => req('PUT', '/api/portfolio/settings', patch),
   getRebalanceStatus: () => req('GET', '/api/rebalance/status'),

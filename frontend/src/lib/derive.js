@@ -77,3 +77,20 @@ export function lastDecision(health, name) {
   if (!d) return null
   return { code: d.decision_code, reason: d.decision_reason }
 }
+
+const PROFILE_PATCH_KEYS = new Set([
+  'entry_threshold', 'allowed_regimes', 'regime_ma_period', 'signals',
+  'stop_atr_mult', 'take_profit_atr_mult', 'tp_pct', 'sl_pct', 'bracket_mode',
+  'max_hold_bars', 'risk_per_trade', 'max_position_frac',
+  'daily_loss_limit_pct', 'max_consecutive_losses', 'max_concurrent',
+  'cooldown_minutes',
+])
+
+export function buildProfilePatch(cur, edits) {
+  const patch = {}
+  for (const [k, v] of Object.entries(edits || {})) {
+    if (!PROFILE_PATCH_KEYS.has(k)) continue
+    if (JSON.stringify(v) !== JSON.stringify(cur?.[k])) patch[k] = v
+  }
+  return patch
+}
