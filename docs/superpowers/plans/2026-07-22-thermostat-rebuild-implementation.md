@@ -950,7 +950,7 @@ git commit -m "feat: /api/portfolio/pnl 24h/7d/30d windows from equity snapshots
 - Consumes: `kronos_bracket_profile` (existing), `risk_profile.risk_params` + `ProfileStore.get_risk_level` (Tasks 1–2), existing `_kronos_profile_name`, `controller.reload()`, `controller.flatten(name)`.
 - Produces: `GET /api/coins` → `[{"name","symbol"}]`; `POST /api/coins` body `{"symbol"}` → creates a Kronos profile at the current risk level, arms it, reloads; `DELETE /api/coins/{name}` → flattens + disarms + reloads.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_coins_api.py
@@ -1016,12 +1016,12 @@ def test_remove_unknown_coin_404(tmp_path):
     assert client.delete("/api/coins/kronos-doge-usd").status_code == 404
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_coins_api.py -q`
 Expected: FAIL (404 on `/api/coins`)
 
-- [ ] **Step 3: Write minimal implementation** in `src/swingbot/web.py`:
+- [x] **Step 3: Write minimal implementation** in `src/swingbot/web.py`:
 
 Add a request model (near the other `BaseModel`s):
 
@@ -1069,12 +1069,12 @@ Add the endpoints (place near the `/api/watchlist` block):
         return {"ok": True}
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_coins_api.py -q`
 Expected: PASS (4 passed)
 
-- [ ] **Step 5: Full gate + rebuild + commit**
+- [x] **Step 5: Full gate + rebuild + commit**
 
 ```bash
 .venv/bin/python -m pytest -q && .venv/bin/ruff check src/

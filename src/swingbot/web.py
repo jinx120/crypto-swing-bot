@@ -72,6 +72,10 @@ class WatchlistBody(BaseModel):
     symbols: list[str]
 
 
+class CoinBody(BaseModel):
+    symbol: str
+
+
 class ProfilePatchBody(BaseModel):
     patch: dict
 
@@ -502,6 +506,41 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         if created:
             controller.reload()
         return {"symbols": profiles.get_watchlist()}
+
+    @app.get("/api/coins")
+    def list_coins():
+        out = []
+        for name in profiles.list_armed():
+            p = profiles.get(name) or {}
+            out.append({"name": name, "symbol": p.get("symbol")})
+        return out
+
+    @app.post("/api/coins")
+    def add_coin(body: CoinBody, _=Depends(require_token)):
+        symbol = body.symbol.strip().upper()
+        if not symbol:
+            raise HTTPException(status_code=400, detail="symbol is required")
+        if "/" not in symbol:
+            symbol = f"{symbol}/USD"
+        name = _kronos_profile_name(symbol)
+        profile = kronos_bracket_profile(symbol)
+        profile.update(risk_params(profiles.get_risk_level()))
+        try:
+            profiles.save(name, profile)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        profiles.arm(name)
+        controller.reload()
+        return {"name": name, "symbol": symbol}
+
+    @app.delete("/api/coins/{name}")
+    def remove_coin(name: str, _=Depends(require_token)):
+        if name not in profiles.list_armed():
+            raise HTTPException(status_code=404, detail=f"coin {name!r} not armed")
+        controller.flatten(name)
+        profiles.disarm(name)
+        controller.reload()
+        return {"ok": True}
 
     # ---- profiles CRUD ----
     @app.get("/api/profiles")
