@@ -4,6 +4,7 @@ import json
 import sqlite3
 
 from swingbot.profile import StrategyProfile
+from swingbot.risk_profile import DEFAULT_RISK_LEVEL, RISK_LEVELS
 
 
 class ProfileStore:
@@ -94,6 +95,14 @@ class ProfileStore:
         if name not in self._RISK_DIALS:
             raise ValueError(f"unknown risk_dial {name!r}")
         self.set_meta("risk_dial", name)
+
+    def get_risk_level(self) -> str:
+        return self.get_meta("risk_level") or DEFAULT_RISK_LEVEL
+
+    def set_risk_level(self, level: str) -> None:
+        if level not in RISK_LEVELS:
+            raise ValueError(f"unknown risk_level {level!r}")
+        self.set_meta("risk_level", level)
 
     # --- armed set + per-strategy live-eligible flag ---
     def arm(self, name: str) -> None:

@@ -197,7 +197,7 @@ git commit -m "feat: RiskProfile named param sets (Conservative/Moderate/Aggress
 - Consumes: `risk_profile.RISK_LEVELS` / `DEFAULT_RISK_LEVEL` (Task 1).
 - Produces: `ProfileStore.get_risk_level() -> str`, `ProfileStore.set_risk_level(level: str) -> None`.
 
-- [ ] **Step 1: Write the failing test** (append to `tests/test_profiles_meta.py`)
+- [x] **Step 1: Write the failing test** (append to `tests/test_profiles_meta.py`)
 
 ```python
 def test_risk_level_defaults_to_moderate(tmp_path):
@@ -221,12 +221,12 @@ def test_set_risk_level_rejects_unknown(tmp_path):
         store.set_risk_level("reckless")
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_profiles_meta.py -q -k risk_level`
 Expected: FAIL with `AttributeError: 'ProfileStore' object has no attribute 'get_risk_level'`
 
-- [ ] **Step 3: Write minimal implementation** — add to `ProfileStore` (after `set_risk_dial`, near line 96 of `src/swingbot/profiles.py`):
+- [x] **Step 3: Write minimal implementation** — add to `ProfileStore` (after `set_risk_dial`, near line 96 of `src/swingbot/profiles.py`):
 
 ```python
     _RISK_LEVELS = ("Conservative", "Moderate", "Aggressive")
@@ -240,12 +240,12 @@ Expected: FAIL with `AttributeError: 'ProfileStore' object has no attribute 'get
         self.set_meta("risk_level", level)
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_profiles_meta.py -q -k risk_level`
 Expected: PASS (3 passed)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/profiles.py tests/test_profiles_meta.py
