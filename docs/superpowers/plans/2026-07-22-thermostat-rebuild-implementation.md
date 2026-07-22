@@ -57,7 +57,7 @@
 **Interfaces:**
 - Produces: `RISK_LEVELS: tuple[str, ...]`, `DEFAULT_RISK_LEVEL: str`, `risk_params(level: str) -> dict`, `apply_risk_level(profile: dict, level: str) -> dict`, `DRAWDOWN_SENSITIVITY: dict[str, str]`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_risk_profile.py
@@ -104,12 +104,12 @@ def test_drawdown_sensitivity():
         "Conservative": "HIGH", "Moderate": "MEDIUM", "Aggressive": "LOW"}
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_risk_profile.py -q`
 Expected: FAIL with `ModuleNotFoundError: No module named 'swingbot.risk_profile'`
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```python
 # src/swingbot/risk_profile.py
@@ -173,12 +173,12 @@ def apply_risk_level(profile: dict, level: str) -> dict:
     return merged
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_risk_profile.py -q`
 Expected: PASS (5 passed)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/risk_profile.py tests/test_risk_profile.py
