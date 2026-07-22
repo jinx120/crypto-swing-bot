@@ -57,7 +57,8 @@ def main() -> None:
     app = create_app(controller=supervisor, profiles=profiles, creds=creds,
                      token=token, store=store, market=market, backfiller=backfiller,
                      poller=poller, advisor_journal=advisor_journal,
-                     auto_dashboard=auto_dashboard)
+                     auto_dashboard=auto_dashboard,
+                     equity_store=supervisor._equity_snapshots)
     app.state.archive_config = archive_cfg
     print(f"[swingbot-web] auth: {'token required' if token else 'disabled (no token)'}")
     print(f"[swingbot-web] http://{HOST}:{PORT}")

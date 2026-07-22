@@ -123,7 +123,7 @@ class AdvisorRevertBody(BaseModel):
 
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
                backfiller=None, poller=None, advisor_journal=None,
-               auto_dashboard=None) -> FastAPI:
+               auto_dashboard=None, equity_store=None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
         try:
@@ -172,6 +172,17 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
     @app.get("/api/state")
     def state():
         return controller.status()
+
+    @app.get("/api/portfolio/pnl")
+    def portfolio_pnl():
+        windows = {"24h": 24, "7d": 24 * 7, "30d": 24 * 30}
+        if equity_store is None:
+            return {k: {"abs": 0.0, "pct": 0.0} for k in windows}
+        out = {}
+        for label, hours in windows.items():
+            abs_pnl, pct = equity_store.pnl_window(hours)
+            out[label] = {"abs": abs_pnl, "pct": pct}
+        return out
 
     @app.get("/api/journal")
     def journal(strategy: str | None = None):

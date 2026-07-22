@@ -842,7 +842,7 @@ git commit -m "feat: wire EquitySnapshotStore + AutoTuner into supervisor tick l
 - Consumes: `EquitySnapshotStore.pnl_window` (Task 4).
 - Produces: `GET /api/portfolio/pnl` → `{"24h": {"abs": float, "pct": float}, "7d": {...}, "30d": {...}}`. `create_app` gains an optional `equity_store=None` kwarg; when absent the route returns zeros.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_portfolio_pnl_api.py
@@ -881,12 +881,12 @@ def test_pnl_zero_without_store(tmp_path):
     assert body["24h"] == {"abs": 0.0, "pct": 0.0}
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_portfolio_pnl_api.py -q`
 Expected: FAIL (`create_app() got an unexpected keyword argument 'equity_store'`)
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 In `src/swingbot/web.py`, extend the `create_app` signature:
 
@@ -921,12 +921,12 @@ In `src/swingbot/webmain.py`, create the store and pass it through. After `super
                      equity_store=supervisor._equity_snapshots)
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_portfolio_pnl_api.py -q`
 Expected: PASS (2 passed)
 
-- [ ] **Step 5: Full gate + rebuild + commit**
+- [x] **Step 5: Full gate + rebuild + commit**
 
 ```bash
 .venv/bin/python -m pytest -q && .venv/bin/ruff check src/
