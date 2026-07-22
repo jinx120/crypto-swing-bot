@@ -125,11 +125,28 @@ rebuilt + restarted. **Changes are LIVE but UNCOMMITTED** on the host working tr
 
 ## ▶ NEXT ACTION
 
-**▶ DONE — "Tunable Gates, Live Data & Faster UI" SHIPPED + LIVE (2026-06-25).** All 5 phases / 15 tasks
-executed (Codex P1–3 over the VM bridge; clawd P4–5 inline + all docker rebuild/live-verify). Origin
-`core-engine` = `d5c9a5e`. Full detail in the **2026-06-25 LATEST SESSION** block above. The regime-gate
-flip unblocked trading (first live `ORDER_SUBMITTED` after weeks of nothing). **Next roadmap work: none
-queued** — pick the next sub-project, or run the optional live GATE_BLOCKED smoke when a strategy is flat.
+**▶ THERMOSTAT REBUILD — write the implementation plan.**
+
+Spec: `docs/superpowers/specs/2026-07-22-thermostat-rebuild-design.md` (committed `5593060`).
+
+**This is a product direction reset.** The prior UI/strategy/advisor work is superseded. The new design:
+- **Thermostat UI** (3 screens, 2 user controls: coins + risk level)
+- **RiskProfile abstraction** (Conservative / Moderate / Aggressive → internal param sets)
+- **AutoTuner** (auto-tightens on drawdown, relaxes on recovery — no user config)
+- **Signal research** in `lab/` (4h EMA trend, funding rate mean-reversion, on-chain flows)
+- **Keep:** all backend infrastructure (FastAPI, stores, Alpaca, Coinbase, Kronos, Docker, VM)
+- **Replace:** entire React frontend, LLM advisor panel, all user-facing param tuning
+
+**Implementation order (from spec §8):**
+1. RiskProfile abstraction + `/api/risk-level` endpoint
+2. AutoTuner service (drawdown monitoring + auto-adjustment)
+3. New thermostat frontend (3 screens)
+4. Coin onboarding automation
+5. API cleanup (hide/remove tuning endpoints)
+6. Signal research in `lab/` (parallel, ongoing)
+7. Signal promotion to live when walk-forward validated
+
+**Next session:** load `superpowers:writing-plans`, read the spec, write the implementation plan.
 The phase notes below are now historical.
 
 - **Phase 1** (Tasks 1.1–1.3): `PUT/GET /api/strategies/{name}/profile` (whitelist + hot-reload) +
