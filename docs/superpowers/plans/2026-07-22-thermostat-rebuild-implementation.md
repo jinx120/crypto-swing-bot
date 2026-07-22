@@ -1604,7 +1604,7 @@ git commit -m "feat: 3-screen thermostat SPA; delete cockpit UI (old pages + pan
 **Interfaces:**
 - Produces: the removed routes return 404. Backend rebalance logic stays intact and auto-runs in `tick_all` (only the manual controls/endpoints go). `create_app` no longer takes `advisor_journal`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_api_cleanup.py
@@ -1639,12 +1639,12 @@ def test_thermostat_routes_still_present(tmp_path):
     assert c.get("/api/portfolio/pnl").status_code == 200
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_api_cleanup.py -q`
 Expected: FAIL (removed routes still return 200 / advisor_journal path exists)
 
-- [ ] **Step 3: Implement the removals**
+- [x] **Step 3: Implement the removals**
 
 In `src/swingbot/web.py`:
 - Delete the endpoints: `/api/risk-dial` (GET+PUT), `/api/advisor/notes`, `/api/advisor/journal`, `/api/advisor/revert`, `/api/advisor/revert-all`, `/api/strategies/researched` (GET+POST), `/api/rebalance/settings` (POST), `/api/rebalance/targets` (POST), `/api/rebalance/run` (POST). **Keep** `GET /api/rebalance/status` and `GET /api/rebalance/settings`/`GET /api/rebalance/targets` are optional to keep; remove the POST/PUT writers per test. Remove the helper `_apply_inverse_changes` and the `_advisor_entries` closure.
@@ -1668,12 +1668,12 @@ git rm tests/test_advisor_digest.py tests/test_advisor_journal.py \
 
 Then run the full suite and fix any remaining test that imported a removed symbol or asserted a removed route (e.g. `test_profiles_meta.py` risk-dial cases, `test_web.py` researched/advisor cases) — adapt, don't delete real coverage (spec §7).
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_api_cleanup.py -q`
 Expected: PASS (2 passed)
 
-- [ ] **Step 5: Full gate + rebuild + commit**
+- [x] **Step 5: Full gate + rebuild + commit**
 
 ```bash
 .venv/bin/python -m pytest -q && .venv/bin/ruff check src/

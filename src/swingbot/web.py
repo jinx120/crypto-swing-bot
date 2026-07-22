@@ -4,7 +4,6 @@ import os
 import pathlib
 import threading
 from contextlib import asynccontextmanager
-from dataclasses import asdict
 from datetime import datetime, timezone
 
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -14,11 +13,9 @@ from pydantic import BaseModel
 from swingbot.data.market import timeframe_seconds
 from swingbot.universe import fallback_universe
 from swingbot.kronos_preset import kronos_bracket_profile
-from swingbot.presets import RESEARCHED_META, RESEARCHED_PRESETS
 from swingbot.profiles import ProfileStore
 from swingbot.risk_profile import RISK_LEVELS, risk_params
 from swingbot.supervisor import LifecycleError
-from swingbot.rebalance import RebalanceSettings
 from swingbot.price_cache import PriceCache
 
 _DIST = str(pathlib.Path(__file__).parent.parent.parent / "frontend" / "dist")
@@ -80,11 +77,6 @@ class ProfilePatchBody(BaseModel):
     patch: dict
 
 
-class ResearchedBody(BaseModel):
-    preset: str
-    symbol: str
-
-
 _PROFILE_PATCH_KEYS = {
     "entry_threshold",
     "allowed_regimes",
@@ -113,20 +105,12 @@ class DataSourceBody(BaseModel):
     data_source: str
 
 
-class RiskDialBody(BaseModel):
-    risk_dial: str
-
-
 class RiskLevelBody(BaseModel):
     risk_level: str
 
 
-class AdvisorRevertBody(BaseModel):
-    batch_id: str
-
-
 def create_app(controller, profiles, creds, token: str, store=None, market=None,
-               backfiller=None, poller=None, advisor_journal=None,
+               backfiller=None, poller=None,
                auto_dashboard=None, equity_store=None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
@@ -276,24 +260,6 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
             raise HTTPException(status_code=400, detail=str(e))
         return {"ok": True}
 
-    @app.get("/api/strategies/researched")
-    def list_researched():
-        return RESEARCHED_META
-
-    @app.post("/api/strategies/researched")
-    def add_researched(body: ResearchedBody, _=Depends(require_token)):
-        builder = RESEARCHED_PRESETS.get(body.preset)
-        if builder is None:
-            raise HTTPException(status_code=400, detail=f"unknown preset {body.preset!r}")
-        name = f"researched-{body.preset}-{body.symbol.replace('/', '-').lower()}"
-        try:
-            profiles.save(name, builder(body.symbol))
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        profiles.arm(name)
-        controller.reload()
-        return {"name": name}
-
     @app.get("/api/strategies/{name}/profile")
     def get_strategy_profile(name: str):
         p = profiles.get(name)
@@ -336,37 +302,9 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         controller.reload()
         return profiles.get_portfolio_settings()
 
-    # ---- rebalance settings ----
-    @app.get("/api/rebalance/settings")
-    def get_rebalance_settings():
-        return {**asdict(RebalanceSettings()), **profiles.get_rebalance_settings()}
-
-    @app.post("/api/rebalance/settings")
-    def set_rebalance_settings(body: dict, _=Depends(require_token)):
-        profiles.set_rebalance_settings(body)
-        controller.reload()
-        return {"ok": True}
-
-    @app.get("/api/rebalance/targets")
-    def get_rebalance_targets():
-        return {"targets": profiles.get_rebalance_targets()}
-
-    @app.post("/api/rebalance/targets")
-    def set_rebalance_targets(body: dict, _=Depends(require_token)):
-        try:
-            profiles.set_rebalance_targets(body.get("targets", {}))
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        controller.reload()
-        return {"ok": True}
-
     @app.get("/api/rebalance/status")
     def rebalance_status():
         return controller.rebalance_status()
-
-    @app.post("/api/rebalance/run")
-    def rebalance_run(_=Depends(require_token)):
-        return controller.run_rebalance_now()
 
     # ---- data source ----
     @app.get("/api/data-source")
@@ -409,61 +347,6 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
         profiles.set_meta("autotuner_status", "")
         controller.reload()
         return {"ok": True, "risk_level": body.risk_level}
-
-    # ---- advisor / risk dial ----
-    @app.get("/api/risk-dial")
-    def get_risk_dial():
-        return {"risk_dial": profiles.get_risk_dial()}
-
-    @app.put("/api/risk-dial")
-    def put_risk_dial(body: RiskDialBody, _=Depends(require_token)):
-        try:
-            profiles.set_risk_dial(body.risk_dial)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        return {"ok": True, "risk_dial": profiles.get_risk_dial()}
-
-    def _advisor_entries():
-        return advisor_journal.list_entries() if advisor_journal is not None else []
-
-    @app.get("/api/advisor/notes")
-    def advisor_notes():
-        return [row for row in _advisor_entries() if row.get("rationale")]
-
-    @app.get("/api/advisor/journal")
-    def advisor_journal_rows():
-        return _advisor_entries()
-
-    def _apply_inverse_changes(changes: list[dict]) -> None:
-        dirty = False
-        for change in changes:
-            symbol = change["symbol"]
-            for name in profiles.list():
-                profile = profiles.get(name) or {}
-                if profile.get("symbol") != symbol:
-                    continue
-                profile[change["param"]] = change["value"]
-                profiles.save(name, profile)
-                dirty = True
-                break
-        if dirty:
-            controller.reload()
-
-    @app.post("/api/advisor/revert")
-    def advisor_revert(body: AdvisorRevertBody, _=Depends(require_token)):
-        if advisor_journal is None:
-            raise HTTPException(status_code=503, detail="advisor journal is not configured")
-        changes = advisor_journal.revert(body.batch_id)
-        _apply_inverse_changes(changes)
-        return {"ok": True, "changes": changes}
-
-    @app.post("/api/advisor/revert-all")
-    def advisor_revert_all(_=Depends(require_token)):
-        if advisor_journal is None:
-            raise HTTPException(status_code=503, detail="advisor journal is not configured")
-        changes = advisor_journal.revert_all()
-        _apply_inverse_changes(changes)
-        return {"ok": True, "changes": changes}
 
     # ---- universe / watchlist ----
     _universe_cache: dict = {}

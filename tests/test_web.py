@@ -62,20 +62,6 @@ def _client(tmp_path):
     return TestClient(app, headers={"X-Token": "t"})
 
 
-def test_get_rebalance_settings_defaults(tmp_path):
-    client = _client(tmp_path)
-    r = client.get("/api/rebalance/settings")
-    assert r.status_code == 200
-    assert r.json()["enabled"] is True
-    assert r.json()["mode"] == "hard"
-
-
-def test_post_rebalance_targets_validates_sum(tmp_path):
-    client = _client(tmp_path)
-    r = client.post("/api/rebalance/targets", json={"targets": {"a": 0.7, "b": 0.5}})
-    assert r.status_code == 400
-
-
 def test_get_rebalance_status_shape(tmp_path):
     client = _client(tmp_path)
     r = client.get("/api/rebalance/status")
