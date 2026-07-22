@@ -395,7 +395,7 @@ git commit -m "feat: /api/risk-level GET/PUT applies named risk params to armed 
 **Interfaces:**
 - Produces: `EquitySnapshotStore(db_path)` with `record(equity: float, now: datetime|None=None)`, `drawdown(hours: float, now=None) -> float` (fraction of the rolling-window peak the current equity sits below, 0..1), `pnl_window(hours: float, now=None) -> tuple[float, float]` (abs, pct vs window-start equity), `prune(keep_days=30.0, now=None)`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_equity_store.py
@@ -440,12 +440,12 @@ def test_pnl_window(tmp_path):
     assert round(pct, 4) == 0.03
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_equity_store.py -q`
 Expected: FAIL with `ModuleNotFoundError: No module named 'swingbot.equity_store'`
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```python
 # src/swingbot/equity_store.py
@@ -513,12 +513,12 @@ class EquitySnapshotStore:
         self._conn.commit()
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_equity_store.py -q`
 Expected: PASS (4 passed)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/equity_store.py tests/test_equity_store.py
