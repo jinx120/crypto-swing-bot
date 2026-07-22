@@ -1687,11 +1687,11 @@ git commit -m "chore: remove advisor/researched/manual-tuning endpoints + dead m
 
 ## Final verification (after Task 14)
 
-- [ ] **Backend gate:** `.venv/bin/python -m pytest -q` green; `.venv/bin/ruff check src/` clean.
-- [ ] **Frontend gate:** `cd frontend && npm run build` succeeds; `npm run test` passes.
+- [x] **Backend gate:** `.venv/bin/python -m pytest -q` green; `.venv/bin/ruff check src/` clean.
+- [x] **Frontend gate:** `cd frontend && npm run build` succeeds; `npm run test` passes.
 - [ ] **Container:** `docker compose build swingbot && docker compose up -d swingbot`; `curl -s localhost:8000/api/risk-level` returns a level; `curl -s localhost:8000/api/coins` returns a list.
 - [ ] **Live smoke (MCP/Playwright):** load `:8000` → Home shows portfolio + Start/Stop; Coins add/remove + risk radios work; Settings shows broker panel + mode. Capture `docs/thermostat-smoke.png`.
-- [ ] **Update `docs/ROADMAP_STATUS.md`** NEXT ACTION → signal-research plan (spec §8 items 6–7) and mark items 1–5 shipped.
+- [x] **Update `docs/ROADMAP_STATUS.md`** NEXT ACTION → signal-research plan (spec §8 items 6–7) and mark items 1–5 shipped.
 
 ## Self-Review (checklist run against spec §8 items 1–5)
 

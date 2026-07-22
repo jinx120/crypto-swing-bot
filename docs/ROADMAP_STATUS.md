@@ -4,7 +4,32 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-06-25
+**Last updated:** 2026-07-22
+
+---
+
+## ▶ LATEST SESSION (2026-07-22) — Thermostat Rebuild Items 1–5 — SHIPPED TO `core-engine`
+
+Executed `docs/superpowers/plans/2026-07-22-thermostat-rebuild-implementation.md`
+(14 tasks, 5 phases) task-by-task with TDD, per-task commits, and pushes to `origin/core-engine`.
+Codex implemented and pushed through **`8af6152`**; clawd owns Docker rebuild and live/container
+verification from the pushed phase checkpoints.
+
+**Shipped in code:**
+1. **RiskProfile abstraction + `/api/risk-level`.** Named `Conservative` / `Moderate` / `Aggressive`
+   risk parameter sets, persisted risk level, and an endpoint that applies the selected level to armed
+   Kronos profiles while resetting AutoTuner overlay state.
+2. **AutoTuner + equity snapshots.** New `EquitySnapshotStore`, pure `AutoTuner` drawdown policy, supervisor
+   equity recording, defensive-mode summary fields, and `/api/portfolio/pnl` 24h/7d/30d windows.
+3. **Coin onboarding automation.** `/api/coins` list/add/remove creates risk-level-aware Kronos profiles,
+   arms them, reloads the supervisor, and flattens before disarm on remove.
+4. **Thermostat frontend.** React app is now the 3-screen thermostat UI: Home, Coins, Settings. The cockpit
+   pages/panels were deleted.
+5. **API cleanup.** Advisor, researched-preset, risk-dial, and manual rebalance write surfaces were removed;
+   removed routes now return 404. Backend rebalance internals remain for automatic supervisor use.
+
+**Gates:** backend **534 passed, 5 skipped**, ruff clean; frontend build green, **21 vitest** green.
+Skipped by handoff: graphify, Docker rebuild, container curls, live smoke, and screenshot capture.
 
 ---
 
@@ -125,29 +150,17 @@ rebuilt + restarted. **Changes are LIVE but UNCOMMITTED** on the host working tr
 
 ## ▶ NEXT ACTION
 
-**▶ THERMOSTAT REBUILD — write the implementation plan.**
+**▶ SIGNAL RESEARCH PLAN — spec §8 items 6–7.**
 
-Spec: `docs/superpowers/specs/2026-07-22-thermostat-rebuild-design.md` (committed `5593060`).
+Spec: `docs/superpowers/specs/2026-07-22-thermostat-rebuild-design.md`.
 
-**This is a product direction reset.** The prior UI/strategy/advisor work is superseded. The new design:
-- **Thermostat UI** (3 screens, 2 user controls: coins + risk level)
-- **RiskProfile abstraction** (Conservative / Moderate / Aggressive → internal param sets)
-- **AutoTuner** (auto-tightens on drawdown, relaxes on recovery — no user config)
-- **Signal research** in `lab/` (4h EMA trend, funding rate mean-reversion, on-chain flows)
-- **Keep:** all backend infrastructure (FastAPI, stores, Alpaca, Coinbase, Kronos, Docker, VM)
-- **Replace:** entire React frontend, LLM advisor panel, all user-facing param tuning
+Thermostat product items **1–5 are shipped in code** on `core-engine` through `8af6152`.
+Next work is the separate research/promote track:
+1. Write the signal-research plan for 4h EMA trend, funding-rate mean reversion, and on-chain flows.
+2. Run research in `lab/` without blocking the thermostat product.
+3. Promote only signals that pass walk-forward validation.
 
-**Implementation order (from spec §8):**
-1. RiskProfile abstraction + `/api/risk-level` endpoint
-2. AutoTuner service (drawdown monitoring + auto-adjustment)
-3. New thermostat frontend (3 screens)
-4. Coin onboarding automation
-5. API cleanup (hide/remove tuning endpoints)
-6. Signal research in `lab/` (parallel, ongoing)
-7. Signal promotion to live when walk-forward validated
-
-**Next session:** load `superpowers:writing-plans`, read the spec, write the implementation plan.
-The phase notes below are now historical.
+The phase notes below are historical.
 
 - **Phase 1** (Tasks 1.1–1.3): `PUT/GET /api/strategies/{name}/profile` (whitelist + hot-reload) +
   flip the regime gate OFF live for the 4 kronos strategies → unblocks trading. *Highest value — do first.*
