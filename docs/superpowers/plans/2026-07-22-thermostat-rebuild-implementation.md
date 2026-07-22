@@ -1441,7 +1441,7 @@ git commit -m "feat: thermostat Coins screen (add/remove coin + risk level)"
 - Consumes: existing `components/settings/BrokerConnectionPanel.jsx`; `api.control('mode', {mode})`, `api.state()`; ui `Card`.
 - Produces: default-exported `SettingsScreen` component. Broker panel (reused), paper/live mode toggle, notifications placeholder (spec §4 Screen 3).
 
-- [ ] **Step 1: Create the component**
+- [x] **Step 1: Create the component**
 
 ```jsx
 // frontend/src/pages/SettingsScreen.jsx
@@ -1498,12 +1498,12 @@ export default function SettingsScreen() {
 
 Note: if `BrokerConnectionPanel` is not a default export, adjust the import to the named form it uses. Verify with `grep -n "export" frontend/src/components/settings/BrokerConnectionPanel.jsx` before writing the import line.
 
-- [ ] **Step 2: Verify it builds**
+- [x] **Step 2: Verify it builds**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/pages/SettingsScreen.jsx
