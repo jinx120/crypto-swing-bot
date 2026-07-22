@@ -1099,7 +1099,7 @@ git commit -m "feat: /api/coins add/remove/list (risk-level-aware onboarding)"
 **Interfaces:**
 - Produces: `api.riskLevel()`, `api.setRiskLevel(level)`, `api.coins()`, `api.addCoin(symbol)`, `api.removeCoin(name)`, `api.portfolioPnl()`; `formatMoney(n)`, `formatSignedPct(frac)`, `formatSignedMoney(n)`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```javascript
 // frontend/src/lib/format.test.js
@@ -1121,12 +1121,12 @@ describe('format', () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd frontend && npx vitest run src/lib/format.test.js`
 Expected: FAIL (cannot resolve `./format.js`)
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```javascript
 // frontend/src/lib/format.js
@@ -1160,12 +1160,12 @@ Then append these methods to the `api` object in `frontend/src/api.js` (before t
   portfolioPnl: () => req('GET', '/api/portfolio/pnl'),
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd frontend && npx vitest run src/lib/format.test.js`
 Expected: PASS (3 passed)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/api.js frontend/src/lib/format.js frontend/src/lib/format.test.js

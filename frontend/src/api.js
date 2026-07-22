@@ -60,28 +60,19 @@ export const api = {
     req('GET', `/api/strategies/${encodeURIComponent(name)}/profile`),
   updateStrategyProfile: (name, patch) =>
     req('PUT', `/api/strategies/${encodeURIComponent(name)}/profile`, { patch }),
-  listResearched: () => req('GET', '/api/strategies/researched'),
-  addResearched: (preset, symbol) =>
-    req('POST', '/api/strategies/researched', { preset, symbol }),
   portfolioSettings: () => req('GET', '/api/portfolio/settings'),
   setPortfolioSettings: (patch) => req('PUT', '/api/portfolio/settings', patch),
-  getRebalanceStatus: () => req('GET', '/api/rebalance/status'),
-  getRebalanceSettings: () => req('GET', '/api/rebalance/settings'),
-  setRebalanceSettings: (body) => req('POST', '/api/rebalance/settings', body),
-  getRebalanceTargets: () => req('GET', '/api/rebalance/targets'),
-  setRebalanceTargets: (body) => req('POST', '/api/rebalance/targets', body),
-  runRebalance: () => req('POST', '/api/rebalance/run', {}),
   // --- universe / watchlist ---
   universe: () => req('GET', '/api/universe'),
   watchlist: () => req('GET', '/api/watchlist'),
   setWatchlist: (symbols) => req('PUT', '/api/watchlist', { symbols }),
-  // --- advisor ---
-  getAdvisorNotes: () => req('GET', '/api/advisor/notes'),
-  getAdvisorJournal: () => req('GET', '/api/advisor/journal'),
-  revertTuning: (batch_id) => req('POST', '/api/advisor/revert', { batch_id }),
-  revertAllTuning: () => req('POST', '/api/advisor/revert-all', {}),
-  getRiskDial: () => req('GET', '/api/risk-dial'),
-  setRiskDial: (risk_dial) => req('PUT', '/api/risk-dial', { risk_dial }),
+  // --- thermostat ---
+  riskLevel: () => req('GET', '/api/risk-level'),
+  setRiskLevel: (risk_level) => req('PUT', '/api/risk-level', { risk_level }),
+  coins: () => req('GET', '/api/coins'),
+  addCoin: (symbol) => req('POST', '/api/coins', { symbol }),
+  removeCoin: (name) => req('DELETE', `/api/coins/${encodeURIComponent(name)}`),
+  portfolioPnl: () => req('GET', '/api/portfolio/pnl'),
   auto: {
     backtestEma: () => req('GET', '/api/backtest/ema'),
     backtestKronos: () => req('GET', '/api/backtest/kronos'),
