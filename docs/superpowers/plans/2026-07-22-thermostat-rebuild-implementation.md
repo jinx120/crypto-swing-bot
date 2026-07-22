@@ -1522,7 +1522,7 @@ git commit -m "feat: thermostat Settings screen (broker, mode, notifications)"
 - Consumes: `Home` (Task 10), `Coins` (Task 11), `SettingsScreen` (Task 12).
 - Produces: 3-route HashRouter SPA (`#/` Home, `#/coins` Coins, `#/settings` Settings) with a bottom nav (Home / Coins / Settings, per spec §4).
 
-- [ ] **Step 1: Replace `frontend/src/App.jsx`**
+- [x] **Step 1: Replace `frontend/src/App.jsx`**
 
 ```jsx
 import { HashRouter, Routes, Route, NavLink } from 'react-router-dom'
@@ -1561,7 +1561,7 @@ export default function App() {
 }
 ```
 
-- [ ] **Step 2: Delete the superseded files**
+- [x] **Step 2: Delete the superseded files**
 
 ```bash
 git rm frontend/src/pages/MissionControl.jsx frontend/src/pages/CoinDetail.jsx frontend/src/pages/Settings.jsx
@@ -1577,12 +1577,12 @@ git rm frontend/src/components/settings/RiskDialPanel.jsx \
   frontend/src/components/settings/AdvancedControls.jsx
 ```
 
-- [ ] **Step 3: Verify build is clean (no dangling imports)**
+- [x] **Step 3: Verify build is clean (no dangling imports)**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds with no "failed to resolve import" errors. If any deleted component is still imported somewhere, remove that import. Also run `npm run test` — Vitest must pass (only `format`, `derive`, `cache` suites remain; delete any test that imported a removed component).
 
-- [ ] **Step 4: Rebuild container + commit**
+- [x] **Step 4: Rebuild container + commit**
 
 ```bash
 docker compose build swingbot && docker compose up -d swingbot

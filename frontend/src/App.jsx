@@ -1,23 +1,18 @@
 import { HashRouter, Routes, Route, NavLink } from 'react-router-dom'
-import { Activity, Settings as SettingsIcon } from 'lucide-react'
 import { cn } from './lib/utils.js'
-import MissionControl from './pages/MissionControl.jsx'
-import CoinDetail from './pages/CoinDetail.jsx'
-import Settings from './pages/Settings.jsx'
+import Home from './pages/Home.jsx'
+import Coins from './pages/Coins.jsx'
+import SettingsScreen from './pages/SettingsScreen.jsx'
 
-function TopNav() {
+function BottomNav() {
   const link = ({ isActive }) =>
-    cn('rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground',
+    cn('flex-1 rounded-md px-3 py-2 text-center text-sm font-medium text-muted-foreground',
        isActive && 'bg-accent text-foreground')
   return (
-    <nav className="sticky top-0 z-40 flex items-center gap-2 border-b border-border bg-background/80 px-4 py-2 backdrop-blur">
-      <span className="mr-2 flex items-center gap-1.5 font-semibold">
-        <Activity className="h-4 w-4 text-primary" /> SwingBot
-      </span>
-      <NavLink to="/" end className={link}>Mission Control</NavLink>
-      <NavLink to="/settings" className={link}>
-        <span className="inline-flex items-center gap-1"><SettingsIcon className="h-3.5 w-3.5" /> Settings</span>
-      </NavLink>
+    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center gap-1 border-t border-border bg-background/90 p-2 backdrop-blur">
+      <NavLink to="/" end className={link}>Home</NavLink>
+      <NavLink to="/coins" className={link}>Coins</NavLink>
+      <NavLink to="/settings" className={link}>Settings</NavLink>
     </nav>
   )
 }
@@ -25,13 +20,15 @@ function TopNav() {
 export default function App() {
   return (
     <HashRouter>
-      <TopNav />
-      <Routes>
-        <Route path="/" element={<MissionControl />} />
-        <Route path="/coin/:name" element={<CoinDetail />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<MissionControl />} />
-      </Routes>
+      <div className="pb-16">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/coins" element={<Coins />} />
+          <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="*" element={<Home />} />
+        </Routes>
+      </div>
+      <BottomNav />
     </HashRouter>
   )
 }
