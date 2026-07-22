@@ -17,6 +17,8 @@ from swingbot.data.market import (
     closed_bars,
     timeframe_seconds,
 )
+from swingbot.autotuner import AutoTuner
+from swingbot.equity_store import EquitySnapshotStore
 from swingbot.graduation import can_go_live
 from swingbot.journal import TradeJournal
 from swingbot.metrics import compute_metrics
@@ -152,6 +154,10 @@ class PortfolioSupervisor:
         # despite the 60s idle-poll cadence dominating the record stream.
         self._telemetry = TelemetryStore(state_db, retention=2000)
         self._trade_store = TradeStore(state_db)
+        self._equity_snapshots = EquitySnapshotStore(state_db)
+        self._autotuner = AutoTuner()
+        self._defensive_mode = False
+        self._autotuner_status = ""
         self._provider: CachedProvider | None = None
         self._summary: dict = {}
         self._advisor = advisor
@@ -496,9 +502,37 @@ class PortfolioSupervisor:
             s["snapshot"] = self._snapshot(s["profile"])
         if acct is not None and self._rebalance_settings.enabled:
             self._run_rebalance(now, acct)
-        self._maybe_run_advisor()
         if acct is not None:
+            self._equity_snapshots.record(acct["equity"], now)
+            self._maybe_autotune(now)
             self._summary = self._build_summary(acct)
+
+    def _maybe_autotune(self, now: datetime) -> None:
+        """Drawdown-driven auto-tightening; must never break a trading cycle."""
+        try:
+            level = self.profiles.get_risk_level()
+            cur_tier = int(self.profiles.get_meta("autotuner_tier") or 0)
+            dd_24h = self._equity_snapshots.drawdown(24, now)
+            dd_7d = self._equity_snapshots.drawdown(24 * 7, now)
+            decision = self._autotuner.decide(level, dd_24h, dd_7d, cur_tier)
+            self._defensive_mode = decision.defensive
+            self._autotuner_status = decision.status
+            if decision.tier != cur_tier:
+                self.profiles.set_meta("autotuner_tier", str(decision.tier))
+                self.profiles.set_meta("autotuner_status", decision.status)
+                self._apply_effective_params(decision.params)
+        except Exception as exc:
+            print(f"[supervisor] autotune skipped: {exc}")
+
+    def _apply_effective_params(self, params: dict) -> None:
+        """Persist effective risk params onto armed profiles and reload if built."""
+        for name in self.profiles.list_armed():
+            pdict = self.profiles.get(name)
+            if pdict is None:
+                continue
+            pdict.update(params)
+            self.profiles.save(name, pdict)
+        self.reload()
 
     def _maybe_run_advisor(self) -> None:
         if self._advisor is None or self._advisor_interval_ticks <= 0:
@@ -712,19 +746,25 @@ class PortfolioSupervisor:
             return {"error": str(e)}
 
     def _build_summary(self, acct: dict) -> dict:
-        positions = self._store.load_all_positions()
+        positions = self._store.load_all_positions() if self._store is not None else {}
         deployed = 0.0
         for pos in positions.values():
             price = self._latest_prices.get(pos.symbol, pos.entry_price)
             deployed += pos.qty * price
-        prs = self._portfolio_risk.state
+        prs = self._portfolio_risk.state if self._portfolio_risk is not None else None
         equity = acct["equity"]
         return {
             "mode": self.mode, "running": self._running, "paused": self.paused,
             "equity": equity, "deployed": deployed,
             "deployed_frac": (deployed / equity) if equity else 0.0,
-            "open_positions": len(positions), "day_pnl": prs.realized_pnl_today,
-            "kill_switch": {"active": prs.kill_switch_active, "reason": prs.kill_switch_reason},
+            "open_positions": len(positions),
+            "day_pnl": prs.realized_pnl_today if prs is not None else 0.0,
+            "kill_switch": {
+                "active": prs.kill_switch_active if prs is not None else False,
+                "reason": prs.kill_switch_reason if prs is not None else "",
+            },
+            "defensive": self._defensive_mode,
+            "autotuner_status": self._autotuner_status,
         }
 
     @_state_locked

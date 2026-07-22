@@ -683,7 +683,7 @@ git commit -m "feat: AutoTuner drawdown->tier policy (tighten/suspend/recover)"
 - Consumes: `EquitySnapshotStore` (Task 4), `AutoTuner` (Task 5), `ProfileStore.get_risk_level` (Task 2), existing `self.reload()`, `self.profiles`, `self._build_summary`.
 - Produces: `PortfolioSupervisor._maybe_autotune(now)`, `PortfolioSupervisor._apply_effective_params(params)`; `_build_summary` gains `defensive` (bool) + `autotuner_status` (str); each cycle records equity to the snapshot store.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_supervisor_autotuner.py
@@ -730,12 +730,12 @@ def test_summary_exposes_defensive_flag(tmp_path):
     assert "Defensive" in summary["autotuner_status"]
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_supervisor_autotuner.py -q`
 Expected: FAIL with `AttributeError: 'PortfolioSupervisor' object has no attribute '_equity_snapshots'`
 
-- [ ] **Step 3: Write minimal implementation** in `src/swingbot/supervisor.py`:
+- [x] **Step 3: Write minimal implementation** in `src/swingbot/supervisor.py`:
 
 Add imports at the top with the other `swingbot` imports:
 
@@ -815,12 +815,12 @@ In `_build_summary` (~line 722) add two keys to the returned dict:
         }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_supervisor_autotuner.py -q`
 Expected: PASS (2 passed)
 
-- [ ] **Step 5: Full gate + rebuild + commit**
+- [x] **Step 5: Full gate + rebuild + commit**
 
 ```bash
 .venv/bin/python -m pytest -q && .venv/bin/ruff check src/
