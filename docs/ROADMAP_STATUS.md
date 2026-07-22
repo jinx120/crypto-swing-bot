@@ -8,7 +8,7 @@
 
 ---
 
-## ▶ LATEST SESSION (2026-07-22) — Thermostat Rebuild Items 1–5 — SHIPPED TO `core-engine`
+## ▶ LATEST SESSION (2026-07-22) — Thermostat Rebuild Items 1–5 — SHIPPED + LIVE-VERIFIED
 
 Executed `docs/superpowers/plans/2026-07-22-thermostat-rebuild-implementation.md`
 (14 tasks, 5 phases) task-by-task with TDD, per-task commits, and pushes to `origin/core-engine`.
@@ -29,7 +29,26 @@ verification from the pushed phase checkpoints.
    removed routes now return 404. Backend rebalance internals remain for automatic supervisor use.
 
 **Gates:** backend **534 passed, 5 skipped**, ruff clean; frontend build green, **21 vitest** green.
-Skipped by handoff: graphify, Docker rebuild, container curls, live smoke, and screenshot capture.
+
+**clawd live-verification (2026-07-22, `:8000`) — COMPLETE.** Pulled `--ff-only` at each of the 5 phase
+checkpoints (`a737604`→`0f0e21a`→`9dda007`→`ab95462`→`56a4bd0`), Docker-rebuilt + restarted the `swingbot`
+container per phase, and verified live:
+- Phase 1: `GET /api/risk-level` → `{"risk_level":"Moderate","choices":[Conservative,Moderate,Aggressive]}`.
+- Phase 2: container boots clean with AutoTuner + EquitySnapshotStore wired into the tick loop (no new
+  startup traceback — only the pre-existing broker-401); `GET /api/portfolio/pnl` returns 24h/7d/30d windows.
+- Phase 3: `GET /api/coins` lists the 4 armed Kronos strategies (BTC/ETH/SOL/XRP-USD).
+- Phase 4: browser smoke — all 3 thermostat screens render + route (`#/` Home, `#/coins`, `#/settings`);
+  Home shows portfolio card + 24h/7d/30d toggle + open positions + activity feed; Coins shows coin
+  list/add + the risk-level radio (Moderate checked); Settings shows the retained broker panel + mode.
+  Old cockpit UI gone. Artifact: `docs/thermostat-home-smoke.png`. Only console noise is a favicon 404.
+- Phase 5: removed surfaces `GET /api/advisor/notes|journal`, `/api/risk-dial`, `/api/strategies/researched`
+  all → **404**; retained `/api/health/ready`, `/api/risk-level`, `/api/coins`, `/api/portfolio/pnl` all → **200**.
+- Host gate re-run green (534 passed / 5 skipped, ruff clean, npm build + 21 vitest); `graphify update .` ran
+  (3726 nodes / 7288 edges; artifacts left uncommitted per convention).
+
+**Carry-forward (unchanged, out of scope):** the stored Alpaca paper key is still **401 unauthorized** so the
+loop can't actually place fills — the thermostat charts/UI don't depend on it (data decouples to Coinbase);
+a valid paper key is needed only for order execution. Enter one via **Settings → Broker connection**.
 
 ---
 
