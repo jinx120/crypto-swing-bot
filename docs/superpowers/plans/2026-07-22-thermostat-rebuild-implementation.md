@@ -264,7 +264,7 @@ git commit -m "feat: ProfileStore.get/set_risk_level meta persistence"
 - Consumes: `ProfileStore.get_risk_level/set_risk_level` (Task 2), `risk_profile.risk_params`/`RISK_LEVELS` (Task 1), existing `controller.reload()`.
 - Produces: `GET /api/risk-level` → `{"risk_level": str, "choices": [...]}`; `PUT /api/risk-level` body `{"risk_level": str}` → applies the level's params to every armed profile, resets the AutoTuner overlay, reloads.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_risk_level_api.py
@@ -319,12 +319,12 @@ def test_put_risk_level_rejects_unknown(tmp_path):
     assert client.put("/api/risk-level", json={"risk_level": "nope"}).status_code == 400
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_risk_level_api.py -q`
 Expected: FAIL (404 on `/api/risk-level`)
 
-- [ ] **Step 3: Write minimal implementation** — in `src/swingbot/web.py`:
+- [x] **Step 3: Write minimal implementation** — in `src/swingbot/web.py`:
 
 Add import near the other `swingbot` imports (top of file):
 
@@ -367,12 +367,12 @@ Add the endpoints inside `create_app` (place near the `/api/risk-dial` block):
         return {"ok": True, "risk_level": body.risk_level}
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_risk_level_api.py -q`
 Expected: PASS (3 passed)
 
-- [ ] **Step 5: Full gate + rebuild + commit**
+- [x] **Step 5: Full gate + rebuild + commit**
 
 ```bash
 .venv/bin/python -m pytest -q && .venv/bin/ruff check src/

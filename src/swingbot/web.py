@@ -16,6 +16,7 @@ from swingbot.universe import fallback_universe
 from swingbot.kronos_preset import kronos_bracket_profile
 from swingbot.presets import RESEARCHED_META, RESEARCHED_PRESETS
 from swingbot.profiles import ProfileStore
+from swingbot.risk_profile import RISK_LEVELS, risk_params
 from swingbot.supervisor import LifecycleError
 from swingbot.rebalance import RebalanceSettings
 from swingbot.price_cache import PriceCache
@@ -110,6 +111,10 @@ class DataSourceBody(BaseModel):
 
 class RiskDialBody(BaseModel):
     risk_dial: str
+
+
+class RiskLevelBody(BaseModel):
+    risk_level: str
 
 
 class AdvisorRevertBody(BaseModel):
@@ -366,6 +371,29 @@ def create_app(controller, profiles, creds, token: str, store=None, market=None,
             market.data_source = body.data_source
         controller.reload()
         return {"ok": True, "data_source": body.data_source}
+
+    @app.get("/api/risk-level")
+    def get_risk_level():
+        return {"risk_level": profiles.get_risk_level(), "choices": list(RISK_LEVELS)}
+
+    @app.put("/api/risk-level")
+    def put_risk_level(body: RiskLevelBody, _=Depends(require_token)):
+        try:
+            profiles.set_risk_level(body.risk_level)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        params = risk_params(body.risk_level)
+        for name in profiles.list_armed():
+            pdict = profiles.get(name)
+            if pdict is None:
+                continue
+            pdict.update(params)
+            profiles.save(name, pdict)
+        # A manual level change re-baselines the AutoTuner overlay.
+        profiles.set_meta("autotuner_tier", "0")
+        profiles.set_meta("autotuner_status", "")
+        controller.reload()
+        return {"ok": True, "risk_level": body.risk_level}
 
     # ---- advisor / risk dial ----
     @app.get("/api/risk-dial")
