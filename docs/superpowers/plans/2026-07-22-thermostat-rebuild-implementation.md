@@ -539,7 +539,7 @@ git commit -m "feat: EquitySnapshotStore (rolling drawdown + P&L windows)"
 
 Policy (spec §5b): escalate to tier 1 when 24h drawdown > 3%, tier 2 when 7d drawdown > 8%; de-escalate only after real recovery (24h dd < 1% and 7d dd < 4%) — hysteresis prevents flapping. Tier 1 tightens: `max_position_frac ×0.7`, `entry_threshold ×1.2`, `max_concurrent −1` (floor 1). Tier 2 additionally suspends new entries by setting `entry_threshold` unreachably high (existing decision path then records SIGNAL_BELOW_THRESHOLD; open positions still manage/exit normally).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```python
 # tests/test_autotuner.py
@@ -588,12 +588,12 @@ def test_max_concurrent_floor_is_one():
     assert d.params["max_concurrent"] == 1
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_autotuner.py -q`
 Expected: FAIL with `ModuleNotFoundError: No module named 'swingbot.autotuner'`
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 ```python
 # src/swingbot/autotuner.py
@@ -659,12 +659,12 @@ class AutoTuner:
                             status=_STATUS[tier], params=params)
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `.venv/bin/python -m pytest tests/test_autotuner.py -q`
 Expected: PASS (5 passed)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/swingbot/autotuner.py tests/test_autotuner.py
