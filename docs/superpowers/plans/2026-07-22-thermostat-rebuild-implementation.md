@@ -1326,7 +1326,7 @@ git commit -m "feat: thermostat Home screen (P&L, positions, activity, defensive
 - Consumes: `api.coins()`, `api.addCoin(symbol)`, `api.removeCoin(name)`, `api.riskLevel()`, `api.setRiskLevel(level)`; ui `Card`, `Button`, `Input`.
 - Produces: default-exported `Coins` component.
 
-- [ ] **Step 1: Create the component**
+- [x] **Step 1: Create the component**
 
 ```jsx
 // frontend/src/pages/Coins.jsx
@@ -1418,12 +1418,12 @@ export default function Coins() {
 }
 ```
 
-- [ ] **Step 2: Verify it builds**
+- [x] **Step 2: Verify it builds**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/pages/Coins.jsx
