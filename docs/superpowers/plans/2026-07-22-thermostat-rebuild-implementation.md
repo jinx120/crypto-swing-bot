@@ -1185,7 +1185,7 @@ git commit -m "feat: thermostat API client methods + P&L formatters"
 
 Wireframe (spec §4 Screen 1): running badge + Stop/Start; portfolio value + P&L with 24h/7d/30d tabs; open positions; recent activity; the defensive-mode note when `portfolio.defensive`.
 
-- [ ] **Step 1: Create the component**
+- [x] **Step 1: Create the component**
 
 ```jsx
 // frontend/src/pages/Home.jsx
@@ -1303,12 +1303,12 @@ export default function Home() {
 }
 ```
 
-- [ ] **Step 2: Verify it builds**
+- [x] **Step 2: Verify it builds**
 
 Run: `cd frontend && npm run build`
 Expected: build succeeds (App.jsx still references old pages until Task 13 — that's fine; this task only adds a file and does not remove imports).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add frontend/src/pages/Home.jsx
