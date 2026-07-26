@@ -34,6 +34,7 @@ from swingbot.exits import bracket_levels
 from swingbot.indicators import atr, ema, rolling_vwap, rsi, sma
 from swingbot.journal import TradeJournal
 from swingbot.profile import StrategyProfile
+from swingbot.signals.premium_flow import ZERO_STD_EPS
 from swingbot.sizing import position_size
 from swingbot.types import Regime
 
@@ -84,9 +85,11 @@ def _signal_scores(df, profile, benchmark_df, kronos_pct=None, extras=None) -> n
             lb = int(params.get("lookback", 180))
             band = float(params.get("band", 2.0))
             s = pd.Series(arr)
-            z = (s - s.rolling(lb).mean()) / s.rolling(lb).std()
+            roll_std = s.rolling(lb).std()
+            z = (s - s.rolling(lb).mean()) / roll_std
             s_arr = np.clip((z.to_numpy() + band) / (2 * band), 0.0, 1.0)
-            total += w * np.where(np.isfinite(z.to_numpy()), s_arr, 0.5)
+            valid = np.isfinite(z.to_numpy()) & (roll_std.to_numpy() > ZERO_STD_EPS)
+            total += w * np.where(valid, s_arr, 0.5)
             continue
         if name == "vwap":
             vwap = rolling_vwap(df, params.get("window", 96))

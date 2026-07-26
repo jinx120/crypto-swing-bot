@@ -7,6 +7,7 @@ from swingbot.signals.funding import FundingMeanReversionSignal
 from swingbot.signals.fvg import FvgSignal
 from swingbot.signals.kronos_forecast import KronosForecastSignal
 from swingbot.signals.oversold import OversoldSignal
+from swingbot.signals.premium_flow import PremiumFlowSignal
 from swingbot.signals.relative_strength import RelativeStrengthSignal
 from swingbot.signals.vwap import VwapSignal
 from swingbot.types import ConfluenceResult, MarketContext
@@ -19,6 +20,7 @@ _REGISTRY = {
     "kronos_forecast": KronosForecastSignal,
     "ema_trend": EmaTrendSignal,
     "funding_mr": FundingMeanReversionSignal,
+    "premium_flow": PremiumFlowSignal,
 }
 
 _RESERVED_SIGNAL_KEYS = {"gate", "min_score"}

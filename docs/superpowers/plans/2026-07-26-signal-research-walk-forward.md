@@ -1618,7 +1618,7 @@ git push origin core-engine
 - Produces: `PremiumFlowSignal(weight, lookback=180, band=2.0, series_key="cb_premium")` with `name = "premium_flow"`, registered in `confluence._REGISTRY` under `"premium_flow"`.
 - The scoring formula must match the `premium_flow` branch added in Task 5, including pandas' default sample standard deviation (`ddof=1`).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_signal_premium_flow.py`:
 
@@ -1709,12 +1709,12 @@ def test_build_signals_constructs_it_from_a_profile():
     assert built[0].band == 1.5
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_signal_premium_flow.py -q`
 Expected: FAIL with `ModuleNotFoundError: No module named 'swingbot.signals.premium_flow'`
 
-- [ ] **Step 3: Write the signal**
+- [x] **Step 3: Write the signal**
 
 Create `src/swingbot/signals/premium_flow.py`:
 
@@ -1775,7 +1775,7 @@ class PremiumFlowSignal:
         return SignalResult(self.name, score, {self.series_key: latest, "z": z})
 ```
 
-- [ ] **Step 4: Register it**
+- [x] **Step 4: Register it**
 
 In `src/swingbot/confluence.py`, add the import and registry entry:
 
@@ -1786,12 +1786,12 @@ from swingbot.signals.premium_flow import PremiumFlowSignal
     "premium_flow": PremiumFlowSignal,
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_signal_premium_flow.py -q`
 Expected: 10 passed
 
-- [ ] **Step 6: Run the gate and rebuild the container**
+- [x] **Step 6: Run the gate and rebuild the container**
 
 ```bash
 .venv/bin/python -m pytest -q && .venv/bin/ruff check src/
@@ -1799,7 +1799,7 @@ docker compose build swingbot && docker compose up -d swingbot
 ```
 Expected: 593 passed, 5 skipped; ruff clean; container healthy.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/swingbot/signals/premium_flow.py src/swingbot/confluence.py tests/test_signal_premium_flow.py

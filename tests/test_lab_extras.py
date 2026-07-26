@@ -54,6 +54,14 @@ def test_premium_flow_is_neutral_during_its_warmup():
     assert scores[:19].tolist() == [0.5] * 19
 
 
+def test_premium_flow_flat_window_is_neutral_in_the_vectorized_path():
+    df = _df(60)
+    profile = StrategyProfile(symbol="BTC/USD", signals={
+        "premium_flow": {"weight": 1.0, "lookback": 20, "band": 2.0}})
+    scores = _signal_scores(df, profile, None, extras={"cb_premium": np.full(60, 0.001)})
+    assert scores[-1] == 0.5
+
+
 def test_a_signal_that_needs_extras_fails_loudly_when_they_are_absent():
     df = _df(10)
     profile = StrategyProfile(symbol="BTC/USD", signals={"funding_mr": {"weight": 1.0}})
