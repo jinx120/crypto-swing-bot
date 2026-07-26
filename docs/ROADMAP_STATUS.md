@@ -8,6 +8,54 @@
 
 ---
 
+## ▶ LATEST SESSION (2026-07-26 PM) — Signal research EXECUTED → **promote nothing** (track closed)
+
+Executed `docs/superpowers/plans/2026-07-26-signal-research-walk-forward.md` end-to-end.
+**Tasks 1–13 done; Tasks 14–16 (Phase 5 promotion) correctly N/A — the gate blocked them; Task 17 is
+this record.** Split: **Codex (gpt-5.5, VM bridge) implemented Phases 1–3 (Tasks 1–9)** with TDD and a
+commit+push per task (`5511361` → `9e68783`); **clawd ran Phase 4 (Tasks 10–13) inline** — it needs the
+local research archive, the network ingest, and the container, none of which Codex has.
+
+**The verdict: every candidate signal REJECTS at 60 bps.** Full evidence in
+`docs/SIGNAL_RESEARCH_FINDINGS.md`. All 10 graded configurations are net negative at the gate
+(−0.19% to −0.42%), best PF **0.88**, best positive-window fraction **33%** (need ≥50%):
+- **6a — 4h EMA trend:** BTC PF 0.84 / −0.26% / 21% windows; ETH PF 0.79 / −0.42% / 29%. (317/300
+  out-of-sample trades over 14 quarters.) PROMOTE at 0 bps, gone by 25.
+- **6b — funding mean reversion** (Hyperliquid, 27,517 rows from 2023-05-14, 270d train windows,
+  9 quarters): all four variants REJECT. BTC overlay is the worst result in the study — **0% positive
+  windows** at the gate; the overlay is worse than standalone at *every* cost tier on BTC.
+- **6c substitute — Coinbase premium** (10,006 rows from 2022-01-01): all four REJECT. **BTC
+  standalone is the strongest configuration anywhere** — still clears all four gate conditions at
+  25 bps (PF 1.15, +0.20%, 50% windows) — but PF 0.88 at 60 bps.
+- **Kronos confirmation was NOT re-tested** (the 2026-06-22 GPU forecast cache died with `/tmp` on the
+  reboot; regenerating costs ~32 min GPU per symbol). The prior finding stands: EMA+Kronos ≈ EMA-core.
+  No Kronos result is claimed for this run.
+
+**The gate held.** `promotion_verdict` was never relaxed and no grid was widened after seeing
+out-of-sample results — which is the whole reason the REJECT is trustworthy. Selection uses train PF
+*at the same cost tier the verdict is graded at*, so nothing was picked on gross and graded on net.
+
+**Shipped and durable regardless of the verdict:** `lab/walkforward.py` (windows, combo application,
+runner, coded promotion gate); `lab/research_data.py` loaders with causal extras attachment;
+`SeriesStore` (`src/swingbot/data/series_store.py`); keyless ingress for Hyperliquid funding and the
+Coinbase/OKX premium; `MarketContext.extras`; two real signal classes —
+**`FundingMeanReversionSignal`** and **`PremiumFlowSignal`** — registered in `confluence` but used by
+**no armed strategy**; `tests/test_lab_signal_parity.py` pinning the lab's vectorized scoring to the
+live `Signal` classes; three research runners.
+
+**One plan defect found and fixed during execution (Task 8).** The plan's zero-variance guard
+(`if not (std > 0)`) never fires: a constant window leaves a float residual in the mean, so pandas
+returns `std == 2.2e-19`, giving z = −0.98 and a spurious 0.25 score instead of neutral 0.5. Fixed with
+a shared public `ZERO_STD_EPS = 1e-12` in `premium_flow.py`, **imported** by the lab harness (not
+retyped) so the parity test cannot drift, plus a vectorized regression test. Codex stopped and asked
+rather than guessing; clawd reproduced the residual before approving.
+
+**Gates:** backend **597 passed, 5 skipped**, ruff clean; container rebuilt + restarted at each `src/`
+change (Tasks 4, 7, 8) and `ready:true` with 4 armed strategies after each. The live bot is
+**untouched** — still the Kronos-only paper trader; no research code is wired into it.
+
+---
+
 ## ▶ LATEST SESSION (2026-07-26) — Signal research plan WRITTEN (phase: PLAN → next is EXECUTE)
 
 Wrote `docs/superpowers/plans/2026-07-26-signal-research-walk-forward.md` (17 tasks, 5 phases, TDD,
@@ -201,18 +249,38 @@ rebuilt + restarted. **Changes are LIVE but UNCOMMITTED** on the host working tr
 
 ## ▶ NEXT ACTION
 
-**▶ EXECUTE — `docs/superpowers/plans/2026-07-26-signal-research-walk-forward.md`.**
+**▶ BRAINSTORM — no plan is queued. The signal-research track is CLOSED with a "promote nothing"
+verdict, and the next move is a design decision, not another sweep.**
 
-Phase: **EXECUTE**. The plan is written and pushed (`7656b97`). Load `superpowers:executing-plans`
-(or `superpowers:subagent-driven-development`), read the plan, find the first unchecked `- [ ]`, and
-continue task-by-task without pausing. Spec: `docs/superpowers/specs/2026-07-22-thermostat-rebuild-design.md`
-§6 and §8 items 6–7. Thermostat product items 1–5 are already shipped on `core-engine` through `8af6152`;
-this track runs in `lab/` and does not block them.
+`docs/superpowers/plans/2026-07-26-signal-research-walk-forward.md` is fully executed: Tasks 1–13
+done, Tasks 14–16 correctly N/A (gate blocked), Task 17 is this update. Evidence:
+`docs/SIGNAL_RESEARCH_FINDINGS.md`.
 
-**Non-negotiables carried in the plan's Global Constraints:** the promotion gate is 60 bps only;
-grids are fixed before each walk-forward run (never widen a grid after seeing out-of-sample results);
-`/tmp/swingbot-bt` is ephemeral so re-run the backfill + both ingest scripts after any reboot; never
-write to `~/.swingbot/` and never issue mutating HTTP calls against the live container.
+**What is now exhausted — do NOT re-open:** the 6 TA primitives (2026-06-22 study), the 4h EMA
+trend, funding mean reversion, and the Coinbase-premium flow proxy (this session) have all been
+walk-forward tested at 4h and all REJECT at 60 bps. Every one shows the same shape: healthy gross
+profit factor, collapse between 10 and 25 bps. **Queueing another parameter sweep over these
+signals is explicitly not the next action** — the grids were fixed before the runs precisely so
+that the out-of-sample verdict means something, and re-running them wider would destroy that.
+
+**The honest remaining avenues, in the order they change the arithmetic:**
+1. **Lower the cost per round trip.** 60 bps against a 4h hold is the binding constraint, not
+   signal quality — three independent signals cleared PF 1.10 gross and none survived the fee. A
+   lower-fee venue, or maker-side entries instead of market orders, moves the breakeven more than
+   any parameter can. This is the highest-leverage change available.
+2. **Change the holding period.** Fewer, longer trades amortize the same fixed cost over a larger
+   move. Nothing here tested daily or multi-day horizons.
+3. **A genuinely different edge source** — order-flow imbalance, cross-venue basis, or
+   event-driven — rather than another price-derived 4h entry filter.
+
+Whichever is chosen, the harness is already built: `lab/walkforward.py` + `promotion_verdict` will
+grade the next candidate with one runner file, and `SeriesStore` + `MarketContext.extras` carry any
+new non-price series into both research and live paths.
+
+**Non-negotiables that carry forward:** the promotion gate is 60 bps only; grids are fixed before
+each walk-forward run; `/tmp/swingbot-bt` is ephemeral so re-run the backfill + both ingest scripts
+after any reboot; never write to `~/.swingbot/` and never issue mutating HTTP calls against the
+live container.
 
 The phase notes below are historical.
 

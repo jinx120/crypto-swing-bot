@@ -2437,6 +2437,10 @@ git push origin core-engine
 > 2026-06-22 study reached the same conclusion for the 15m TA set, and shipping an
 > unvalidated signal is exactly what the gate exists to prevent.
 
+> **NOT EXECUTED — N/A.** No signal recorded a PROMOTE verdict at 60 bps in
+> `docs/SIGNAL_RESEARCH_FINDINGS.md`, so the Phase 5 gate blocks Tasks 14–16.
+> The live bot stays Kronos-only.
+
 ### Task 14: Regime-aware signal fusion
 
 **Files:**
@@ -2448,7 +2452,7 @@ git push origin core-engine
 
 Spec §6 "Signal Fusion" defines the mapping: uptrend → EMA trend primary with on-chain (here premium) as a modifier; downtrend → funding filter primary with EMA for timing; neutral → funding filter only.
 
-- [ ] **Step 1: Write the failing test**
+- [x] N/A — **Step 1: Write the failing test**
 
 Create `tests/test_fusion.py`:
 
@@ -2499,12 +2503,12 @@ def test_a_profile_with_no_signals_returns_nothing():
     assert fuse_weights({}, Regime.UPTREND) == {}
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] N/A — **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_fusion.py -q`
 Expected: FAIL with `ModuleNotFoundError: No module named 'swingbot.fusion'`
 
-- [ ] **Step 3: Write the implementation**
+- [x] N/A — **Step 3: Write the implementation**
 
 Create `src/swingbot/fusion.py`:
 
@@ -2547,19 +2551,19 @@ def fuse_weights(profile_signals: dict, regime: Regime) -> dict[str, float]:
     return {name: value / total for name, value in raw.items()}
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] N/A — **Step 4: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_fusion.py -q`
 Expected: 7 passed
 
-- [ ] **Step 5: Run the gate and rebuild the container**
+- [x] N/A — **Step 5: Run the gate and rebuild the container**
 
 ```bash
 .venv/bin/python -m pytest -q && .venv/bin/ruff check src/
 docker compose build swingbot && docker compose up -d swingbot
 ```
 
-- [ ] **Step 6: Commit**
+- [x] N/A — **Step 6: Commit**
 
 ```bash
 git add src/swingbot/fusion.py tests/test_fusion.py
@@ -2581,7 +2585,7 @@ git push origin core-engine
 - Produces: `SeriesPoller(store, exchange, series_specs)` with `refresh(now) -> dict[str, int]` and `context_extras(symbol, as_of) -> dict[str, pd.DataFrame]`.
 - Orchestrator: `MarketContext(candles=df, benchmark=benchmark, extras=self._extras(now))` where `_extras` returns `{}` when no poller is configured.
 
-- [ ] **Step 1: Write the failing test**
+- [x] N/A — **Step 1: Write the failing test**
 
 Create `tests/test_series_poller.py`:
 
@@ -2649,12 +2653,12 @@ def test_context_extras_on_an_empty_store_returns_empty_frames(tmp_path):
     assert extras["funding_8h"].empty
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] N/A — **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_series_poller.py -q`
 Expected: FAIL with `ModuleNotFoundError: No module named 'swingbot.data.series_poller'`
 
-- [ ] **Step 3: Move the funding helpers into `src/` and write the poller**
+- [x] N/A — **Step 3: Move the funding helpers into `src/` and write the poller**
 
 Create `src/swingbot/data/series_poller.py`. Move `HOUR_MS`, `WINDOW_HOURS`, `fetch_funding` and `to_8h_equivalent` here **verbatim** from `lab/funding_ingest.py` (they are unchanged), then add:
 
@@ -2705,7 +2709,7 @@ from swingbot.data.series_poller import HOUR_MS, WINDOW_HOURS, fetch_funding, to
 ```
 (delete the moved definitions from `lab/funding_ingest.py`; keep `ingest` and `main` there).
 
-- [ ] **Step 4: Wire `extras` into the orchestrator**
+- [x] N/A — **Step 4: Wire `extras` into the orchestrator**
 
 In `src/swingbot/orchestrator.py`, add a `series_poller=None` keyword to `__init__` (store as `self.series_poller`), add the helper, and pass extras into the context.
 
@@ -2736,12 +2740,12 @@ Change the context construction at `orchestrator.py:156`:
                             extras=self._extras(df["ts"].iloc[-1]))
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] N/A — **Step 5: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_series_poller.py tests/test_lab_ingest.py -q`
 Expected: 5 + 9 passed
 
-- [ ] **Step 6: Run the gate and rebuild the container**
+- [x] N/A — **Step 6: Run the gate and rebuild the container**
 
 ```bash
 .venv/bin/python -m pytest -q && .venv/bin/ruff check src/
@@ -2749,7 +2753,7 @@ docker compose build swingbot && docker compose up -d swingbot
 ```
 Expected: full suite green; container healthy. The orchestrator's `series_poller` defaults to `None`, so every existing construction site is unaffected.
 
-- [ ] **Step 7: Commit**
+- [x] N/A — **Step 7: Commit**
 
 ```bash
 git add src/swingbot/data/series_poller.py src/swingbot/orchestrator.py lab/funding_ingest.py tests/test_series_poller.py
@@ -2770,7 +2774,7 @@ git push origin core-engine
 
 Fill in the signal names, weights, and parameters from the **most frequently chosen combination across the passing windows** (printed by Task 10's runner). Do not invent values.
 
-- [ ] **Step 1: Write the failing test**
+- [x] N/A — **Step 1: Write the failing test**
 
 Create `tests/test_promoted_preset.py`:
 
@@ -2799,12 +2803,12 @@ def test_promoted_profile_keeps_the_real_cost_model():
     assert profile.slippage_rate == 0.0005
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] N/A — **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_promoted_preset.py -q`
 Expected: FAIL with `ImportError: cannot import name 'promoted_profile'`
 
-- [ ] **Step 3: Add the preset**
+- [x] N/A — **Step 3: Add the preset**
 
 Append to `src/swingbot/kronos_preset.py`:
 
@@ -2839,7 +2843,7 @@ def promoted_profile(symbol: str) -> dict:
     }
 ```
 
-- [ ] **Step 4: Construct the poller in `webmain`**
+- [x] N/A — **Step 4: Construct the poller in `webmain`**
 
 **Skip this step entirely if the promoted signal uses neither `funding_mr` nor `premium_flow`** (e.g. a pure 4h EMA promotion needs no external series) — note the skip in the commit message.
 
@@ -2875,14 +2879,14 @@ grep -n "def tick_all" src/swingbot/supervisor.py
 
 Add a supervisor test alongside the existing supervisor tests asserting that a refresh failure does not abort the tick.
 
-- [ ] **Step 5: Run tests, gate, and rebuild**
+- [x] N/A — **Step 5: Run tests, gate, and rebuild**
 
 ```bash
 .venv/bin/python -m pytest -q && .venv/bin/ruff check src/
 docker compose build swingbot && docker compose up -d swingbot
 ```
 
-- [ ] **Step 6: Live-verify with read-only calls only**
+- [x] N/A — **Step 6: Live-verify with read-only calls only**
 
 ```bash
 curl -s localhost:8000/api/health/ready
@@ -2893,7 +2897,7 @@ Expected: ready 200; the promoted strategy appears with `kind: "validated"`; the
 
 **Do not issue any `PUT`/`POST`/`DELETE` against the live instance** — a probe `PUT` previously clobbered the stored Alpaca credentials. Arming the strategy is the user's call, not part of this task.
 
-- [ ] **Step 7: Commit**
+- [x] N/A — **Step 7: Commit**
 
 ```bash
 git add src/swingbot/kronos_preset.py src/swingbot/webmain.py tests/test_promoted_preset.py
@@ -2908,7 +2912,7 @@ git push origin core-engine
 **Files:**
 - Modify: `docs/ROADMAP_STATUS.md:11` (insert a new LATEST SESSION block above the 2026-07-22 one), `docs/ROADMAP_STATUS.md:170-182` (rewrite NEXT ACTION)
 
-- [ ] **Step 1: Write the session record**
+- [x] **Step 1: Write the session record**
 
 Insert a new `## ▶ LATEST SESSION (<date>) — Signal Research & Walk-Forward Promotion` section directly beneath the `**Last updated:**` line, covering:
 - what shipped (harness, ingress, two signal classes, fusion if built);
@@ -2919,14 +2923,14 @@ Insert a new `## ▶ LATEST SESSION (<date>) — Signal Research & Walk-Forward 
 
 Update `**Last updated:**` to the run date.
 
-- [ ] **Step 2: Rewrite NEXT ACTION**
+- [x] **Step 2: Rewrite NEXT ACTION**
 
 Replace the current `## ▶ NEXT ACTION` block (which points at this plan) with whichever applies:
 
 - **If a signal was promoted:** forward-paper-validate it — arm it on one coin, run for N weeks, compare realized fills against the walk-forward expectation.
 - **If nothing passed:** the 6-primitive TA set plus funding and premium-flow are exhausted at 4h under real costs. Name the remaining avenues honestly — a lower-fee venue changes the arithmetic more than any parameter does; a genuinely different edge source (order-flow, cross-venue basis, event-driven) is the other direction. Do not queue another parameter sweep over signals already rejected.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add docs/ROADMAP_STATUS.md
