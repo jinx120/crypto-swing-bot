@@ -15,6 +15,9 @@ from dataclasses import dataclass
 
 import pandas as pd
 
+from lab.research_data import split_extras
+from lab.strategy_backtest import run_backtest_fast
+from swingbot.backtest import _warmup_bars
 from swingbot.profile import StrategyProfile
 
 
@@ -74,3 +77,150 @@ def apply_combo(profile: StrategyProfile, combo: dict) -> StrategyProfile:
 def with_cost(profile: StrategyProfile, round_trip: float) -> StrategyProfile:
     """Set the total round-trip cost, charged symmetrically as fees."""
     return dataclasses.replace(profile, fee_rate=round_trip / 2.0, slippage_rate=0.0)
+
+
+@dataclass(frozen=True)
+class WindowResult:
+    window: Window
+    combo: dict
+    train_pf: float
+    trades: list
+    net_pnl: float
+
+
+@dataclass(frozen=True)
+class WalkForwardResult:
+    label: str
+    symbol: str
+    windows: list[WindowResult]
+    oos_trades: list
+
+
+@dataclass(frozen=True)
+class Verdict:
+    label: str
+    symbol: str
+    decision: str          # "PROMOTE" | "REJECT"
+    reason: str
+    n_trades: int
+    net_return_pct: float
+    profit_factor: float
+    positive_window_frac: float
+
+
+def profit_factor(trades) -> float:
+    gross_profit = sum(t.pnl for t in trades if t.pnl > 0)
+    gross_loss = -sum(t.pnl for t in trades if t.pnl < 0)
+    if gross_loss > 0:
+        return gross_profit / gross_loss
+    return float("inf") if gross_profit > 0 else 0.0
+
+
+def _slice(df: pd.DataFrame, start, end, warmup: int) -> pd.DataFrame:
+    """Bars in [start, end] plus `warmup` bars of lead-in for the indicators.
+
+    The lead-in is required (indicators need history) but must not produce
+    tradeable bars, so callers filter the returned trades by entry_ts >= start.
+    """
+    positions = df.index[df["ts"] >= start]
+    if len(positions) == 0:
+        return df.iloc[0:0]
+    first = max(0, int(positions[0]) - warmup)
+    window = df.iloc[first:]
+    return window[window["ts"] <= end].reset_index(drop=True)
+
+
+def _run(df: pd.DataFrame, profile, benchmark_df, starting_equity):
+    ohlc, extras = split_extras(df)
+    trades, _ = run_backtest_fast(
+        ohlc, profile, benchmark_df=benchmark_df,
+        starting_equity=starting_equity, extras=extras or None)
+    return trades
+
+
+def walk_forward(df: pd.DataFrame, base_profile: StrategyProfile, grid: list[dict], *,
+                 round_trip: float, train_days: int = 365, test_days: int = 90,
+                 step_days: int = 90, min_train_trades: int = 20,
+                 benchmark_df: pd.DataFrame | None = None,
+                 starting_equity: float = 1000.0) -> WalkForwardResult:
+    """Roll train/test windows, fitting `grid` on train and trading it on test.
+
+    Selection metric on the training slice is profit factor at the SAME cost tier
+    the verdict is graded at - selecting on gross performance and grading on net
+    would pick parameters that only work at costs we do not pay.
+    """
+    costed = with_cost(base_profile, round_trip)
+    # Warmup must cover the HUNGRIEST combo in the grid, not the base profile: a
+    # combo that raises `lookback` needs more lead-in, and slicing to the base
+    # profile's warmup would silently feed it a neutral score for hundreds of
+    # bars into the test window.
+    warmup = max(_warmup_bars(apply_combo(costed, c)) for c in grid) if grid \
+        else _warmup_bars(costed)
+    windows = generate_windows(df["ts"].iloc[0], df["ts"].iloc[-1],
+                               train_days=train_days, test_days=test_days,
+                               step_days=step_days)
+
+    results: list[WindowResult] = []
+    oos: list = []
+    for window in windows:
+        train_df = _slice(df, window.train_start, window.train_end, warmup)
+        best_combo, best_pf = None, float("-inf")
+        for combo in grid:
+            trades = _run(train_df, apply_combo(costed, combo), benchmark_df, starting_equity)
+            trades = [t for t in trades if t.entry_ts >= window.train_start]
+            if len(trades) < min_train_trades:
+                continue
+            pf = profit_factor(trades)
+            if pf > best_pf:
+                best_combo, best_pf = combo, pf
+        if best_combo is None:
+            continue  # nothing traded enough on this training slice to choose from
+
+        test_df = _slice(df, window.test_start, window.test_end, warmup)
+        test_trades = _run(test_df, apply_combo(costed, best_combo),
+                           benchmark_df, starting_equity)
+        test_trades = [t for t in test_trades if t.entry_ts >= window.test_start]
+        oos.extend(test_trades)
+        results.append(WindowResult(
+            window=window, combo=best_combo, train_pf=best_pf,
+            trades=test_trades, net_pnl=sum(t.pnl for t in test_trades)))
+
+    return WalkForwardResult(label=base_profile.label or "unlabelled",
+                             symbol=base_profile.symbol,
+                             windows=results, oos_trades=oos)
+
+
+def promotion_verdict(result: WalkForwardResult, *, min_trades: int = 30,
+                      min_pf: float = 1.10,
+                      min_positive_window_frac: float = 0.5) -> Verdict:
+    """Grade an out-of-sample record. PROMOTE only if ALL conditions hold.
+
+    A signal must be (a) traded often enough to be more than noise, (b) net
+    positive overall, (c) profitable enough to be worth the risk, and (d)
+    consistent across windows rather than carried by one lucky quarter.
+    """
+    trades = result.oos_trades
+    n = len(trades)
+    notional = sum(t.entry_price * t.qty for t in trades)
+    net_pct = (sum(t.pnl for t in trades) / notional * 100.0) if notional else 0.0
+    pf = profit_factor(trades)
+    positive = sum(1 for w in result.windows if w.net_pnl > 0)
+    frac = positive / len(result.windows) if result.windows else 0.0
+
+    reasons = []
+    if n < min_trades:
+        reasons.append(f"only {n} out-of-sample trades (need >= {min_trades})")
+    if net_pct <= 0:
+        reasons.append(f"net return {net_pct:.2f}% is not positive")
+    if pf < min_pf:
+        reasons.append(f"profit factor {pf:.2f} below {min_pf:.2f}")
+    if frac < min_positive_window_frac:
+        reasons.append(
+            f"only {frac:.0%} of windows positive (need >= {min_positive_window_frac:.0%})")
+
+    return Verdict(
+        label=result.label, symbol=result.symbol,
+        decision="REJECT" if reasons else "PROMOTE",
+        reason="; ".join(reasons) if reasons else "passed all walk-forward criteria",
+        n_trades=n, net_return_pct=net_pct, profit_factor=pf,
+        positive_window_frac=frac)

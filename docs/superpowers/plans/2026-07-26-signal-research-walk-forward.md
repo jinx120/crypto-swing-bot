@@ -430,7 +430,7 @@ git push origin core-engine
 
 `df` passed to `walk_forward` is the combined frame from `attach_extra` (OHLCV plus any `x_*` columns); `walk_forward` slices it and calls `split_extras` internally so extras stay aligned with their bars.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_lab_walkforward.py`:
 
@@ -528,12 +528,12 @@ def test_walk_forward_never_trains_and_tests_on_the_same_bars(monkeypatch):
             assert w.window.test_start <= t.entry_ts <= w.window.test_end
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_lab_walkforward.py -q`
 Expected: FAIL with `ImportError: cannot import name 'walk_forward'`
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Append to `lab/walkforward.py` (add the imports at the top of the file alongside the existing ones):
 
@@ -690,12 +690,12 @@ def promotion_verdict(result: WalkForwardResult, *, min_trades: int = 30,
         positive_window_frac=frac)
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_lab_walkforward.py -q`
 Expected: 13 passed
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lab/walkforward.py tests/test_lab_walkforward.py
