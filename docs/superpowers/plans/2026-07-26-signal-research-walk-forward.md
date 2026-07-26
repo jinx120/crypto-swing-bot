@@ -1819,7 +1819,7 @@ git push origin core-engine
 
 The lab harness scores signals with vectorized numpy for speed; the live engine scores them one bar at a time through the `Signal` classes. This test pins the two together bar-for-bar. Without it, a research verdict can be produced by code that does not match what would actually trade. This mirrors the `validate()` guarantee that the 2026-06 harness already provides for the price-based signals.
 
-- [ ] **Step 1: Write the test**
+- [x] **Step 1: Write the test**
 
 Create `tests/test_lab_signal_parity.py`:
 
@@ -1902,14 +1902,14 @@ def test_a_blended_profile_matches_bar_for_bar(frames):
     np.testing.assert_allclose(fast, slow, atol=1e-12)
 ```
 
-- [ ] **Step 2: Run the test**
+- [x] **Step 2: Run the test**
 
 Run: `.venv/bin/python -m pytest tests/test_lab_signal_parity.py -q`
 Expected: 3 passed.
 
 If a comparison fails, the discrepancy is real — reconcile `lab/strategy_backtest.py` with the signal class it mirrors. Most likely causes: pandas `rolling(...).std()` uses `ddof=1` while a hand-rolled version uses `ddof=0`, or the vectorized branch treats a NaN differently from the class's `no_data` path.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add tests/test_lab_signal_parity.py
