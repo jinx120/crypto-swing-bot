@@ -246,7 +246,7 @@ git push origin core-engine
   - `apply_combo(profile: StrategyProfile, combo: dict) -> StrategyProfile` — dotted keys (`"ema_trend.fast"`) target `profile.signals`, bare keys target top-level fields.
   - `with_cost(profile, round_trip: float) -> StrategyProfile`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_lab_walkforward.py`:
 
@@ -309,12 +309,12 @@ def test_with_cost_splits_round_trip_across_both_sides():
     assert p.slippage_rate == 0.0
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_lab_walkforward.py -q`
 Expected: FAIL with `ModuleNotFoundError: No module named 'lab.walkforward'`
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `lab/walkforward.py`:
 
@@ -397,12 +397,12 @@ def with_cost(profile: StrategyProfile, round_trip: float) -> StrategyProfile:
     return dataclasses.replace(profile, fee_rate=round_trip / 2.0, slippage_rate=0.0)
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_lab_walkforward.py -q`
 Expected: 6 passed
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lab/walkforward.py tests/test_lab_walkforward.py
