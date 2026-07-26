@@ -1931,7 +1931,7 @@ git push origin core-engine
 - Consumes: `lab.research_data.{load, resample}`, `lab.walkforward.{walk_forward, promotion_verdict}`.
 - Produces: `EMA_GRID`, `base_profile(symbol) -> StrategyProfile`, `main()` printing a per-cost-tier table plus the 60 bps verdict.
 
-- [ ] **Step 1: Refresh the research archive**
+- [x] **Step 1: Refresh the research archive**
 
 `/tmp` is ephemeral. Re-run the backfill (idempotent, ~8 min; skip if `/tmp/swingbot-bt/candles.db` already covers 2022-01-01 → today):
 
@@ -1941,7 +1941,7 @@ SWINGBOT_DATA_DIR=/tmp/swingbot-bt .venv/bin/python -m swingbot.backfill_cli \
 ```
 Expected: `[backfill] BTC/USD 15m: ~156000 bars` and the same for ETH/USD.
 
-- [ ] **Step 2: Write the runner**
+- [x] **Step 2: Write the runner**
 
 Create `lab/research_ema_4h.py`:
 
@@ -2024,7 +2024,7 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 3: Run it and capture the output**
+- [x] **Step 3: Run it and capture the output**
 
 ```bash
 SWINGBOT_DATA_DIR=/tmp/swingbot-bt .venv/bin/python -m lab.research_ema_4h \
@@ -2032,7 +2032,7 @@ SWINGBOT_DATA_DIR=/tmp/swingbot-bt .venv/bin/python -m lab.research_ema_4h \
 ```
 Expected: a table per symbol with a PROMOTE/REJECT line at 60 bps. Record the numbers verbatim — Task 13 quotes them.
 
-- [ ] **Step 4: Note the Kronos confirmation question**
+- [x] **Step 4: Note the Kronos confirmation question**
 
 Spec §6a names Kronos as a confirmation filter on the EMA signal. The 2026-06-22 study already tested exactly this on 4h with GPU-precomputed forecasts and found **EMA+Kronos ≈ EMA-core** (n 369 vs 370 on BTC; +1pt on ETH, inside noise) because the 0.30 confluence term is saturated and rarely flips an entry.
 
@@ -2044,7 +2044,7 @@ ls -la /tmp/swingbot-bt/k_*_4h.csv
 
 If they exist, add a Kronos-confluence variant to the grid and re-run. If they do not (expected — `/tmp` is ephemeral), do **not** regenerate: record in Task 13 that the 2026-06-22 finding stands and the Kronos confluence term was not re-tested. Do not report a Kronos result you did not run.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lab/research_ema_4h.py
