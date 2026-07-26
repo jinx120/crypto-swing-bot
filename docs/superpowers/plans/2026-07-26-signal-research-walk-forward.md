@@ -2065,7 +2065,7 @@ git push origin core-engine
 
 Funding history starts 2023-05-12, so this runner uses **270-day training windows** rather than 365 — with 365 the ~38 months of data yield too few out-of-sample quarters to judge consistency. This is stated in the output so the shorter fit is never mistaken for the EMA runner's.
 
-- [ ] **Step 1: Ingest the funding series**
+- [x] **Step 1: Ingest the funding series**
 
 ```bash
 SWINGBOT_DATA_DIR=/tmp/swingbot-bt .venv/bin/python -m lab.funding_ingest
@@ -2074,7 +2074,7 @@ Expected: `[funding] wrote N rows; coverage {'min_ts': ..., 'max_ts': ..., 'coun
 
 If the count is under 5,000, the venue truncated the history — stop and record that funding research is data-blocked in Task 13 rather than running on a stub.
 
-- [ ] **Step 2: Write the runner**
+- [x] **Step 2: Write the runner**
 
 Create `lab/research_funding.py`:
 
@@ -2180,14 +2180,14 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 3: Run it and capture the output**
+- [x] **Step 3: Run it and capture the output**
 
 ```bash
 SWINGBOT_DATA_DIR=/tmp/swingbot-bt .venv/bin/python -m lab.research_funding \
   | tee /tmp/swingbot-bt/funding.txt
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add lab/research_funding.py
