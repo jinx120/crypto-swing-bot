@@ -4,7 +4,39 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-07-22
+**Last updated:** 2026-07-26
+
+---
+
+## ▶ LATEST SESSION (2026-07-26) — Signal research plan WRITTEN (phase: PLAN → next is EXECUTE)
+
+Wrote `docs/superpowers/plans/2026-07-26-signal-research-walk-forward.md` (17 tasks, 5 phases, TDD,
+per-task commits) covering spec §8 items 6–7. No code changed this session — planning only.
+
+**Data sources probed live from this host (the spec's assumed sources do not all exist keyless):**
+- **Funding rates:** Binance → HTTP **451** geo-block; **binance.us is spot-only** (no perpetuals, so
+  no funding rates at all — confirmed with the user, who is US-located); Bybit → CloudFront **403**;
+  OKX → works but **capped at ~97 days** (290 rows). **Hyperliquid is the pick:** keyless, hourly,
+  `2023-05-12 → now` (~3.2y). The spec's 2021–2026 window is not reachable without a paid source.
+- **On-chain exchange net flow (spec §6c):** **no keyless source exists** — Glassnode/CryptoQuant
+  expose exchange flows on paid tiers only. **Substituted (user-approved) with the Coinbase premium**
+  (Coinbase BTC/USD vs OKX BTC/USDT spot spread), a documented US-demand-pressure proxy. OKX spot
+  OHLCV paginates keyless from 2022, so the proxy has full depth.
+
+**Three design forks resolved by the user this session:**
+1. §6c → Coinbase-premium proxy (not CSV import, not a paid key, not deferred).
+2. Funding depth → accept Hyperliquid 2023-05+.
+3. **Promotion gate → live cost, 60 bps** (0.25% fee + 0.05% slippage per side). Honest but strict:
+   the 2026-06-22 study measured the 4h EMA edge at PF 1.17 gross, **breakeven at 25 bps and negative
+   at 60 bps**, so there is a real chance every verdict is REJECT and nothing is promoted. That is an
+   accepted outcome — the plan explicitly forbids relaxing the gate to manufacture a pass.
+
+**Plan shape:** Phase 1 walk-forward harness (`lab/walkforward.py`, coded promotion gate) → Phase 2
+data ingress (`SeriesStore` in `src/`, funding + premium ingest in `lab/`) → Phase 3 two new signal
+classes (`FundingMeanReversionSignal`, `PremiumFlowSignal`) plus `MarketContext.extras`, with a
+**parity test pinning the lab's vectorized scoring to the live `Signal` classes** → Phase 4 run the
+research, write `docs/SIGNAL_RESEARCH_FINDINGS.md` → **Phase 5 is gated**: execute only if the
+findings record at least one PROMOTE at 60 bps, otherwise tick Tasks 14–16 as N/A and stop.
 
 ---
 
@@ -169,15 +201,18 @@ rebuilt + restarted. **Changes are LIVE but UNCOMMITTED** on the host working tr
 
 ## ▶ NEXT ACTION
 
-**▶ SIGNAL RESEARCH PLAN — spec §8 items 6–7.**
+**▶ EXECUTE — `docs/superpowers/plans/2026-07-26-signal-research-walk-forward.md`.**
 
-Spec: `docs/superpowers/specs/2026-07-22-thermostat-rebuild-design.md`.
+Phase: **EXECUTE**. The plan is written and pushed (`7656b97`). Load `superpowers:executing-plans`
+(or `superpowers:subagent-driven-development`), read the plan, find the first unchecked `- [ ]`, and
+continue task-by-task without pausing. Spec: `docs/superpowers/specs/2026-07-22-thermostat-rebuild-design.md`
+§6 and §8 items 6–7. Thermostat product items 1–5 are already shipped on `core-engine` through `8af6152`;
+this track runs in `lab/` and does not block them.
 
-Thermostat product items **1–5 are shipped in code** on `core-engine` through `8af6152`.
-Next work is the separate research/promote track:
-1. Write the signal-research plan for 4h EMA trend, funding-rate mean reversion, and on-chain flows.
-2. Run research in `lab/` without blocking the thermostat product.
-3. Promote only signals that pass walk-forward validation.
+**Non-negotiables carried in the plan's Global Constraints:** the promotion gate is 60 bps only;
+grids are fixed before each walk-forward run (never widen a grid after seeing out-of-sample results);
+`/tmp/swingbot-bt` is ephemeral so re-run the backfill + both ingest scripts after any reboot; never
+write to `~/.swingbot/` and never issue mutating HTTP calls against the live container.
 
 The phase notes below are historical.
 
