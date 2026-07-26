@@ -718,7 +718,7 @@ git push origin core-engine
 
 This module ships inside the Docker image (a promoted signal reads from it live), so it mirrors `CandleStore`'s conventions exactly: WAL mode, a `threading.Lock`, epoch-second storage, idempotent `INSERT OR REPLACE`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_series_store.py`:
 
@@ -794,12 +794,12 @@ def test_names_lists_stored_series(tmp_path):
     assert sorted(n["name"] for n in s.names()) == ["cb_premium", "funding_8h"]
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_series_store.py -q`
 Expected: FAIL with `ModuleNotFoundError: No module named 'swingbot.data.series_store'`
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/swingbot/data/series_store.py`:
 
@@ -892,12 +892,12 @@ class SeriesStore:
         return [{"name": n, "symbol": s} for n, s in rows]
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_series_store.py -q`
 Expected: 8 passed
 
-- [ ] **Step 5: Run the gate and rebuild the container**
+- [x] **Step 5: Run the gate and rebuild the container**
 
 ```bash
 .venv/bin/python -m pytest -q && .venv/bin/ruff check src/
@@ -905,7 +905,7 @@ docker compose build swingbot && docker compose up -d swingbot
 ```
 Expected: 559 passed, 5 skipped; ruff clean; container healthy.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/swingbot/data/series_store.py tests/test_series_store.py
