@@ -2330,7 +2330,7 @@ git push origin core-engine
 
 This task converts three console outputs into the record that Phase 5 is gated on. **Transcribe the numbers actually produced in Tasks 10–12. Do not estimate, round to a nicer figure, or reuse the 2026-06-22 numbers.** If a runner failed or a series was data-blocked, say so explicitly.
 
-- [ ] **Step 1: Write the findings document**
+- [x] **Step 1: Write the findings document**
 
 Create `docs/SIGNAL_RESEARCH_FINDINGS.md` using this structure, filling every `<...>` from the captured output in `/tmp/swingbot-bt/{ema_4h,funding,premium}.txt`:
 
@@ -2414,7 +2414,7 @@ SWINGBOT_DATA_DIR=/tmp/swingbot-bt .venv/bin/python -m lab.research_premium
 ```
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add docs/SIGNAL_RESEARCH_FINDINGS.md
