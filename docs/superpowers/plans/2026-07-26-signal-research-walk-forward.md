@@ -1409,7 +1409,7 @@ git push origin core-engine
 - Produces: `MarketContext.extras: dict[str, pd.DataFrame]` (default `{}`, each value a `["ts", "value"]` frame); `FundingMeanReversionSignal(weight, high_thresh=0.0005, low_thresh=-0.0001, series_key="funding_8h")` with `name = "funding_mr"`, registered in `confluence._REGISTRY` under `"funding_mr"`.
 - The scoring formula must match the `funding_mr` branch added in Task 5.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_signal_funding.py`:
 
@@ -1498,12 +1498,12 @@ def test_build_signals_constructs_it_from_a_profile():
     assert built[0].high_thresh == 0.0006
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_signal_funding.py -q`
 Expected: FAIL with `ModuleNotFoundError: No module named 'swingbot.signals.funding'`
 
-- [ ] **Step 3: Add `extras` to `MarketContext`**
+- [x] **Step 3: Add `extras` to `MarketContext`**
 
 In `src/swingbot/types.py`, replace the `MarketContext` dataclass with:
 
@@ -1521,7 +1521,7 @@ class MarketContext:
     extras: dict = field(default_factory=dict)
 ```
 
-- [ ] **Step 4: Write the signal**
+- [x] **Step 4: Write the signal**
 
 Create `src/swingbot/signals/funding.py`:
 
@@ -1572,7 +1572,7 @@ class FundingMeanReversionSignal:
         return SignalResult(self.name, score, {self.series_key: funding})
 ```
 
-- [ ] **Step 5: Register it**
+- [x] **Step 5: Register it**
 
 In `src/swingbot/confluence.py`, add the import and registry entry:
 
@@ -1583,12 +1583,12 @@ from swingbot.signals.funding import FundingMeanReversionSignal
     "funding_mr": FundingMeanReversionSignal,
 ```
 
-- [ ] **Step 6: Run tests to verify they pass**
+- [x] **Step 6: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_signal_funding.py -q`
 Expected: 10 passed
 
-- [ ] **Step 7: Run the gate and rebuild the container**
+- [x] **Step 7: Run the gate and rebuild the container**
 
 ```bash
 .venv/bin/python -m pytest -q && .venv/bin/ruff check src/
@@ -1596,7 +1596,7 @@ docker compose build swingbot && docker compose up -d swingbot
 ```
 Expected: 583 passed, 5 skipped; ruff clean; container healthy. `MarketContext.extras` defaults to `{}`, so no existing test or call site changes behaviour.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/swingbot/types.py src/swingbot/confluence.py src/swingbot/signals/funding.py tests/test_signal_funding.py

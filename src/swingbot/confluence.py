@@ -3,6 +3,7 @@ from __future__ import annotations
 from swingbot.profile import StrategyProfile
 from swingbot.signals.base import Signal
 from swingbot.signals.ema_trend import EmaTrendSignal
+from swingbot.signals.funding import FundingMeanReversionSignal
 from swingbot.signals.fvg import FvgSignal
 from swingbot.signals.kronos_forecast import KronosForecastSignal
 from swingbot.signals.oversold import OversoldSignal
@@ -17,6 +18,7 @@ _REGISTRY = {
     "fvg": FvgSignal,
     "kronos_forecast": KronosForecastSignal,
     "ema_trend": EmaTrendSignal,
+    "funding_mr": FundingMeanReversionSignal,
 }
 
 _RESERVED_SIGNAL_KEYS = {"gate", "min_score"}

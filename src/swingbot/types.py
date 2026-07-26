@@ -126,6 +126,11 @@ class MarketContext:
     candles: pd.DataFrame                      # primary trading timeframe
     benchmark: pd.DataFrame | None = None      # e.g. BTC/USD, same timeframe
     htf: pd.DataFrame | None = None            # higher timeframe for regime; falls back to candles
+    # Non-price series keyed by name (e.g. "funding_8h", "cb_premium"), each a
+    # ["ts", "value"] frame sorted oldest-first and truncated to readings at or
+    # before the last closed bar. Empty by default so existing call sites and
+    # signals are unaffected.
+    extras: dict = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
