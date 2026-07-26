@@ -2206,14 +2206,14 @@ git push origin core-engine
 - Consumes: `lab.premium_ingest` (Task 6), `lab.research_data`, `lab.walkforward`, `lab.research_ema_4h.base_profile`.
 - Produces: `PREMIUM_GRID`, `overlay_profile(symbol)`, `standalone_profile(symbol)`, `main()`.
 
-- [ ] **Step 1: Ingest the premium series**
+- [x] **Step 1: Ingest the premium series**
 
 ```bash
 SWINGBOT_DATA_DIR=/tmp/swingbot-bt .venv/bin/python -m lab.premium_ingest
 ```
 Expected: `[premium] wrote N rows` with N around 9,000 (4h bars from 2022-01-01) and coverage starting 2022.
 
-- [ ] **Step 2: Write the runner**
+- [x] **Step 2: Write the runner**
 
 Create `lab/research_premium.py`:
 
@@ -2306,14 +2306,14 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 3: Run it and capture the output**
+- [x] **Step 3: Run it and capture the output**
 
 ```bash
 SWINGBOT_DATA_DIR=/tmp/swingbot-bt .venv/bin/python -m lab.research_premium \
   | tee /tmp/swingbot-bt/premium.txt
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add lab/research_premium.py
