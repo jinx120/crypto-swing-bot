@@ -1089,7 +1089,7 @@ git push origin core-engine
   - `premium_ingest.compute_premium(local_4h, offshore_4h) -> pd.DataFrame` with `["ts", "value"]`.
   - `premium_ingest.ingest(store, local_15m, offshore_provider, *, store_symbol="BTC/USD", offshore_symbol="BTC/USDT", start_ms, end_ms) -> int`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_lab_ingest.py`:
 
@@ -1209,12 +1209,12 @@ def test_ingest_premium_resamples_local_15m_and_stores_the_series(tmp_path):
     assert df["value"].round(6).tolist() == [0.01, 0.01]
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_lab_ingest.py -q`
 Expected: FAIL with `ModuleNotFoundError: No module named 'lab.funding_ingest'`
 
-- [ ] **Step 3: Write `lab/funding_ingest.py`**
+- [x] **Step 3: Write `lab/funding_ingest.py`**
 
 ```python
 """Ingest perpetual-swap funding rates into SeriesStore.
@@ -1307,7 +1307,7 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 4: Write `lab/premium_ingest.py`**
+- [x] **Step 4: Write `lab/premium_ingest.py`**
 
 ```python
 """Ingest the Coinbase premium series into SeriesStore.
@@ -1381,12 +1381,12 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_lab_ingest.py -q`
 Expected: 8 passed
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lab/funding_ingest.py lab/premium_ingest.py tests/test_lab_ingest.py
