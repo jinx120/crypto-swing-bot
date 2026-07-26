@@ -73,7 +73,7 @@
 - Consumes: `lab.strategy_backtest.load`, `lab.strategy_backtest.align` (existing).
 - Produces: `resample(df, rule) -> pd.DataFrame`; `attach_extra(df, key, series_df) -> pd.DataFrame`; `split_extras(df) -> tuple[pd.DataFrame, dict[str, np.ndarray]]`; constant `EXTRA_PREFIX = "x_"`. Re-exports `load`, `align`.
 
-- [ ] **Step 1: Make `lab` importable under pytest**
+- [x] **Step 1: Make `lab` importable under pytest**
 
 `tests/` currently cannot `import lab.*` — pytest only puts `src` and `tests/` on `sys.path`. Edit the `[tool.pytest.ini_options]` block in `pyproject.toml`:
 
@@ -84,7 +84,7 @@ testpaths = ["tests"]
 markers = ["integration: opt-in tests that require a live :8000 instance"]
 ```
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 Create `tests/test_lab_research_data.py`:
 
@@ -152,12 +152,12 @@ def test_split_extras_returns_ohlcv_frame_and_arrays():
     assert extras["funding_8h"].tolist() == [0.2, 0.2, 0.2]
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [x] **Step 3: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_lab_research_data.py -q`
 Expected: FAIL with `ModuleNotFoundError: No module named 'lab.research_data'`
 
-- [ ] **Step 4: Write the implementation**
+- [x] **Step 4: Write the implementation**
 
 Create `lab/research_data.py`:
 
@@ -212,17 +212,17 @@ def split_extras(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, np.ndarray]]
     return df[_OHLCV].reset_index(drop=True), extras
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_lab_research_data.py -q`
 Expected: 4 passed
 
-- [ ] **Step 6: Confirm the full suite still collects**
+- [x] **Step 6: Confirm the full suite still collects**
 
 Run: `.venv/bin/python -m pytest -q`
 Expected: 538 passed, 5 skipped (534 baseline + 4 new)
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add pyproject.toml lab/research_data.py tests/test_lab_research_data.py
