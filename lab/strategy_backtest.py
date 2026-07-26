@@ -38,7 +38,15 @@ from swingbot.sizing import position_size
 from swingbot.types import Regime
 
 
-def _signal_scores(df, profile, benchmark_df, kronos_pct=None) -> np.ndarray:
+def _extra(extras, signal_name, key):
+    """Fetch a per-bar extras array, failing loudly rather than scoring silently."""
+    if not extras or key not in extras:
+        raise ValueError(
+            f"profile uses {signal_name!r} but extras[{key!r}] was not provided")
+    return np.asarray(extras[key], dtype=float)
+
+
+def _signal_scores(df, profile, benchmark_df, kronos_pct=None, extras=None) -> np.ndarray:
     """Vectorized confluence score per bar, identical to ConfluenceEngine.evaluate
     at each bar's .iloc[-1] (ewm/rolling indicators are causal: full-series value
     at i == slice[:i+1] last value).
@@ -59,6 +67,26 @@ def _signal_scores(df, profile, benchmark_df, kronos_pct=None) -> np.ndarray:
             s_arr = np.clip(arr / thr, 0.0, 1.0)
             s_arr = np.where(np.isnan(arr), 0.5, s_arr)  # no_forecast -> neutral
             total += w * s_arr
+            continue
+        if name == "funding_mr":
+            # Mirrors FundingMeanReversionSignal: crowded longs (high funding)
+            # score 0, crowded shorts (negative funding) score 1, linear between.
+            arr = _extra(extras, name, params.get("series_key", "funding_8h"))
+            hi = params.get("high_thresh", 0.0005)
+            lo = params.get("low_thresh", -0.0001)
+            s_arr = np.clip((hi - arr) / (hi - lo), 0.0, 1.0)
+            total += w * np.where(np.isnan(arr), 0.5, s_arr)
+            continue
+        if name == "premium_flow":
+            # Mirrors PremiumFlowSignal: z-score of the premium over `lookback`,
+            # mapped through +/- `band` standard deviations onto 0..1.
+            arr = _extra(extras, name, params.get("series_key", "cb_premium"))
+            lb = int(params.get("lookback", 180))
+            band = float(params.get("band", 2.0))
+            s = pd.Series(arr)
+            z = (s - s.rolling(lb).mean()) / s.rolling(lb).std()
+            s_arr = np.clip((z.to_numpy() + band) / (2 * band), 0.0, 1.0)
+            total += w * np.where(np.isfinite(z.to_numpy()), s_arr, 0.5)
             continue
         if name == "vwap":
             vwap = rolling_vwap(df, params.get("window", 96))
@@ -107,14 +135,15 @@ def _regime_arrays(df, profile):
     return ok, up, down
 
 
-def run_backtest_fast(df, profile, benchmark_df=None, starting_equity=1000.0, kronos_pct=None):
+def run_backtest_fast(df, profile, benchmark_df=None, starting_equity=1000.0,
+                      kronos_pct=None, extras=None):
     """O(n) backtest: precompute scores+regime vectorized, then replay entries/exits
     through the REAL SimulatedBroker/exit_decision/bracket_levels/position_size.
     Bit-for-bit equal to run_backtest (validated)."""
     n = len(df)
     if n < 2:
         raise ValueError("need >=2 candles")
-    score = _signal_scores(df, profile, benchmark_df, kronos_pct=kronos_pct)
+    score = _signal_scores(df, profile, benchmark_df, kronos_pct=kronos_pct, extras=extras)
     regime_ok, up, down = _regime_arrays(df, profile)
     entry_ok = regime_ok & (score >= profile.entry_threshold)
 

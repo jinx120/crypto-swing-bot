@@ -925,7 +925,7 @@ git push origin core-engine
 - Produces: `_signal_scores(df, profile, benchmark_df, kronos_pct=None, extras=None)` and `run_backtest_fast(df, profile, benchmark_df=None, starting_equity=1000.0, kronos_pct=None, extras=None)`, where `extras: dict[str, np.ndarray]` maps a series key to a per-bar array the same length as `df`. Adds vectorized branches for signal names `funding_mr` and `premium_flow`.
 - The scoring formulas here are pinned to the `Signal` classes of Tasks 7 and 8 by the parity test in Task 9. **If you change a formula here, change it there too.**
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_lab_extras.py`:
 
@@ -993,12 +993,12 @@ def test_a_signal_that_needs_extras_fails_loudly_when_they_are_absent():
         _signal_scores(df, profile, None)
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `.venv/bin/python -m pytest tests/test_lab_extras.py -q`
 Expected: FAIL — `_signal_scores() got an unexpected keyword argument 'extras'`
 
-- [ ] **Step 3: Add the extras branches to `_signal_scores`**
+- [x] **Step 3: Add the extras branches to `_signal_scores`**
 
 In `lab/strategy_backtest.py`, change the signature and add a lookup helper plus the two branches. Replace the `def _signal_scores(...)` line and its docstring tail, then insert the new branches immediately after the existing `kronos_forecast` branch (the block ending in `continue`):
 
@@ -1042,7 +1042,7 @@ Insert after the `kronos_forecast` branch:
             continue
 ```
 
-- [ ] **Step 4: Thread `extras` through `run_backtest_fast`**
+- [x] **Step 4: Thread `extras` through `run_backtest_fast`**
 
 In `lab/strategy_backtest.py`, change the `run_backtest_fast` signature and its `_signal_scores` call:
 
@@ -1054,17 +1054,17 @@ def run_backtest_fast(df, profile, benchmark_df=None, starting_equity=1000.0,
     score = _signal_scores(df, profile, benchmark_df, kronos_pct=kronos_pct, extras=extras)
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `.venv/bin/python -m pytest tests/test_lab_extras.py -q`
 Expected: 6 passed
 
-- [ ] **Step 6: Verify the existing harness is unbroken**
+- [x] **Step 6: Verify the existing harness is unbroken**
 
 Run: `.venv/bin/python -m pytest -q`
 Expected: 565 passed, 5 skipped
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add lab/strategy_backtest.py tests/test_lab_extras.py
