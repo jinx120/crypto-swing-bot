@@ -131,7 +131,7 @@ module that disables it and produces 11 years of 1h and 1d bars.
   `deep_config(symbol: str) -> ArchiveConfig`, `main() -> None`, and the archive
   `/tmp/swingbot-deep/candles.db` holding `BTC/USD` and `ETH/USD` at `1h` and `1d`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_lab_deep_backfill.py`:
 
@@ -168,7 +168,7 @@ def test_history_start_covers_exactly_the_two_studied_symbols():
     assert TIMEFRAMES == ["1h", "1d"]
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 ```bash
 cd /home/redji/crypto-swing-bot
@@ -177,7 +177,7 @@ cd /home/redji/crypto-swing-bot
 
 Expected: FAIL — `ModuleNotFoundError: No module named 'lab.deep_backfill'`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lab/deep_backfill.py`:
 
@@ -249,7 +249,7 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 .venv/bin/python -m pytest tests/test_lab_deep_backfill.py -v
@@ -257,7 +257,7 @@ if __name__ == "__main__":
 
 Expected: 5 passed.
 
-- [ ] **Step 5: Run the backfill**
+- [x] **Step 5: Run the backfill**
 
 Roughly 96k hourly BTC bars and 89k ETH bars at ~300 per request, rate-limited by ccxt. Expect
 5–15 minutes. Run it in the background and poll the log rather than blocking.
@@ -268,7 +268,7 @@ SWINGBOT_DATA_DIR=/tmp/swingbot-deep .venv/bin/python -m lab.deep_backfill \
   2>&1 | tee /tmp/deep-backfill.log
 ```
 
-- [ ] **Step 6: Verify depth and bar counts**
+- [x] **Step 6: Verify depth and bar counts**
 
 ```bash
 SWINGBOT_DATA_DIR=/tmp/swingbot-deep .venv/bin/python -c "
@@ -293,7 +293,7 @@ If any series starts at **2022-01-01** the quote map was not disabled — the ru
 market. Stop and fix `deep_config` before continuing; every downstream number depends on this.
 If a series is short but starts correctly, the fetch was interrupted: re-run Step 5, which resumes.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add lab/deep_backfill.py tests/test_lab_deep_backfill.py
@@ -317,7 +317,7 @@ overlap. This is a validity check, and its threshold is pre-registered here.
 - Produces: `series_agreement(a: pd.DataFrame, b: pd.DataFrame) -> dict` with keys
   `n_overlap: int`, `median_rel_diff: float`, `max_rel_diff: float`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_lab_walkforward.py`:
 
@@ -357,7 +357,7 @@ def test_series_agreement_of_disjoint_frames_reports_no_overlap():
 Add `import pytest` and `from lab.research_data import series_agreement` to the file's imports if
 they are not already present (`pandas as pd` already is).
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 ```bash
 .venv/bin/python -m pytest tests/test_lab_walkforward.py -k series_agreement -v
@@ -365,7 +365,7 @@ they are not already present (`pandas as pd` already is).
 
 Expected: FAIL — `ImportError: cannot import name 'series_agreement'`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Add to `lab/research_data.py`, immediately after `resample`:
 
@@ -389,7 +389,7 @@ def series_agreement(a: pd.DataFrame, b: pd.DataFrame) -> dict:
             "max_rel_diff": float(rel.max())}
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 .venv/bin/python -m pytest tests/test_lab_walkforward.py -k series_agreement -v
@@ -397,7 +397,7 @@ def series_agreement(a: pd.DataFrame, b: pd.DataFrame) -> dict:
 
 Expected: 4 passed.
 
-- [ ] **Step 5: Run the real comparison and record the numbers**
+- [x] **Step 5: Run the real comparison and record the numbers**
 
 Both archives must be read, so this reads two data dirs in one process.
 
@@ -434,7 +434,7 @@ stop, record the numbers, and raise it before running the study; do not silently
 
 Record both symbols' output verbatim; it goes into the findings document in Task 5.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lab/research_data.py tests/test_lab_walkforward.py
