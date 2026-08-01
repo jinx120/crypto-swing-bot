@@ -11,6 +11,7 @@ to production `run_backtest`), so the exits, sizing and broker are the real ones
 from __future__ import annotations
 
 import dataclasses
+import statistics
 from dataclasses import dataclass
 
 import pandas as pd
@@ -86,6 +87,7 @@ class WindowResult:
     train_pf: float
     trades: list
     net_pnl: float
+    n_eligible_combos: int = 0
 
 
 @dataclass(frozen=True)
@@ -94,6 +96,19 @@ class WalkForwardResult:
     symbol: str
     windows: list[WindowResult]
     oos_trades: list
+
+    @property
+    def median_eligible_combos(self) -> float:
+        """Median count of grid combos that cleared min_train_trades per window.
+
+        A low value means selection was starved - the harness had almost nothing
+        to choose between - which invalidates a verdict rather than supporting one.
+        The filter culls the combos that trade LEAST, so under starvation the
+        surviving set skews toward whichever parameters trade most frequently.
+        """
+        if not self.windows:
+            return 0.0
+        return float(statistics.median(w.n_eligible_combos for w in self.windows))
 
 
 @dataclass(frozen=True)
@@ -184,11 +199,13 @@ def walk_forward(df: pd.DataFrame, base_profile: StrategyProfile, grid: list[dic
     for window in windows:
         train_df = _slice(df, window.train_start, window.train_end, warmup)
         best_combo, best_pf = None, float("-inf")
+        n_eligible = 0
         for combo in grid:
             trades = _run(train_df, apply_combo(costed, combo), benchmark_df, starting_equity)
             trades = [t for t in trades if t.entry_ts >= window.train_start]
             if len(trades) < min_train_trades:
                 continue
+            n_eligible += 1
             pf = profit_factor(trades)
             if pf > best_pf:
                 best_combo, best_pf = combo, pf
@@ -202,7 +219,8 @@ def walk_forward(df: pd.DataFrame, base_profile: StrategyProfile, grid: list[dic
         oos.extend(test_trades)
         results.append(WindowResult(
             window=window, combo=best_combo, train_pf=best_pf,
-            trades=test_trades, net_pnl=sum(t.pnl for t in test_trades)))
+            trades=test_trades, net_pnl=sum(t.pnl for t in test_trades),
+            n_eligible_combos=n_eligible))
 
     return WalkForwardResult(label=base_profile.label or "unlabelled",
                              symbol=base_profile.symbol,

@@ -179,3 +179,24 @@ def test_breakeven_cost_takes_the_first_downward_crossing_not_a_later_rebound():
 
 def test_breakeven_cost_of_an_empty_sweep_is_none():
     assert breakeven_cost({}) is None
+
+
+def test_window_result_defaults_eligible_combos_to_zero():
+    # Existing constructions in this file omit the new field; they must keep working.
+    wr = WindowResult(window=Window(_ts("2022-01-01"), _ts("2022-02-01"),
+                                    _ts("2022-02-01"), _ts("2022-03-01")),
+                      combo={}, train_pf=1.0, trades=[], net_pnl=0.0)
+    assert wr.n_eligible_combos == 0
+
+
+def test_median_eligible_combos_across_windows():
+    result = _result([[1.0], [1.0], [1.0]])
+    counted = [dataclasses.replace(w, n_eligible_combos=n)
+               for w, n in zip(result.windows, [1, 5, 9])]
+    result = dataclasses.replace(result, windows=counted)
+    assert result.median_eligible_combos == 5.0
+
+
+def test_median_eligible_combos_of_no_windows_is_zero():
+    result = WalkForwardResult(label="x", symbol="BTC/USD", windows=[], oos_trades=[])
+    assert result.median_eligible_combos == 0.0
