@@ -110,17 +110,47 @@ class WalkForwardResult:
             return 0.0
         return float(statistics.median(w.n_eligible_combos for w in self.windows))
 
+    def exit_reason_counts(self) -> dict[str, int]:
+        """Tally of terminating reasons across the out-of-sample record.
+
+        Answers whether the hold ceiling ever binds: if `time_cap` is near zero,
+        raising max_hold_bars further cannot change anything, so any effect came
+        from the ATR multiples instead.
+        """
+        counts: dict[str, int] = {}
+        for trade in self.oos_trades:
+            reason = getattr(trade.exit_reason, "value", trade.exit_reason)
+            key = str(reason)
+            counts[key] = counts.get(key, 0) + 1
+        return counts
+
+    @property
+    def end_of_data_frac(self) -> float:
+        """Share of trades force-closed at a test-window boundary.
+
+        This is a truncation bias that GROWS with hold length - the variable under
+        test - because a 90-day test window leaves a tail in which a newly opened
+        long-hold position cannot develop before being cut off. A long-hold result
+        carried by it is an artefact, not an edge.
+        """
+        if not self.oos_trades:
+            return 0.0
+        return self.exit_reason_counts().get("end_of_data", 0) / len(self.oos_trades)
+
 
 @dataclass(frozen=True)
 class Verdict:
     label: str
     symbol: str
-    decision: str          # "PROMOTE" | "REJECT"
+    decision: str          # "PROMOTE" | "REJECT" | "INCONCLUSIVE"
     reason: str
     n_trades: int
     net_return_pct: float
     profit_factor: float
     positive_window_frac: float
+    breakeven_bps: float | None = None
+    median_eligible_combos: float | None = None
+    end_of_data_frac: float | None = None
 
 
 def profit_factor(trades) -> float:
@@ -261,3 +291,60 @@ def promotion_verdict(result: WalkForwardResult, *, min_trades: int = 30,
         reason="; ".join(reasons) if reasons else "passed all walk-forward criteria",
         n_trades=n, net_return_pct=net_pct, profit_factor=pf,
         positive_window_frac=frac)
+
+
+def phase_gate_verdict(result: WalkForwardResult, breakeven: float | None, *,
+                       min_breakeven: float = 0.0060,
+                       min_median_eligible: int = 3,
+                       max_end_of_data_frac: float = 0.15) -> Verdict:
+    """Grade a config against the pre-registered Phase 1 -> Phase 2 gate.
+
+    Two VALIDITY conditions are checked before the performance condition, and a
+    failure of either reports INCONCLUSIVE rather than REJECT: an untestable run
+    must never masquerade as a negative result and close the track.
+
+    This is deliberately separate from `promotion_verdict`, which grades actual
+    promotion at the untouched 60 bps gate. The phase gate asks only whether the
+    exit lever moved breakeven enough to justify further investment.
+    """
+    trades = result.oos_trades
+    n = len(trades)
+    notional = sum(t.entry_price * t.qty for t in trades)
+    net_pct = (sum(t.pnl for t in trades) / notional * 100.0) if notional else 0.0
+    pf = profit_factor(trades)
+    positive = sum(1 for w in result.windows if w.net_pnl > 0)
+    frac = positive / len(result.windows) if result.windows else 0.0
+    median_eligible = result.median_eligible_combos
+    eod = result.end_of_data_frac
+    breakeven_bps = breakeven * 10_000 if breakeven is not None else None
+
+    def _verdict(decision: str, reason: str) -> Verdict:
+        return Verdict(
+            label=result.label, symbol=result.symbol, decision=decision, reason=reason,
+            n_trades=n, net_return_pct=net_pct, profit_factor=pf,
+            positive_window_frac=frac, breakeven_bps=breakeven_bps,
+            median_eligible_combos=median_eligible, end_of_data_frac=eod)
+
+    invalid = []
+    if median_eligible < min_median_eligible:
+        invalid.append(
+            f"median {median_eligible:.1f} eligible combos per window "
+            f"(need >= {min_median_eligible}); selection was starved")
+    if eod > max_end_of_data_frac:
+        invalid.append(
+            f"end_of_data share {eod:.0%} exceeds {max_end_of_data_frac:.0%}; "
+            f"result is driven by test-window truncation")
+    if invalid:
+        return _verdict("INCONCLUSIVE", "; ".join(invalid))
+
+    if breakeven is None:
+        return _verdict("REJECT", "no gross edge: PF below 1.0 at zero cost")
+    if breakeven < min_breakeven:
+        return _verdict(
+            "REJECT",
+            f"breakeven {breakeven_bps:.0f} bps below the "
+            f"{min_breakeven * 10_000:.0f} bps gate")
+    return _verdict(
+        "PROMOTE",
+        f"breakeven {breakeven_bps:.0f} bps reaches the "
+        f"{min_breakeven * 10_000:.0f} bps gate")

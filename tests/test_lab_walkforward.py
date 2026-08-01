@@ -6,7 +6,7 @@ import pytest
 from lab.walkforward import Window, apply_combo, generate_windows, with_cost
 from swingbot.profile import StrategyProfile
 from lab.walkforward import (
-    WalkForwardResult, WindowResult, breakeven_cost,
+    WalkForwardResult, WindowResult, breakeven_cost, phase_gate_verdict,
     profit_factor, promotion_verdict, walk_forward,
 )
 
@@ -200,3 +200,87 @@ def test_median_eligible_combos_across_windows():
 def test_median_eligible_combos_of_no_windows_is_zero():
     result = WalkForwardResult(label="x", symbol="BTC/USD", windows=[], oos_trades=[])
     assert result.median_eligible_combos == 0.0
+
+
+class _FakeExitTrade(_FakeTrade):
+    def __init__(self, entry_ts, pnl, exit_reason, entry_price=100.0, qty=1.0):
+        super().__init__(entry_ts, pnl, entry_price, qty)
+        self.exit_reason = exit_reason
+
+
+def _exit_result(reasons, eligible=9):
+    trades = [_FakeExitTrade(_ts("2022-06-01"), 1.0, r) for r in reasons]
+    window = Window(_ts("2022-01-01"), _ts("2023-01-01"),
+                    _ts("2023-01-01"), _ts("2023-04-01"))
+    wr = WindowResult(window=window, combo={}, train_pf=1.2, trades=trades,
+                      net_pnl=float(len(trades)), n_eligible_combos=eligible)
+    return WalkForwardResult(label="exit-geom", symbol="BTC/USD",
+                             windows=[wr], oos_trades=trades)
+
+
+def test_exit_reason_counts_tallies_every_reason():
+    result = _exit_result(["take_profit", "take_profit", "stop", "time_cap", "end_of_data"])
+    assert result.exit_reason_counts() == {
+        "take_profit": 2, "stop": 1, "time_cap": 1, "end_of_data": 1}
+
+
+def test_exit_reason_counts_sum_to_the_trade_count():
+    result = _exit_result(["stop"] * 7 + ["take_profit"] * 3)
+    assert sum(result.exit_reason_counts().values()) == len(result.oos_trades)
+
+
+def test_end_of_data_frac_measures_boundary_truncation():
+    result = _exit_result(["end_of_data"] * 2 + ["take_profit"] * 8)
+    assert result.end_of_data_frac == 0.2
+
+
+def test_end_of_data_frac_of_no_trades_is_zero():
+    result = WalkForwardResult(label="x", symbol="BTC/USD", windows=[], oos_trades=[])
+    assert result.end_of_data_frac == 0.0
+
+
+def test_phase_gate_promotes_when_breakeven_reaches_the_real_cost():
+    result = _exit_result(["take_profit"] * 10)
+    v = phase_gate_verdict(result, 0.0060)
+    assert v.decision == "PROMOTE"
+    assert v.breakeven_bps == 60.0
+
+
+def test_phase_gate_rejects_when_breakeven_falls_short():
+    result = _exit_result(["take_profit"] * 10)
+    v = phase_gate_verdict(result, 0.0044)
+    assert v.decision == "REJECT"
+    assert "44" in v.reason
+
+
+def test_phase_gate_rejects_when_there_is_no_gross_edge_at_all():
+    result = _exit_result(["stop"] * 10)
+    v = phase_gate_verdict(result, None)
+    assert v.decision == "REJECT"
+    assert v.breakeven_bps is None
+
+
+def test_phase_gate_is_inconclusive_when_selection_was_starved():
+    # Only 2 combos eligible per window: the harness had nothing to choose from,
+    # so neither a pass nor a fail is meaningful.
+    result = _exit_result(["take_profit"] * 10, eligible=2)
+    v = phase_gate_verdict(result, 0.0080)
+    assert v.decision == "INCONCLUSIVE"
+    assert "eligible" in v.reason
+
+
+def test_phase_gate_is_inconclusive_when_truncation_dominates():
+    # 30% of trades force-closed at the window boundary: long-hold combos are
+    # biased by truncation, not measured on their exits.
+    result = _exit_result(["end_of_data"] * 3 + ["take_profit"] * 7)
+    v = phase_gate_verdict(result, 0.0080)
+    assert v.decision == "INCONCLUSIVE"
+    assert "end_of_data" in v.reason
+
+
+def test_phase_gate_validity_beats_a_failing_breakeven():
+    # An invalid run is not gradeable in EITHER direction - it must not be
+    # reported as REJECT, which would wrongly close the track.
+    result = _exit_result(["end_of_data"] * 5 + ["take_profit"] * 5, eligible=1)
+    v = phase_gate_verdict(result, 0.0010)
+    assert v.decision == "INCONCLUSIVE"
