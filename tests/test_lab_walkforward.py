@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from lab.research_data import series_agreement
+from lab.research_exit_geometry_daily import select_train_days
 from lab.walkforward import Window, apply_combo, generate_windows, with_cost
 from swingbot.profile import StrategyProfile
 from lab.walkforward import (
@@ -317,3 +318,24 @@ def test_phase_gate_validity_beats_a_failing_breakeven():
     result = _exit_result(["end_of_data"] * 5 + ["take_profit"] * 5, eligible=1)
     v = phase_gate_verdict(result, 0.0010)
     assert v.decision == "INCONCLUSIVE"
+
+
+def test_select_train_days_takes_the_smallest_candidate_that_clears_the_bar():
+    probe = [(365, 0.0), (730, 1.0), (1095, 5.0), (1460, 9.0)]
+    assert select_train_days(probe) == 1095
+
+
+def test_select_train_days_is_none_when_no_candidate_clears_the_bar():
+    # Not a negative result: the daily study is structurally untestable.
+    assert select_train_days([(365, 0.0), (730, 1.0), (1095, 2.0)]) is None
+
+
+def test_select_train_days_ignores_candidate_order():
+    probe = [(1460, 9.0), (365, 3.0), (730, 8.0)]
+    assert select_train_days(probe) == 365
+
+
+def test_select_train_days_honours_a_custom_bar():
+    probe = [(365, 2.0), (730, 4.0)]
+    assert select_train_days(probe, min_median_eligible=5) is None
+    assert select_train_days(probe, min_median_eligible=2) == 365
