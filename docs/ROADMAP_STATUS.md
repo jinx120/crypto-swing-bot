@@ -4,7 +4,71 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-07-31
+**Last updated:** 2026-08-01
+
+---
+
+## ▶ LATEST SESSION (2026-08-01) — Phase 2 deep study EXECUTED → **ETH PROMOTES, but the live breakers block everything**
+
+Executed `docs/superpowers/plans/2026-08-01-phase-2-deep-exit-geometry.md` (7 tasks) end-to-end.
+Full evidence: `docs/PHASE2_DEEP_FINDINGS.md`. Split: **Codex (gpt-5.5, VM bridge) implemented the
+pure code + TDD** — `series_agreement`, `lab/breakers.py`, `lab/research_exit_geometry_deep.py`,
+`lab/research_exit_geometry_daily.py` (commits `e62e9a4` → `a116ef7`); **clawd ran everything needing
+the local archive, network or container** — the backfill, continuity check, both studies, findings,
+gate and rebuild.
+
+**The question Phase 2 existed to answer, answered per symbol.** Re-ran Phase 1's *identical*
+configuration (grid, cost ladder and windows **imported** from the Phase 1 runner, never retyped) over
+40 (BTC) and 37 (ETH) out-of-sample quarters instead of 14, at the unchanged 60 bps gate:
+
+| config | windows | trades | net | PF | +windows | Phase 1 was | promotion gate |
+|---|---|---|---|---|---|---|---|
+| `ema-4h` BTC/USD | 40 | 350 | +0.76% | 1.32 | **45%** | 43% / 14 | **REJECT** (window frac only) |
+| `ema-4h` ETH/USD | 37 | 312 | +1.06% | 1.32 | **59%** | 43% / 14 | **PROMOTE** |
+
+Against the bands pre-registered **before** the run (≥50% = noise / 43–50% = real but sub-threshold /
+<43% = close the track): **ETH landed in the ≥50% band — Phase 1's shortfall there was small-sample
+noise. This is the first configuration in the project's history to pass `promotion_verdict` at 60
+bps.** BTC landed in the 43–50% band: tripling the sample moved it 43%→45%, the same answer with far
+more confidence behind it. **Breakeven is now 150 bps on both** (was 90/70 in Phase 1), against the
+60 bps we pay. The baseline exit geometry (1.5/3.0/48) was selected in **0 of 77** windows.
+
+**2022+ sub-record check:** ETH reproduces Phase 1 almost exactly (44% over 18 vs 43% over 14), so its
+jump to 59% is attributable to history, not to the venue change. BTC reads 35% over 17 — an 8-point
+gap, so BTC's full-record claims carry that qualification.
+
+**⚠️ THE FINDING THAT DOMINATES: the live circuit breakers halt the strategy in year one.** Measured
+for the first time (`lab/breakers.py`). The **3-consecutive-loss** kill switch trips **2016-10-19**
+(BTC) and **2017-06-21** (ETH) and `RiskManager` never clears it — `start_day` resets the daily
+counters but not the switch, only a manual resume does — so the halt is terminal: **97% of
+out-of-sample trades blocked on both symbols** (9/350 and 10/312 kept). The **3% daily-loss breaker
+never trips on either symbol** across the whole 10–11 year record. The widened stops don't produce
+big enough single-day losses; they produce losing *streaks*. **ETH's 59% PROMOTE is therefore not
+realisable by the live strategy as configured.**
+
+**Daily arm (spec §6's literal study, run as the cost question):** both REJECT on window consistency
+(BTC 33%, ETH 46%) — but the cost hypothesis *held*: at the gate it posts higher PF (1.39/1.49 vs
+1.32/1.32) and much higher net (+1.24%/+2.17% vs +0.76%/+1.06%). Wider daily ATR does amortise the
+fixed 60 bps better. Its window statistic is just too thin (~5 trades/window) to overturn the 4h
+result either way. `train_days=365` picked by the pre-registered eligibility-only rule. Breakers halt
+this arm too (98%/92% blocked).
+
+**Two archive facts worth not re-discovering the hard way:**
+1. **`backfill_cli` silently maps USD→USDT.** `ArchiveConfig(quote_map=None)` becomes CcxtProvider's
+   default `{"USD":"USDT"}`, so `--symbols BTC/USD --exchange coinbase` has *always* fetched
+   BTC/USDT — which returns **zero rows before 2022-01-01**. That is why every prior archive in this
+   project starts there. Pass `quote_map={}` (see `lab/deep_backfill.py`) and Coinbase reaches
+   **2015-07-20** (BTC) / **2016-05-18** (ETH). Deep archive: `/tmp/swingbot-deep`, 193,648 bars.
+   Cross-venue continuity vs Phase 1's USDT archive: median **3.73 / 4.01 bps** over ~10,038
+   overlapping 4h bars — passes the pre-registered 50 bps / 9,000 bar threshold.
+2. **`run_backtest_fast` applies no circuit breakers at all** (its own docstring,
+   `lab/strategy_backtest.py:9-12`). Every result before this session — Phase 1 included — described
+   a strategy with its risk controls switched off.
+
+**Gates:** backend **638 passed, 5 skipped** (+22 over the 616 baseline: 5 deep-backfill, 9 breakers,
+4 series-agreement, 4 select-train-days), ruff clean. Container rebuilt + restarted; `ready:true`
+with 4 armed Kronos strategies. **The live bot is untouched** — all Phase 2 code is research-only
+under `lab/`; no `src/` behaviour changed.
 
 ---
 
@@ -304,41 +368,51 @@ rebuilt + restarted. **Changes are LIVE but UNCOMMITTED** on the host working tr
 
 ## ▶ NEXT ACTION
 
-**▶ PLAN — write the Phase 2 plan for the deep daily exit-geometry study.** The Phase 1 gate passed
-on all four configurations (`docs/HOLD_PERIOD_FINDINGS.md`), so Phase 2 is authorised by the
-pre-registered gate rather than by a fresh design decision. Phase 2 is already specified in
-`docs/superpowers/specs/2026-07-31-hold-period-exit-geometry-design.md` §6 — it needs a plan, not
-another brainstorm.
+**▶ BRAINSTORM — the breaker-compatible variant.** Phase 2 is complete
+(`docs/PHASE2_DEEP_FINDINGS.md`). `ema-4h` **ETH/USD passed the promotion gate** at the unchanged
+60 bps — 59% positive windows over 37 quarters, PF 1.32, breakeven 150 bps — and it is **still not
+deployable**, because the live 3-consecutive-loss kill switch trips in 2017 and never clears,
+blocking 97% of the record. That is the binding constraint now, and it is a **risk-policy question,
+not a signal or exit-geometry question.**
 
-**The one question Phase 2 exists to answer:** is the 36–43% positive-window fraction small-sample
-noise, or a real inconsistency? It is NOT "does the edge exist" — Phase 1 is reasonably convincing
-that widening exits pushes breakeven to 70–90 bps, well past the 60 bps we pay. But 14 windows
-spanning one and a half market cycles cannot distinguish noise from genuine inconsistency.
-Roughly 38 windows across three cycles can.
+**Brainstorm this, don't jump to a plan.** The design fork is genuine and the study cannot resolve
+it. Two distinct things are entangled and want separating:
 
-**Phase 2 shape (spec §6):**
-1. Backfill Coinbase **daily** OHLCV — BTC-USD from ~2015, ETH-USD from ~2016.
-2. Re-run the 18-combo exit grid at 1d resolution over ~38 out-of-sample windows.
-3. Grade at the **unchanged** 60 bps promotion gate.
+1. **The streak threshold itself.** `max_consecutive_losses=3` is incompatible with an exit geometry
+   whose largest exit reason is the stop (~half of all exits by design). A stop-heavy profile hits a
+   3-loss streak with near certainty; the question is what threshold is defensible for a strategy
+   that *intends* to stop out often.
+2. **That a trip never auto-clears.** `RiskManager.start_day` resets the daily counters but not
+   `kill_switch_active`; only a manual resume does (`service.py:106`). Even a well-chosen threshold
+   is terminal under that behaviour. An auto-reset cadence (daily? weekly? after N flat bars?) is a
+   separate decision from the threshold.
 
-**Lead with `ema-4h`.** The deep-history prize is asymmetric: `ema-4h` is price-only so Coinbase
-daily reaches ~2015 and it gains the full window increase, while `premium-standalone` needs OKX spot
-for the premium leg, which paginates keyless only from 2022 and so gains almost no depth. Both
-passed Phase 1; only one can actually be tested deeply.
+Position sizing against the wider 2.5–3.5× ATR stop is a third, related axis.
 
-**Carry into the Phase 2 plan as a first-class task:** the circuit-breaker interaction that Phase 1
-left unmeasured. `daily_loss_limit_pct 0.03` and `max_consecutive_losses 3` were held fixed while
-stops widened to 2.5–3.5× ATR, so a single loss is now much larger against an unchanged daily limit.
-The breakers may bind harder at the selected geometry than at baseline, and that is untested.
+**⚠️ Do not reverse-engineer the breaker settings from the Phase 2 numbers.** Tuning
+`max_consecutive_losses` until ETH's record survives re-opens exactly the hindsight problem the
+frozen 60 bps gate exists to prevent. Whatever is chosen must be justifiable *a priori*, and any
+configuration change wants a fresh out-of-sample grading afterwards — not a re-read of this study.
 
-**What remains exhausted — do NOT re-open:** the 6 TA primitives (2026-06-22), funding mean
-reversion, and re-sweeping *signal* parameter grids. Signal params stay frozen; the open axis is
-exits, and now depth.
+**The honest scope of the ETH result.** One symbol passed and one did not (BTC 45%, in the
+pre-registered "real but sub-threshold" band). A single passing configuration on a single symbol is
+grounds for a careful deployment conversation, not for confidence. Note also that any deployment
+path has to answer how a research configuration becomes an armed strategy alongside the live
+Kronos-only paper trader — that machinery does not exist yet.
 
-**Still-untried avenues, if Phase 2 fails:** lowering cost per round trip (maker-side entries — but
-an honest study needs a fill model first, because assuming limit orders fill is systematically
-optimistic through adverse selection), and a genuinely different edge source (order-flow imbalance,
-cross-venue basis, event-driven).
+**What is now exhausted — do NOT re-open:** the 6 TA primitives (2026-06-22), funding mean reversion,
+signal parameter grids, **and exit geometry itself** — Phase 2 measured it at depth on 77 quarters
+across three cycles and the answer is recorded. Signal params stay frozen.
+
+**Still-untried avenues:** lowering cost per round trip (maker-side entries — but an honest study
+needs a fill model first, because assuming limit orders fill is systematically optimistic through
+adverse selection), and a genuinely different edge source (order-flow imbalance, cross-venue basis,
+event-driven).
+
+**Op note:** `/tmp` is ephemeral. Both research archives — `/tmp/swingbot-bt` (Phase 1, USDT, 2022+)
+and `/tmp/swingbot-deep` (Phase 2, USD, 2015+) — must be re-backfilled after any reboot.
+`SWINGBOT_DATA_DIR=/tmp/swingbot-deep .venv/bin/python -m lab.deep_backfill` rebuilds the deep one in
+~4 minutes and is idempotent.
 
 **Non-negotiables that carry forward:** the promotion gate is 60 bps only; grids are fixed before
 each walk-forward run; `/tmp/swingbot-bt` is ephemeral so re-run the backfill + `lab.premium_ingest`

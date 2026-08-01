@@ -1211,7 +1211,7 @@ git commit -m "feat(lab): daily exit-geometry arm with pre-registered train_days
 - Produces: a clean gate, a verified-unharmed live bot, and a roadmap whose NEXT ACTION reflects the
   outcome.
 
-- [ ] **Step 1: Run the full backend gate**
+- [x] **Step 1: Run the full backend gate**
 
 ```bash
 cd /home/redji/crypto-swing-bot
@@ -1223,7 +1223,7 @@ Expected: pytest green at or above the 616 passed / 5 skipped baseline, plus thi
 (5 deep-backfill, 9 breakers, 4 series-agreement, 4 select-train-days ⇒ **638 passed, 5 skipped**);
 ruff clean.
 
-- [ ] **Step 2: Rebuild and restart the container**
+- [x] **Step 2: Rebuild and restart the container**
 
 Required by the standing Docker policy for any change under `crypto-swing-bot/`, even though `lab/`
 is not packaged into the image.
@@ -1232,7 +1232,7 @@ is not packaged into the image.
 docker compose build swingbot && docker compose up -d swingbot
 ```
 
-- [ ] **Step 3: Verify the live bot is unharmed**
+- [x] **Step 3: Verify the live bot is unharmed**
 
 Read-only calls only — never mutate the live container.
 
@@ -1244,7 +1244,7 @@ curl -s localhost:8000/api/coins
 Expected: `ready:true` and the armed Kronos strategies listed. This study touched no `src/`
 behaviour, so the live bot must be exactly as it was.
 
-- [ ] **Step 4: Update the roadmap**
+- [x] **Step 4: Update the roadmap**
 
 Add a new `▶ LATEST SESSION (2026-08-01)` section at the top of `docs/ROADMAP_STATUS.md` recording:
 the deep window counts, the full-record and 2022+ positive-window fractions against Phase 1's 43%,
@@ -1271,7 +1271,7 @@ Then rewrite `▶ NEXT ACTION` to reflect the real state:
 - **If either run reported INCONCLUSIVE:** NEXT ACTION states which validity condition failed and
   what would have to change to test it, and explicitly does **not** close the track.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add docs/ROADMAP_STATUS.md
