@@ -23,6 +23,25 @@ def resample(df: pd.DataFrame, rule: str) -> pd.DataFrame:
     return out.dropna().reset_index()
 
 
+def series_agreement(a: pd.DataFrame, b: pd.DataFrame) -> dict:
+    """Compare two OHLCV frames on the timestamps they share.
+
+    Phase 1 ran on Coinbase's USDT-quoted market and the deep archive is
+    USD-quoted, so before a deep result is set beside a Phase 1 result the two
+    series must be shown to describe the same market. Returns the overlap size
+    and the median / max absolute relative close difference; NaN differences when
+    there is no overlap at all, which is itself the answer.
+    """
+    merged = a[["ts", "close"]].merge(b[["ts", "close"]], on="ts", suffixes=("_a", "_b"))
+    if merged.empty:
+        return {"n_overlap": 0, "median_rel_diff": float("nan"),
+                "max_rel_diff": float("nan")}
+    rel = (merged["close_a"] - merged["close_b"]).abs() / merged["close_b"]
+    return {"n_overlap": int(len(merged)),
+            "median_rel_diff": float(rel.median()),
+            "max_rel_diff": float(rel.max())}
+
+
 def attach_extra(df: pd.DataFrame, key: str, series_df: pd.DataFrame) -> pd.DataFrame:
     """Merge a (ts, value) series onto bars as column `x_<key>`.
 

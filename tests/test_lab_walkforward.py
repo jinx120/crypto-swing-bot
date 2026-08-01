@@ -3,6 +3,7 @@ import dataclasses
 import pandas as pd
 import pytest
 
+from lab.research_data import series_agreement
 from lab.walkforward import Window, apply_combo, generate_windows, with_cost
 from swingbot.profile import StrategyProfile
 from lab.walkforward import (
@@ -258,6 +259,38 @@ def test_phase_gate_rejects_when_there_is_no_gross_edge_at_all():
     v = phase_gate_verdict(result, None)
     assert v.decision == "REJECT"
     assert v.breakeven_bps is None
+
+
+def _frame(closes, start="2022-01-01"):
+    ts = pd.date_range(start, periods=len(closes), freq="4h", tz="UTC")
+    return pd.DataFrame({"ts": ts, "close": [float(c) for c in closes]})
+
+
+def test_series_agreement_of_identical_frames_is_zero():
+    frame = _frame([100.0, 101.0, 102.0])
+    out = series_agreement(frame, frame)
+    assert out["n_overlap"] == 3
+    assert out["median_rel_diff"] == 0.0
+    assert out["max_rel_diff"] == 0.0
+
+
+def test_series_agreement_reports_a_relative_offset():
+    out = series_agreement(_frame([101.0, 202.0]), _frame([100.0, 200.0]))
+    assert out["n_overlap"] == 2
+    assert out["median_rel_diff"] == pytest.approx(0.01)
+
+
+def test_series_agreement_takes_the_max_not_just_the_median():
+    out = series_agreement(_frame([100.0, 100.0, 110.0]), _frame([100.0, 100.0, 100.0]))
+    assert out["median_rel_diff"] == 0.0
+    assert out["max_rel_diff"] == pytest.approx(0.10)
+
+
+def test_series_agreement_of_disjoint_frames_reports_no_overlap():
+    out = series_agreement(_frame([100.0], start="2022-01-01"),
+                           _frame([100.0], start="2023-01-01"))
+    assert out["n_overlap"] == 0
+    assert out["median_rel_diff"] != out["median_rel_diff"]   # NaN
 
 
 def test_phase_gate_is_inconclusive_when_selection_was_starved():
