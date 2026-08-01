@@ -146,7 +146,14 @@ Three additions, all in `lab/`. No `src/` behaviour changes, so
 
 ### 4.1 `breakeven_cost()`
 
-Locates the round-trip cost at which PF crosses 1.0. Sweeps 0 → 100 bps in 5 bps steps.
+Locates the round-trip cost at which PF crosses 1.0.
+
+**Cost ladder:** `[0, 10, 25, 50, 55, 60, 65, 70, 80]` bps — 9 tiers, denser around the gate.
+An even 5 bps sweep from 0 to 100 would be 21 tiers, and at 18 combos × 14 windows × 4
+configurations that is ~22,000 backtests, roughly 14× the prior study's load. The gate only needs
+breakeven resolved *near 60 bps*, so the ladder spends its resolution there (±5 bps across 50–70)
+while retaining 0/10/25/60 so the numbers stay directly comparable to the published
+`SIGNAL_RESEARCH_FINDINGS.md` tables.
 
 **Definition (must be exact, since a noisy PF curve is not guaranteed monotone):** the largest swept
 cost `c` such that PF ≥ 1.0 at `c` **and** at every swept tier below `c`. This is the first downward
