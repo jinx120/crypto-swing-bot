@@ -4,7 +4,62 @@
 > file first for any platform-roadmap work, then jump to the **NEXT ACTION** below.
 > Keep this file updated at the end of every work session (it is the cross-session memory anchor).
 
-**Last updated:** 2026-07-26
+**Last updated:** 2026-07-31
+
+---
+
+## ▶ LATEST SESSION (2026-07-31) — Exit-geometry study EXECUTED → **phase gate PASSES**, Phase 2 is next
+
+Brainstormed → spec'd → planned → executed end-to-end in one session. Full evidence:
+`docs/HOLD_PERIOD_FINDINGS.md`. Spec: `docs/superpowers/specs/2026-07-31-hold-period-exit-geometry-design.md`.
+Plan: `docs/superpowers/plans/2026-07-31-hold-period-exit-geometry.md` (7 tasks, all done).
+
+**The gap this exploited.** Exit geometry had **never been varied in any prior study**. Both
+walk-forward runners fixed `stop_atr_mult 1.5 / take_profit_atr_mult 3.0 / max_hold_bars 48` and
+gridded only signal parameters — so all 10 previously graded configurations shared one untested exit
+configuration. This run inverted that: signal params frozen at declared base-profile defaults, and an
+18-combo grid varying **only** the three exit knobs.
+
+**Result — the lever is real and large.** Breakeven round-trip cost (where PF crosses 1.0):
+
+| config | baseline | new | Δ | PF @ 60 bps (was → now) |
+|---|---|---|---|---|
+| `ema-4h` BTC/USD | ~36 bps | **90** | +54 | 0.84 → **1.15** |
+| `ema-4h` ETH/USD | ~18 bps | **70** | +52 | 0.79 → **1.07** |
+| `premium-standalone` BTC/USD | ~44 bps | **90** | +46 | 0.88 → **1.13** |
+| `premium-standalone` ETH/USD | ~22 bps | **90** | +68 | 0.82 → **1.16** |
+
+Every config goes from net negative to net positive at the 60 bps we actually pay, consistent across
+two independent signals and two symbols. **Gross edge improved too** (`ema-4h` BTC at zero cost:
+PF 1.28/317 trades → 1.49/159 trades), so this is not merely cost amortisation — wider take-profits
+capture more of each move.
+
+**Take-profit width is the operative lever.** Baseline 3.0× was selected in **2 of 56**
+window-selections; 9.0× took 37. Hold length second (120 bars in 38 of 56). **The baseline combo
+(1.5/3.0/48) was selected in 0 of 14 windows on all four configs** — it was in the grid deliberately
+so the harness could pick it, and it never did.
+
+**Both pre-registered validity guards passed.** Selection starvation did not occur (median 18.0 of
+18 combos eligible per window — the `min_train_trades` skew concern did not materialise), and
+`end_of_data` truncation ran 5.4–7.8% against a 15% ceiling. Both were built to report INCONCLUSIVE
+rather than REJECT precisely so an untestable run could not masquerade as a negative result.
+
+**The promotion gate still REJECTs all four — on window consistency alone.** At 60 bps the configs
+post 43%/36%/43%/43% positive windows against the 50% requirement. Three of four now clear PF, net
+return and trade count and fail *only* this condition (`ema-4h` ETH also misses PF 1.10, at 1.07).
+The aggregate edge is carried by a minority of quarters. **The 60 bps promotion gate was not relaxed
+and no grid was widened after seeing results.**
+
+**Shipped:** `breakeven_cost()` (first downward PF crossing, not the ladder ceiling — the first run
+was right-censored at 80 bps and the ladder was extended to 150 to uncensor it); grid-eligibility
+instrumentation (`WindowResult.n_eligible_combos`, `median_eligible_combos`); exit-reason diagnostics
+(`exit_reason_counts()`, `end_of_data_frac`); `phase_gate_verdict()` with a third `INCONCLUSIVE`
+decision; `lab/research_exit_geometry.py`. `promotion_verdict` untouched.
+
+**Gates:** backend **616 passed, 5 skipped** (+19 new tests over the 597 baseline), ruff clean (also
+fixed two pre-existing unused imports in `lab/core-engine/tests/` and `tests/test_series_store.py`).
+Container rebuilt + restarted; `ready:true` with 4 armed Kronos strategies. **The live bot is
+untouched** — still the Kronos-only paper trader, no research code wired into it.
 
 ---
 
@@ -249,38 +304,46 @@ rebuilt + restarted. **Changes are LIVE but UNCOMMITTED** on the host working tr
 
 ## ▶ NEXT ACTION
 
-**▶ BRAINSTORM — no plan is queued. The signal-research track is CLOSED with a "promote nothing"
-verdict, and the next move is a design decision, not another sweep.**
+**▶ PLAN — write the Phase 2 plan for the deep daily exit-geometry study.** The Phase 1 gate passed
+on all four configurations (`docs/HOLD_PERIOD_FINDINGS.md`), so Phase 2 is authorised by the
+pre-registered gate rather than by a fresh design decision. Phase 2 is already specified in
+`docs/superpowers/specs/2026-07-31-hold-period-exit-geometry-design.md` §6 — it needs a plan, not
+another brainstorm.
 
-`docs/superpowers/plans/2026-07-26-signal-research-walk-forward.md` is fully executed: Tasks 1–13
-done, Tasks 14–16 correctly N/A (gate blocked), Task 17 is this update. Evidence:
-`docs/SIGNAL_RESEARCH_FINDINGS.md`.
+**The one question Phase 2 exists to answer:** is the 36–43% positive-window fraction small-sample
+noise, or a real inconsistency? It is NOT "does the edge exist" — Phase 1 is reasonably convincing
+that widening exits pushes breakeven to 70–90 bps, well past the 60 bps we pay. But 14 windows
+spanning one and a half market cycles cannot distinguish noise from genuine inconsistency.
+Roughly 38 windows across three cycles can.
 
-**What is now exhausted — do NOT re-open:** the 6 TA primitives (2026-06-22 study), the 4h EMA
-trend, funding mean reversion, and the Coinbase-premium flow proxy (this session) have all been
-walk-forward tested at 4h and all REJECT at 60 bps. Every one shows the same shape: healthy gross
-profit factor, collapse between 10 and 25 bps. **Queueing another parameter sweep over these
-signals is explicitly not the next action** — the grids were fixed before the runs precisely so
-that the out-of-sample verdict means something, and re-running them wider would destroy that.
+**Phase 2 shape (spec §6):**
+1. Backfill Coinbase **daily** OHLCV — BTC-USD from ~2015, ETH-USD from ~2016.
+2. Re-run the 18-combo exit grid at 1d resolution over ~38 out-of-sample windows.
+3. Grade at the **unchanged** 60 bps promotion gate.
 
-**The honest remaining avenues, in the order they change the arithmetic:**
-1. **Lower the cost per round trip.** 60 bps against a 4h hold is the binding constraint, not
-   signal quality — three independent signals cleared PF 1.10 gross and none survived the fee. A
-   lower-fee venue, or maker-side entries instead of market orders, moves the breakeven more than
-   any parameter can. This is the highest-leverage change available.
-2. **Change the holding period.** Fewer, longer trades amortize the same fixed cost over a larger
-   move. Nothing here tested daily or multi-day horizons.
-3. **A genuinely different edge source** — order-flow imbalance, cross-venue basis, or
-   event-driven — rather than another price-derived 4h entry filter.
+**Lead with `ema-4h`.** The deep-history prize is asymmetric: `ema-4h` is price-only so Coinbase
+daily reaches ~2015 and it gains the full window increase, while `premium-standalone` needs OKX spot
+for the premium leg, which paginates keyless only from 2022 and so gains almost no depth. Both
+passed Phase 1; only one can actually be tested deeply.
 
-Whichever is chosen, the harness is already built: `lab/walkforward.py` + `promotion_verdict` will
-grade the next candidate with one runner file, and `SeriesStore` + `MarketContext.extras` carry any
-new non-price series into both research and live paths.
+**Carry into the Phase 2 plan as a first-class task:** the circuit-breaker interaction that Phase 1
+left unmeasured. `daily_loss_limit_pct 0.03` and `max_consecutive_losses 3` were held fixed while
+stops widened to 2.5–3.5× ATR, so a single loss is now much larger against an unchanged daily limit.
+The breakers may bind harder at the selected geometry than at baseline, and that is untested.
+
+**What remains exhausted — do NOT re-open:** the 6 TA primitives (2026-06-22), funding mean
+reversion, and re-sweeping *signal* parameter grids. Signal params stay frozen; the open axis is
+exits, and now depth.
+
+**Still-untried avenues, if Phase 2 fails:** lowering cost per round trip (maker-side entries — but
+an honest study needs a fill model first, because assuming limit orders fill is systematically
+optimistic through adverse selection), and a genuinely different edge source (order-flow imbalance,
+cross-venue basis, event-driven).
 
 **Non-negotiables that carry forward:** the promotion gate is 60 bps only; grids are fixed before
-each walk-forward run; `/tmp/swingbot-bt` is ephemeral so re-run the backfill + both ingest scripts
-after any reboot; never write to `~/.swingbot/` and never issue mutating HTTP calls against the
-live container.
+each walk-forward run; `/tmp/swingbot-bt` is ephemeral so re-run the backfill + `lab.premium_ingest`
+after any reboot (~8 min for 15m BTC+ETH from 2022); never write to `~/.swingbot/` and never issue
+mutating HTTP calls against the live container.
 
 The phase notes below are historical.
 

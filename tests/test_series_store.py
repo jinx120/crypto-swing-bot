@@ -1,4 +1,3 @@
-import pandas as pd
 
 from swingbot.data.series_store import SeriesStore
 
