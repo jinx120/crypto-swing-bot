@@ -462,7 +462,7 @@ explicit manual resume does. With Phase 1's selected stops as wide as 3.5× ATR 
   `apply_breakers(trades, *, starting_equity=1000.0, daily_loss_limit_pct=0.03,
   max_consecutive_losses=3) -> BreakerReport`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `tests/test_lab_breakers.py`:
 
@@ -556,7 +556,7 @@ def test_a_multi_day_hold_rolls_the_day_at_its_exit():
     assert report.n_blocked == 0
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 ```bash
 .venv/bin/python -m pytest tests/test_lab_breakers.py -v
@@ -564,7 +564,7 @@ def test_a_multi_day_hold_rolls_the_day_at_its_exit():
 
 Expected: FAIL — `ModuleNotFoundError: No module named 'lab.breakers'`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lab/breakers.py`:
 
@@ -672,7 +672,7 @@ def apply_breakers(trades, *, starting_equity: float = 1000.0,
                          halted_at=halted_at, halt_reason=halt_reason)
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 .venv/bin/python -m pytest tests/test_lab_breakers.py -v
@@ -680,7 +680,7 @@ def apply_breakers(trades, *, starting_equity: float = 1000.0,
 
 Expected: 9 passed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lab/breakers.py tests/test_lab_breakers.py
@@ -706,7 +706,7 @@ git commit -m "feat(lab): post-hoc circuit-breaker replay of the live kill switc
 - Produces: a runnable module printing, per symbol, the cost-tier table, breakeven, eligibility, exit
   reasons, the 2022+ sub-record, the per-window selected combos, both verdicts, and the breaker report.
 
-- [ ] **Step 1: Write the runner**
+- [x] **Step 1: Write the runner**
 
 Create `lab/research_exit_geometry_deep.py`:
 
@@ -829,7 +829,7 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 2: Verify the configuration is byte-identical to Phase 1's**
+- [x] **Step 2: Verify the configuration is byte-identical to Phase 1's**
 
 ```bash
 cd /home/redji/crypto-swing-bot
@@ -845,7 +845,7 @@ print('phase1 start:', PHASE1_START)
 Expected: `grid identical: True 18`, `costs identical: True 13`. Both must be `True` — they are
 imported, not copied, precisely so nobody can edit one and not the other.
 
-- [ ] **Step 3: Smoke-test one symbol on a short slice**
+- [x] **Step 3: Smoke-test one symbol on a short slice**
 
 Confirm the wiring end to end before committing to the long run.
 
@@ -872,7 +872,7 @@ Expected: roughly 5,000+ bars, a handful of windows, a non-zero trade count, a p
 dict, and a breaker line. If `median eligible` is 0 the grid is being filtered out entirely — stop
 and investigate before running the full study.
 
-- [ ] **Step 4: Lint**
+- [x] **Step 4: Lint**
 
 ```bash
 .venv/bin/python -m ruff check lab/research_exit_geometry_deep.py lab/breakers.py \
@@ -881,7 +881,7 @@ and investigate before running the full study.
 
 Expected: clean.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lab/research_exit_geometry_deep.py
@@ -900,7 +900,7 @@ git commit -m "feat(lab): deep 4h exit-geometry runner with breaker interaction"
 - Produces: the findings document and an explicit verdict against the pre-registered interpretation
   bands at the top of this plan.
 
-- [ ] **Step 1: Run the full deep study**
+- [x] **Step 1: Run the full deep study**
 
 Roughly 2 symbols × 13 cost tiers × 18 combos × ~40 windows. Phase 1's comparable load took about
 14 minutes; expect 20–40 here. Run it in the background and poll the log rather than blocking.
@@ -911,7 +911,7 @@ SWINGBOT_DATA_DIR=/tmp/swingbot-deep .venv/bin/python -m lab.research_exit_geome
   2>&1 | tee /tmp/phase2-deep-run.log
 ```
 
-- [ ] **Step 2: Write the findings document**
+- [x] **Step 2: Write the findings document**
 
 Create `docs/PHASE2_DEEP_FINDINGS.md` following the structure of `docs/HOLD_PERIOD_FINDINGS.md`.
 It MUST contain, for each of the two configurations:
@@ -942,12 +942,12 @@ Plus these sections:
   Repeat the three approximations from `lab/breakers.py`'s docstring so the number is read correctly.
 - **Decision** — whether the promotion gate passed, and the next action that follows.
 
-- [ ] **Step 3: Verify the document reports what the run produced**
+- [x] **Step 3: Verify the document reports what the run produced**
 
 Re-read `/tmp/phase2-deep-run.log` next to the written document and confirm every number in the
 document appears in the log. Do not round, restate, or soften a verdict.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs/PHASE2_DEEP_FINDINGS.md
