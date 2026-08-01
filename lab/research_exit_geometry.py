@@ -27,7 +27,13 @@ from swingbot.data.series_store import SeriesStore
 # Denser around the 60 bps gate than at the extremes: the gate only needs
 # breakeven resolved near 60, and 0/10/25/60 are retained so the numbers stay
 # directly comparable to the published SIGNAL_RESEARCH_FINDINGS.md tables.
-COSTS = [0.0, 0.0010, 0.0025, 0.0050, 0.0055, 0.0060, 0.0065, 0.0070, 0.0080]
+# The upper tail (90-150 bps) exists only to keep `breakeven_cost` from being
+# right-censored: the first run reported "80 bps" purely because 80 was the top
+# tier while PF was still 1.05 there. Reporting a ladder ceiling as a point
+# estimate would understate the effect. Extending the ladder re-selects nothing
+# that already ran - each cost tier is fitted and graded independently.
+COSTS = [0.0, 0.0010, 0.0025, 0.0050, 0.0055, 0.0060, 0.0065, 0.0070, 0.0080,
+         0.0090, 0.0100, 0.0120, 0.0150]
 GATE_COST = 0.0060
 
 # 18 combinations. The ONLY axis that varies. Baseline is (1.5, 3.0, 48).
