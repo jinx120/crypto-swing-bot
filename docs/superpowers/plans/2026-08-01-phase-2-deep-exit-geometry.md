@@ -975,7 +975,7 @@ by a rule over **trade counts only**, so no result can influence the choice.
   `select_train_days(probe: list[tuple[int, float]], *, min_median_eligible: int = 3) -> int | None`,
   `main() -> None`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `tests/test_lab_walkforward.py`:
 
@@ -1003,7 +1003,7 @@ def test_select_train_days_honours_a_custom_bar():
 
 Add `from lab.research_exit_geometry_daily import select_train_days` to the imports.
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 ```bash
 .venv/bin/python -m pytest tests/test_lab_walkforward.py -k select_train_days -v
@@ -1011,7 +1011,7 @@ Add `from lab.research_exit_geometry_daily import select_train_days` to the impo
 
 Expected: FAIL — `ModuleNotFoundError: No module named 'lab.research_exit_geometry_daily'`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lab/research_exit_geometry_daily.py`:
 
@@ -1162,7 +1162,7 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 .venv/bin/python -m pytest tests/test_lab_walkforward.py -k select_train_days -v
@@ -1171,7 +1171,7 @@ if __name__ == "__main__":
 
 Expected: 4 passed, ruff clean.
 
-- [ ] **Step 5: Run the daily arm**
+- [x] **Step 5: Run the daily arm**
 
 Daily bars are ~4k per symbol, so this is far cheaper than the 4h study — expect a few minutes.
 
@@ -1181,7 +1181,7 @@ SWINGBOT_DATA_DIR=/tmp/swingbot-deep .venv/bin/python -m lab.research_exit_geome
   2>&1 | tee /tmp/phase2-daily-run.log
 ```
 
-- [ ] **Step 6: Append the daily arm to the findings**
+- [x] **Step 6: Append the daily arm to the findings**
 
 Add a `## Secondary arm — daily resolution` section to `docs/PHASE2_DEEP_FINDINGS.md` containing,
 per symbol: the eligibility probe table (all four `train_days` candidates with their median eligible
@@ -1191,7 +1191,7 @@ cost-tier table, breakeven, exit reasons, `end_of_data` share, both verdicts, an
 State explicitly that the hold levels were rescaled to 8/20 bars before the run and why, and that
 this arm tests cost amortisation at a longer horizon, not Phase 1's consistency question.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add lab/research_exit_geometry_daily.py tests/test_lab_walkforward.py \

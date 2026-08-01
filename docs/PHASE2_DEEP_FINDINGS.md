@@ -282,3 +282,126 @@ grids. Signal parameters remain frozen.
 
 **The live bot is untouched.** All Phase 2 code is research-only under `lab/`; no `src/` behaviour
 changed, and the running container remains the Kronos-only paper trader.
+
+---
+
+## Secondary arm — daily resolution
+
+**This arm asks a different question from everything above.** It is spec §6's literal daily study,
+and it tests **whether an even longer horizon amortises the fixed 60 bps further** — daily ATR is
+several times wider than 4h ATR, so a fixed round-trip cost is a much smaller fraction of the move
+captured. It is **not** the consistency test; Phase 1's consistency question is answered by the 4h
+study above. At 1d a 90-day test window carries on the order of one or two trades, which makes its
+per-window statistic *noisier* than the 14-window record Phase 1 produced — which is exactly why the
+primary study stayed at 4h.
+
+**Two adaptations, both pre-registered in the plan before the run:**
+
+1. **Hold levels were rescaled to the calendar equivalents of the 4h grid** — 48 bars at 4h is 8 days,
+   120 bars is 20 days, so `max_hold_bars ∈ {8, 20}`. Carrying 48 and 120 over as bar counts would
+   have meant 48- and 120-*day* holds against a 90-day test window, forcing `end_of_data` truncation
+   past the 15% validity ceiling by construction. Stop and take-profit multiples are unchanged from
+   Phase 1, so the grid is still 18 combos.
+2. **`train_days` was selected by `select_train_days` from a probe of eligibility counts only** — how
+   many grid combos clear the untouchable `min_train_trades=20`. No profit factor, net return or
+   window fraction enters the choice, so it cannot import hindsight. The rule takes the smallest
+   candidate whose median eligible count reaches 3.
+
+### Eligibility probe and selection
+
+| train_days | BTC windows | BTC median eligible (of 18) | ETH windows | ETH median eligible (of 18) |
+|---|---|---|---|---|
+| 365 | 33 | **13.0** | 28 | **11.0** |
+| 730 | 36 | 18.0 | 33 | 18.0 |
+| 1095 | 32 | 18.0 | 29 | 18.0 |
+| 1460 | 28 | 18.0 | 25 | 18.0 |
+
+**Selected `train_days=365` for both symbols** — the smallest candidate clearing the eligibility bar,
+per the pre-registered rule. Neither symbol was INCONCLUSIVE: every candidate cleared the bar of 3,
+so the rule reduced to its tie-break, which is "smallest".
+
+### `ema-1d` BTC/USD
+
+```
+=== ema-1d BTC/USD: 4031 bars 2015-07-20 00:00:00+00:00 -> 2026-08-01 00:00:00+00:00 ===
+      0 bps | windows  33 | trades   168 | net    1.74% | PF  1.61 | +windows  48% | REJECT
+     10 bps | windows  33 | trades   167 | net    1.71% | PF  1.57 | +windows  48% | REJECT
+     25 bps | windows  33 | trades   167 | net    1.56% | PF  1.51 | +windows  42% | REJECT
+     50 bps | windows  33 | trades   167 | net    1.31% | PF  1.41 | +windows  33% | REJECT
+     55 bps | windows  33 | trades   165 | net    1.29% | PF  1.41 | +windows  33% | REJECT
+     60 bps | windows  33 | trades   165 | net    1.24% | PF  1.39 | +windows  33% | REJECT  <-- GATE
+     65 bps | windows  33 | trades   165 | net    1.19% | PF  1.37 | +windows  33% | REJECT
+     70 bps | windows  33 | trades   165 | net    1.14% | PF  1.35 | +windows  33% | REJECT
+     80 bps | windows  33 | trades   165 | net    1.04% | PF  1.32 | +windows  33% | REJECT
+     90 bps | windows  33 | trades   171 | net    0.76% | PF  1.22 | +windows  33% | REJECT
+    100 bps | windows  33 | trades   171 | net    0.66% | PF  1.19 | +windows  33% | REJECT
+    120 bps | windows  33 | trades   167 | net    0.48% | PF  1.13 | +windows  33% | REJECT
+    150 bps | windows  33 | trades   167 | net    0.30% | PF  1.08 | +windows  33% | REJECT
+  breakeven: 150 bps
+  median eligible combos/window: 13.0 (of 18)
+  exit reasons @ gate: {'time_cap': 87, 'stop': 50, 'end_of_data': 16, 'take_profit': 12}
+  end_of_data share: 9.7%
+  breakers[live 3%/3-streak]: kept 3/165 (98% blocked) | first halt 2016-08-02T00:00:00+00:00 | 3 consecutive losses | PF kept 0.00
+  PHASE GATE: PROMOTE - breakeven 150 bps reaches the 60 bps gate
+  PROMOTION GATE: REJECT - only 33% of windows positive (need >= 50%)
+```
+
+### `ema-1d` ETH/USD
+
+```
+=== ema-1d ETH/USD: 3726 bars 2016-05-18 00:00:00+00:00 -> 2026-08-01 00:00:00+00:00 ===
+      0 bps | windows  28 | trades   143 | net    2.68% | PF  1.64 | +windows  46% | REJECT
+     10 bps | windows  28 | trades   143 | net    2.57% | PF  1.61 | +windows  46% | REJECT
+     25 bps | windows  28 | trades   143 | net    2.42% | PF  1.56 | +windows  46% | REJECT
+     50 bps | windows  28 | trades   140 | net    2.23% | PF  1.50 | +windows  46% | REJECT
+     55 bps | windows  28 | trades   139 | net    2.22% | PF  1.50 | +windows  46% | REJECT
+     60 bps | windows  28 | trades   139 | net    2.17% | PF  1.49 | +windows  46% | REJECT  <-- GATE
+     65 bps | windows  28 | trades   139 | net    2.12% | PF  1.48 | +windows  46% | REJECT
+     70 bps | windows  28 | trades   139 | net    2.06% | PF  1.46 | +windows  46% | REJECT
+     80 bps | windows  28 | trades   139 | net    1.96% | PF  1.43 | +windows  46% | REJECT
+     90 bps | windows  28 | trades   139 | net    1.82% | PF  1.40 | +windows  46% | REJECT
+    100 bps | windows  28 | trades   139 | net    1.71% | PF  1.37 | +windows  43% | REJECT
+    120 bps | windows  28 | trades   136 | net    1.72% | PF  1.36 | +windows  43% | REJECT
+    150 bps | windows  28 | trades   136 | net    1.41% | PF  1.29 | +windows  43% | REJECT
+  breakeven: 150 bps
+  median eligible combos/window: 11.0 (of 18)
+  exit reasons @ gate: {'take_profit': 21, 'stop': 34, 'time_cap': 70, 'end_of_data': 14}
+  end_of_data share: 10.1%
+  breakers[live 3%/3-streak]: kept 11/139 (92% blocked) | first halt 2017-06-30T00:00:00+00:00 | 3 consecutive losses | PF kept 1.60
+  PHASE GATE: PROMOTE - breakeven 150 bps reaches the 60 bps gate
+  PROMOTION GATE: REJECT - only 46% of windows positive (need >= 50%)
+```
+
+### What the daily arm shows
+
+**Cost amortisation does improve at the longer horizon — that part of the hypothesis holds.** At the
+60 bps gate the daily arm posts *higher* profit factor and *much* higher net return per window than
+the 4h study on both symbols:
+
+| | 4h PF @ 60 bps | 1d PF @ 60 bps | 4h net | 1d net |
+|---|---|---|---|---|
+| BTC/USD | 1.32 | **1.39** | +0.76% | **+1.24%** |
+| ETH/USD | 1.32 | **1.49** | +1.06% | **+2.17%** |
+
+Cost erodes the daily edge more slowly too: ETH's PF falls only 1.64 → 1.49 across 0–60 bps at 1d,
+against 1.57 → 1.32 at 4h. Wider daily ATR does make the fixed 60 bps a smaller fraction of the move.
+
+**But both symbols REJECT, and on the same condition as BTC's 4h result — window consistency.** BTC
+posts 33% positive windows and ETH 46%, against the 50% requirement. This is the predicted weakness
+of the arm rather than a surprise: 165 and 139 trades spread over 33 and 28 windows is roughly 5 trades
+per window, so per-window outcomes are dominated by a handful of trades each. The arm was run as a
+cost question and it answered the cost question; its window statistic is too thin to overturn the 4h
+study's, in either direction.
+
+Both remain valid runs by the pre-registered guards — `end_of_data` 9.7% and 10.1% against the 15%
+ceiling, median eligible 13.0 and 11.0 against the bar of 3 — so `phase_gate_verdict` returns PROMOTE
+on breakeven for both, and the REJECT is a genuine promotion-gate outcome, not an untestable one.
+
+Exit composition shifts as expected with the rescaled holds: `time_cap` becomes the largest exit
+reason at 1d (87 of 165 on BTC, 70 of 139 on ETH), where `stop` was largest at 4h. The 8- and 20-day
+caps bind more often than daily stops do.
+
+**The breakers halt the daily arm too**, and earlier: first trip 2016-08-02 on BTC and 2017-06-30 on
+ETH, blocking 98% and 92% of trades on the same 3-consecutive-loss rule. BTC's `PF kept 0.00` is
+computed on 3 surviving trades and means only that none of them won. The breaker finding is the same
+across all four configurations in this study.
