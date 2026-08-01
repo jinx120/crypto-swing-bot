@@ -116,6 +116,25 @@ def profit_factor(trades) -> float:
     return float("inf") if gross_profit > 0 else 0.0
 
 
+def breakeven_cost(pf_by_cost: dict[float, float]) -> float | None:
+    """Round-trip cost at which profit factor crosses 1.0, as a rate.
+
+    Returns the largest swept cost `c` such that PF >= 1.0 at `c` AND at every
+    swept tier below `c` - the FIRST downward crossing. Deliberately not "the
+    highest tier with PF >= 1.0": on a noisy curve a single tier rebounding above
+    1.0 further out would overstate the cost the signal actually survives.
+
+    Returns None when PF is already below 1.0 at the cheapest swept tier, i.e.
+    there is no gross edge to charge cost against.
+    """
+    survived = None
+    for cost in sorted(pf_by_cost):
+        if pf_by_cost[cost] < 1.0:
+            break
+        survived = cost
+    return survived
+
+
 def _slice(df: pd.DataFrame, start, end, warmup: int) -> pd.DataFrame:
     """Bars in [start, end] plus `warmup` bars of lead-in for the indicators.
 

@@ -1,10 +1,13 @@
+import dataclasses
+
 import pandas as pd
 import pytest
 
 from lab.walkforward import Window, apply_combo, generate_windows, with_cost
 from swingbot.profile import StrategyProfile
 from lab.walkforward import (
-    WalkForwardResult, WindowResult, profit_factor, promotion_verdict, walk_forward,
+    WalkForwardResult, WindowResult, breakeven_cost,
+    profit_factor, promotion_verdict, walk_forward,
 )
 
 
@@ -145,3 +148,34 @@ def test_walk_forward_never_trains_and_tests_on_the_same_bars(monkeypatch):
     for w in res.windows:
         for t in w.trades:
             assert w.window.test_start <= t.entry_ts <= w.window.test_end
+
+
+def test_breakeven_cost_returns_last_tier_before_pf_drops_below_one():
+    pf = {0.0: 1.30, 0.0025: 1.15, 0.0050: 1.02, 0.0060: 0.97, 0.0080: 0.90}
+    assert breakeven_cost(pf) == 0.0050
+
+
+def test_breakeven_cost_includes_a_tier_sitting_exactly_at_one():
+    pf = {0.0: 1.20, 0.0050: 1.00, 0.0060: 0.95}
+    assert breakeven_cost(pf) == 0.0050
+
+
+def test_breakeven_cost_returns_highest_tier_when_pf_never_drops_below_one():
+    pf = {0.0: 1.40, 0.0050: 1.25, 0.0080: 1.10}
+    assert breakeven_cost(pf) == 0.0080
+
+
+def test_breakeven_cost_is_none_when_there_is_no_gross_edge():
+    pf = {0.0: 0.95, 0.0050: 0.80}
+    assert breakeven_cost(pf) is None
+
+
+def test_breakeven_cost_takes_the_first_downward_crossing_not_a_later_rebound():
+    # A noisy curve that dips below 1.0 and pops back above it must not report
+    # the rebound tier - that would overstate the cost the signal survives.
+    pf = {0.0: 1.30, 0.0025: 1.10, 0.0050: 0.98, 0.0060: 1.04, 0.0080: 0.70}
+    assert breakeven_cost(pf) == 0.0025
+
+
+def test_breakeven_cost_of_an_empty_sweep_is_none():
+    assert breakeven_cost({}) is None
